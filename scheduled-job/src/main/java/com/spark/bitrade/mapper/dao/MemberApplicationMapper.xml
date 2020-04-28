@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.spark.bitrade.mapper.dao.MemberApplicationMapper">
+
+    <select id="getNoAuditList" resultType="com.spark.bitrade.entity.MemberApplicationForjob">
+      SELECT * FROM `member_application` ma where audit_status = 0 and ma.create_time >= now()-interval 3 minute;
+    </select>
+
+</mapper>

@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.spark.bitrade.mapper.dao.MemberMabatisMapper">
+
+    <select id="findOneByPhone"  resultType="com.spark.bitrade.entity.Member">
+        SELECT * from member m where m.mobile_phone = #{phone}
+    </select>
+    <select id="findByPhoneAndUserNameAndEmail"  resultType="com.spark.bitrade.entity.Member">
+        SELECT * FROM member m
+        <where>
+            m.username = #{username}
+            <if test="phone!=null and phone!=''">
+                or m.mobile_phone = #{phone}
+            </if>
+            <if test="email!=null and email!=''">
+                or m.email = #{email}
+            </if>
+        </where>
+        limit 1
+    </select>
+
+    <select id="countSingleTotal" parameterType="java.util.List" resultType="map">
+        SELECT m1.inviter_id,count(*)as inviter_count FROM member m1 WHERE m1.inviter_id IN
+        <foreach collection="list" index="index" item="item" open="(" separator="," close=")">
+            #{item.id}
+        </foreach> GROUP BY m1.inviter_id
+    </select>
+
+    <select id="findBy" parameterType="java.lang.String" resultType="com.spark.bitrade.vo.PromotionMemberVO">
+        SELECT * from member m
+            <if test="account!=null and account!=''">
+                <where>
+                    m.username LIKE CONCAT('%',#{account},'%')
+                    OR m.mobile_phone LIKE CONCAT('%',#{account},'%')
+                    OR m.id LIKE CONCAT('%',#{account},'%')
+                </where>
+            </if>
+    </select>
+
+    <select id="findAllBy" parameterType="java.lang.Object" resultType="com.spark.bitrade.vo.MemberVO">
+        SELECT id,username,email,mobile_phone ,member_level,real_name,registration_time,transaction_status,status FROM member
+            <where>
+                <if test="commonStatus!=null and commonStatus != ''">
+                    AND status=#{commonStatus}
+                </if>
+                <if test="account!=null and account!=''">
+                    and (username LIKE CONCAT('%',#{account},'%')
+                    OR id LIKE CONCAT('%',#{account},'%')
+                    OR email LIKE CONCAT(#{account},'%')
+                    OR mobile_phone LIKE CONCAT(#{account},'%')
+                    OR real_name LIKE CONCAT('%',#{account},'%')
+                    )
+                </if>
+            </where>
+        order by registration_time DESC
+    </select>
+
+    <select id="countOneInviteeByMemberId" resultType="java.lang.Integer">
+        SELECT count(1) from member m WHERE m.inviter_id = #{memberId}
+    </select>
+
+    <select id="findPromotionMemberList" resultType="com.spark.bitrade.dto.PromotionMemberDTO">
+        SELECT
+            m1.registration_time createTime, m1.username , 0 level, m1.id memberId
+        FROM
+            member m1
+        WHERE
+            m1.inviter_id = #{memberId}
+        UNION
+            SELECT
+                m2.registration_time createTime, m2.username ,1 level, m2.id memberId
+            FROM
+                member m2
+            WHERE
+                m2.inviter_id IN (
+                    SELECT
+                        id
+                    FROM
+                        member m1
+                    WHERE
+                        m1.inviter_id = #{memberId}
+                )
+            UNION
+                SELECT
+                    m3.registration_time createTime, m3.username,2 level, m3.id memberId
+                FROM
+                    member m3
+                WHERE
+                    m3.inviter_id IN (
+                        SELECT
+                            id
+                        FROM
+                            member m2
+                        WHERE
+                            m2.inviter_id IN (
+                                SELECT
+                                    id
+                                FROM
+                                    member m1
+                                WHERE
+                                    m1.inviter_id = #{memberId}
+                            )
+                    ) ORDER BY level ,createTime desc
+    </select>
+
+    <!-- 查询会员优惠规则 -->
+    <select id="findMemberDiscountRule" parameterType="java.lang.Long" resultType="com.spark.bitrade.entity.ExchangeMemberDiscountRule">
+
+        select * from exchange_member_discount_rule
+        <where>
+            <if test="memberId !=null and memberId > 0">
+                member_id = #{memberId}
+            </if>
+            <if test="symbol !=null and symbol !=''">
+                and symbol = #{symbol}
+            </if>
+        </where>
+
+    </select>
+
+    <!-- 查询会员是否存在某一币种的Exchange优惠规则 -->
+    <select id="countByMemberIdAndSymbol" parameterType="java.lang.Object" resultType="java.lang.Integer">
+        select count(id) from exchange_member_discount_rule where member_id =#{memberId} and symbol =#{symbol} ;
+    </select>
+
+    <insert id="insertDiscountRule" parameterType="java.util.Map">
+        insert into exchange_member_discount_rule(create_time,enable,fee_buy_discount,fee_sell_discount,member_id,note,symbol)
+          values(now(),#{enable},#{buyDiscount},#{sellDiscount},#{memberId},#{note},#{symbol})
+    </insert>
+
+    <update id="updateDiscountRule" parameterType="java.util.Map">
+        update exchange_member_discount_rule set enable = #{enable},fee_buy_discount = #{buyDiscount},fee_sell_discount = #{sellDiscount},note=#{note},symbol=#{symbol}
+          where id = #{id}
+    </update>
+
+    <!-- 获取会员安全设置信息 -->
+    <select id="findSecurityInfo" resultType="com.spark.bitrade.dto.MemberSecurityInfoDto" parameterType="java.lang.Long">
+        SELECT m.id,
+              m.wechat,
+              m.bank,
+              m.ali_no,
+              mp.epay_no,
+              m.jy_password,
+              m.mobile_phone,
+              m.email,
+              m.real_name_status,
+              m.certified_business_status,
+              mt.is_open_google_login,
+              mt.is_open_google_up_coin,
+              mt.is_open_phone_login,
+              mt.is_open_phone_up_coin,
+              mt.is_open_property_show
+        FROM `member` m
+         LEFT JOIN member_payment_account mp ON mp.member_id = m.id
+         LEFT JOIN member_security_set mt ON mt.member_id = m.id
+         WHERE m.id = #{memberId}
+    </select>
+</mapper>

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.spark.bitrade.mapper.dao.CoinTokenMapper">
+
+    <select id="queryCoinTokenList" parameterType="java.util.Map" resultType="com.spark.bitrade.vo.CoinTokenVo">
+        SELECT ct.id,ct.coin_unit,ct.base_cois_unit,ct.collection,ct.col_threshold,ct.col_address,
+		        ct.col_cycle,ct.col_cron,ct.contract_address,ct.coin_decimals,ct.coin_name,ct.`status`
+         FROM `coin_token` ct
+        <where>
+            <if test="coinUnit !=null and coinUnit !=''">
+               AND ct.coin_unit = #{coinUnit}
+            </if>
+            <if test="contractAddress !=null and contractAddress !=''">
+               AND ct.contract_address = #{contractAddress}
+            </if>
+            <if test="coinName !=null and coinName !=''">
+               AND  ct.coin_name = #{coinName}
+            </if>
+        </where>
+    </select>
+
+    <update id="updateById" parameterType="com.spark.bitrade.vo.CoinTokenVo">
+        update coin_token ct set
+            ct.coin_unit=#{coinUnit},
+            ct.base_cois_unit = #{baseCoisUnit},
+            ct.collection = #{collection},
+            ct.col_threshold = #{colThreshold},
+            ct.col_address = #{colAddress},
+		    ct.col_cycle = #{colCycle},
+		    ct.col_cron = #{colCron},
+		    ct.contract_address = #{contractAddress},
+		    ct.coin_decimals = #{coinDecimals},
+		    ct.coin_name = #{coinName},
+		    ct.`status` = #{status}
+           where ct.id = #{id}
+    </update>
+
+    <insert id="insertNew" parameterType="com.spark.bitrade.vo.CoinTokenVo">
+        insert into coin_token(coin_unit,base_cois_unit,collection,col_threshold,col_address,
+		      col_cycle,col_cron,contract_address,coin_decimals,coin_name,modify_date,`status`)
+		    values(
+		      #{coinUnit},
+		      #{baseCoisUnit},
+		      #{collection},
+		      #{colThreshold},
+		      #{colAddress},
+		      #{colCycle},
+		      #{colCron},
+		      #{contractAddress},
+		      #{coinDecimals},
+		      #{coinName},
+		      now(),
+		      #{status}
+		    )
+    </insert>
+
+    <delete id="deleteById" parameterType="java.lang.Long">
+        delete from coin_token where id = #{id}
+    </delete>
+</mapper>

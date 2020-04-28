@@ -1,0 +1,146 @@
+version: "2"
+services:
+  # 基础组件：kafka、Redis、MongoDB
+  kafka:
+    image: landoop/fast-data-dev:2.2.1
+    container_name: silktrader-kafka
+    restart: always
+    ports:
+      - 2181:2181
+      - 3030:3030
+      - 8081-8083:8081-8083
+      - 9581-9585:9581-9585
+      - 9092:9092
+    environment:
+      - ADV_HOST=127.0.0.1
+  mongo:
+    image: mongo:3.4.22-xenial
+    # https://hub.docker.com/_/mongo
+    hostname: mongodb
+    container_name: silktrader-mongodb
+    restart: always
+#    environment:
+#      MONGO_INITDB_ROOT_USERNAME: root
+#      MONGO_INITDB_ROOT_PASSWORD: example
+  mysql:
+    build: ./db
+    hostname: mysql
+    container_name: silktrader-mariadb
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_USER=bjxy_db
+      - MYSQL_PASSWORD=Credit2016Admin
+    ports:
+      - 3606:3306
+      # 防止与本地原有的MySQL端口冲突，改到3606
+  redis:
+    image: redis:5.0.5-alpine
+    hostname: redis
+    container_name: silktrader-redis
+    restart: always
+    ports:
+      - 6679:6379
+      # 防止本地端口冲突：6679
+  # 基础服务：Eureka注册中心，路由中心
+  eureka:
+    build: group-server/cloud-eureka-server
+    hostname: eureka
+    container_name: silktrader-eureka
+    restart: always
+    ports:
+      - 8761:8761
+  gateway:
+    build: group-server/gateway-api
+    hostname: gateway
+    container_name: silktrader-gateway
+    restart: always
+    ports:
+      - 6600:6600
+    depends_on:
+      - eureka
+      - redis
+
+  # 业务服务：币币交易
+  exchange:
+    build: exchange
+    hostname: exchange
+    container_name: silktrader-exchange
+    restart: always
+    ports:
+      - 6005:6005
+    depends_on:
+      - eureka
+      - redis
+      - mysql
+      - kafka
+  market:
+    build: market
+    hostname: market
+    container_name: silktrader-market
+    restart: always
+    ports:
+      - 6004:6004
+    depends_on:
+      - eureka
+      - redis
+      - mysql
+      - kafka
+
+  exchange-api:
+    build: exchange-api
+    hostname: exchange-api
+    container_name: silktrader-exchange-api
+    restart: always
+    ports:
+      - 6003:6003
+    depends_on:
+      - eureka
+      - redis
+      - mysql
+      - kafka
+
+  chat:
+    build: chat
+    hostname: chat
+    container_name: silktrader-chat
+    restart: always
+    ports:
+      - 6007:6007
+    depends_on:
+      - eureka
+      - redis
+      - mysql
+      - kafka
+
+  nginx:
+    build: dist
+    hostname: web
+    container_name: silktrader-dist
+    restart: always
+    ports:
+      - 9999:80
+    depends_on:
+      - exchange
+      - exchange-api
+      - market
+
+  # 基础公共服务：短信、邮件发送服务
+  sms:
+    build: group-server/sms-server
+    hostname: sms
+    container_name: silktrader-sms
+    restart: always
+    ports:
+      - 6999:6999
+    depends_on:
+      - eureka
+  email:
+    build: group-server/email-server
+    hostname: email
+    container_name: silktrader-email
+    restart: always
+    ports:
+      - 6888:6888
+    depends_on:
+      - eureka

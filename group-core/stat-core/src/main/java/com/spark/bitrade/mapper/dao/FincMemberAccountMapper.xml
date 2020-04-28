@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.spark.bitrade.mapper.dao.FincMemberAccountMapper">
+
+<!--auto generated Code-->
+    <resultMap id="AllColumnMap" type="com.spark.bitrade.entity.FincMemberAccount">
+        <result column="id" property="id"/>
+        <result column="member_id" property="memberId"/>
+        <result column="member_type" property="memberType"/>
+        <result column="type_remark" property="typeRemark"/>
+    </resultMap>
+
+<!--auto generated Code-->
+    <sql id="all_column">
+        id,
+        member_id,
+        member_type,
+        type_remark
+    </sql>
+
+<!--auto generated Code-->
+    <insert id="insert">
+        INSERT INTO finc_member_account
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="pojo.id != null"> id, </if>
+            <if test="pojo.memberId != null"> member_id, </if>
+            <if test="pojo.memberType != null"> member_type, </if>
+            <if test="pojo.typeRemark != null"> type_remark, </if>
+        </trim>
+        VALUES
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="pojo.id != null"> #{pojo.id}, </if>
+            <if test="pojo.memberId != null"> #{pojo.memberId}, </if>
+            <if test="pojo.memberType != null"> #{pojo.memberType}, </if>
+            <if test="pojo.typeRemark != null"> #{pojo.typeRemark}, </if>
+        </trim>
+    </insert>
+
+<!--auto generated Code-->
+    <insert id="insertList">
+        INSERT INTO finc_member_account(
+        <include refid="all_column"/>
+        )VALUES
+        <foreach collection="pojos" item="pojo" index="index" separator=",">
+            (
+            #{pojo.id},
+            #{pojo.memberId},
+            #{pojo.memberType},
+            #{pojo.typeRemark}
+            )
+        </foreach>
+    </insert>
+
+<!--auto generated Code-->
+    <update id="update">
+        UPDATE finc_member_account
+        <set>
+            <if test="pojo.id != null"> id = #{pojo.id}, </if>
+            <if test="pojo.memberId != null"> member_id = #{pojo.memberId}, </if>
+            <if test="pojo.memberType != null"> member_type = #{pojo.memberType}, </if>
+            <if test="pojo.typeRemark != null"> type_remark = #{pojo.typeRemark} </if>
+        </set>
+         WHERE id = #{pojo.id}
+    </update>
+
+<!--auto generated Code-->
+    <select id="select" resultMap="AllColumnMap">
+        SELECT <include refid="all_column"/>
+        FROM finc_member_account
+        <where>
+            <if test="pojo.id != null"> AND id = #{pojo.id} </if>
+            <if test="pojo.memberId != null"> AND member_id = #{pojo.memberId} </if>
+            <if test="pojo.memberType != null"> AND member_type = #{pojo.memberType} </if>
+            <if test="pojo.typeRemark != null"> AND type_remark = #{pojo.typeRemark} </if>
+        </where>
+        LIMIT 1000 
+    </select>
+
+<!--auto generated Code-->
+    <delete id="delete">
+        DELETE FROM finc_member_account where id = #{pojo.id}
+    </delete>
+
+    <select id="findByType" parameterType="java.lang.Integer" resultType="com.spark.bitrade.entity.FincMemberAccount">
+        SELECT * FROM finc_member_account WHERE member_type = #{memberType}
+    </select>
+</mapper>

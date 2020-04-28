@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.spark.bitrade.mapper.dao.OtcOrderMapper">
+
+    <select id="findTodayAllCancel"  resultType="java.lang.Integer">
+        SELECT COUNT(1) from otc_order o where o.`status` = 0 and customer_id = #{customerId} and create_time >= #{limitTime}
+    </select>
+
+    <select id="findCountByMembers" resultType="map">
+        SELECT member_id, count(*) AS count FROM otc_order WHERE (`status` = 1 OR `status` = 2)
+        <foreach collection="memberIds" open="AND member_id IN(" close=")" separator="," item="id">
+            #{id}
+        </foreach>
+        GROUP BY member_id ORDER BY count DESC
+    </select>
+
+    <select id="selectCountByMembersAnd48" resultType="map">
+        SELECT member_id, count(*) AS count, SUM(money) AS _money FROM otc_order WHERE (`status` = 3 or (`status` = 5 and release_time is not null))
+        <foreach collection="memberIds" open="AND member_id IN(" close=")" separator="," item="id">
+            #{id}
+        </foreach>
+        AND create_time >= #{date}
+        AND advertise_type = #{type} GROUP BY member_id ORDER BY count ASC, _money ASC
+    </select>
+
+    <select id="findOrderBy" parameterType="java.lang.Object" resultType="com.spark.bitrade.vo.MyOrderVO">
+        select o.id,o.order_sn, o.create_time , o.advertise_type, c.unit, o.price, o.number amount, o.currency_id,o.money, o.status, o.pay_code, o.country countryName, o.is_manual_cancel
+            , case
+                when o.advertise_type=0 and o.member_id=#{memberId}  then 0   <!-- 广告类型为买，用户ID与广告发布者相同，显示为买类型 -->
+                when o.advertise_type=1 and o.customer_id=#{memberId} then 0  <!--  广告类型为卖，用户ID与消费者相同，显示为买类型 -->
+                else 1 end type
+            ,case
+                when c.unit	= 'USDC' AND o.member_id=#{memberId}  AND o.advertise_type=0 then o.commission
+                when c.unit = 'USDC' AND o.customer_id=#{memberId} then o.commission
+                when o.member_id=#{memberId} AND c.unit	!= 'USDC' then o.commission
+                else 0.0 end commission
+            ,case
+                when o.member_id=#{memberId} then o.customer_name
+                else o.member_name end name
+            ,case
+                when o.member_id=#{memberId} then o.member_id
+                else o.customer_id end member_id
+
+        from otc_order o left join otc_coin c on c.id = o.coin_id
+        <where>
+            <if test="type == -1">
+                (o.member_id=#{memberId} or o.customer_id=#{memberId})
+            </if>
+            <if test="type > -1">
+                ((o.member_id=#{memberId} and advertise_type =#{type}) or (o.customer_id=#{memberId} and advertise_type <![CDATA[  <> ]]> #{type} ))
+            </if>
+            <if test="unit!=null and unit!=''">
+                and c.unit=#{unit}
+            </if>
+            <if test="orderSn!=null and orderSn!=''">
+                and o.order_sn = #{orderSn}
+            </if>
+            <if test="status != null and status >-1">
+                and o.status = #{status}
+            </if>
+            <if test="money != null">
+                and o.money = #{money}
+            </if>
+            and order_source_type!=88888888
+        </where>
+        order by o.id desc
+    </select>
+
+    <select id="findRecordByUidAndAppId" parameterType="java.lang.Object" resultType="com.spark.bitrade.vo.OtcOrderVO">
+       SELECT * from otc_order o
+       where
+           o.customer_id = #{memberId}
+        <if test="appId != null and appId !=''">
+            and order_source_type=#{appId}
+        </if>
+        <if test="coinId != null and coinId >-1">
+            and coin_id =#{coinId}
+        </if>
+
+        <if test="startTime!=null and startTime!='' ">
+            and create_time <![CDATA[>=]]> #{startTime}
+        </if>
+
+        <if test="endTime!=null and endTime!='' ">
+            and create_time <![CDATA[<]]> #{endTime}
+        </if>
+        order by create_time desc
+    </select>
+</mapper>

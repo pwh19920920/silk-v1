@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>商家需要提交的数据</title>
+    <script type="text/javascript" src="http://172.16.0.60:6014/pay/jquery.min.js"></script>
+</head>
+<body>
+    <button onclick="submit()">提交</button>
+</body>
+<script>
+    function submit() {
+        var url = "";
+        var para = {
+            "aa":sdf,
+        }
+        $.post(url,para,function (data) {
+            $("html").html(data);
+        });
+    }
+</script>
+</html>

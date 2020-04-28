@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.spark.bitrade.mapper.dao.PaySupportCoinConfigMapper">
+
+<!--auto generated Code
+    <resultMap id="AllColumnMap" type="com.spark.bitrade.entity.PaySupportCoinConfig">
+        <result column="id" property="id"/>
+        <result column="unit" property="unit"/>
+        <result column="address" property="address"/>
+        <result column="status" property="status"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="is_rapid_transfer" property="isRapidTransfer"/>
+        <result column="is_asset_transfer" property="isAssetTransfer"/>
+        <result column="is_rapid_asset_transfer" property="isRapidAssetTransfer"/>
+        <result column="asset_transfer_fee" property="assetTransferFee"/>
+        <result column="asset_transfer_rapid_fee" property="assetTransferRapidFee"/>
+        <result column="is_s_l_b_wallet_show" property="isSLBWalletShow"/>
+        <result column="is_cloud_wallet_show" property="isCloudWalletShow"/>
+        <result column="is_s_t_wallet_show" property="isSTWalletShow"/>
+    </resultMap>
+-->
+<!--auto generated Code
+    <sql id="all_column">
+        id,
+        unit,
+        address,
+        status,
+        create_time,
+        update_time,
+        is_rapid_transfer,
+        is_asset_transfer,
+        is_rapid_asset_transfer,
+        asset_transfer_fee,
+        asset_transfer_rapid_fee,
+        is_s_l_b_wallet_show,
+        is_cloud_wallet_show,
+        is_s_t_wallet_show
+    </sql>
+-->
+<!--auto generated Code
+    <insert id="insert">
+        INSERT INTO pay_support_coin_config
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="pojo.id != null"> id, </if>
+            <if test="pojo.unit != null"> unit, </if>
+            <if test="pojo.address != null"> address, </if>
+            <if test="pojo.status != null"> status, </if>
+            <if test="pojo.createTime != null"> create_time, </if>
+            <if test="pojo.updateTime != null"> update_time, </if>
+            <if test="pojo.isRapidTransfer != null"> is_rapid_transfer, </if>
+            <if test="pojo.isAssetTransfer != null"> is_asset_transfer, </if>
+            <if test="pojo.isRapidAssetTransfer != null"> is_rapid_asset_transfer, </if>
+            <if test="pojo.assetTransferFee != null"> asset_transfer_fee, </if>
+            <if test="pojo.assetTransferRapidFee != null"> asset_transfer_rapid_fee, </if>
+            <if test="pojo.isSLBWalletShow != null"> is_s_l_b_wallet_show, </if>
+            <if test="pojo.isCloudWalletShow != null"> is_cloud_wallet_show, </if>
+            <if test="pojo.isSTWalletShow != null"> is_s_t_wallet_show, </if>
+        </trim>
+        VALUES
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="pojo.id != null"> #{pojo.id}, </if>
+            <if test="pojo.unit != null"> #{pojo.unit}, </if>
+            <if test="pojo.address != null"> #{pojo.address}, </if>
+            <if test="pojo.status != null"> #{pojo.status}, </if>
+            <if test="pojo.createTime != null"> #{pojo.createTime}, </if>
+            <if test="pojo.updateTime != null"> #{pojo.updateTime}, </if>
+            <if test="pojo.isRapidTransfer != null"> #{pojo.isRapidTransfer}, </if>
+            <if test="pojo.isAssetTransfer != null"> #{pojo.isAssetTransfer}, </if>
+            <if test="pojo.isRapidAssetTransfer != null"> #{pojo.isRapidAssetTransfer}, </if>
+            <if test="pojo.assetTransferFee != null"> #{pojo.assetTransferFee}, </if>
+            <if test="pojo.assetTransferRapidFee != null"> #{pojo.assetTransferRapidFee}, </if>
+            <if test="pojo.isSLBWalletShow != null"> #{pojo.isSLBWalletShow}, </if>
+            <if test="pojo.isCloudWalletShow != null"> #{pojo.isCloudWalletShow}, </if>
+            <if test="pojo.isSTWalletShow != null"> #{pojo.isSTWalletShow}, </if>
+        </trim>
+    </insert>
+-->
+<!--auto generated Code
+    <insert id="insertList">
+        INSERT INTO pay_support_coin_config(
+        <include refid="all_column"/>
+        )VALUES
+        <foreach collection="pojos" item="pojo" index="index" separator=",">
+            (
+            #{pojo.id},
+            #{pojo.unit},
+            #{pojo.address},
+            #{pojo.status},
+            #{pojo.createTime},
+            #{pojo.updateTime},
+            #{pojo.isRapidTransfer},
+            #{pojo.isAssetTransfer},
+            #{pojo.isRapidAssetTransfer},
+            #{pojo.assetTransferFee},
+            #{pojo.assetTransferRapidFee},
+            #{pojo.isSLBWalletShow},
+            #{pojo.isCloudWalletShow},
+            #{pojo.isSTWalletShow}
+            )
+        </foreach>
+    </insert>
+-->
+<!--auto generated Code
+    <update id="update">
+        UPDATE pay_support_coin_config
+        <set>
+            <if test="pojo.id != null"> id = #{pojo.id}, </if>
+            <if test="pojo.unit != null"> unit = #{pojo.unit}, </if>
+            <if test="pojo.address != null"> address = #{pojo.address}, </if>
+            <if test="pojo.status != null"> status = #{pojo.status}, </if>
+            <if test="pojo.createTime != null"> create_time = #{pojo.createTime}, </if>
+            <if test="pojo.isRapidTransfer != null"> is_rapid_transfer = #{pojo.isRapidTransfer}, </if>
+            <if test="pojo.isAssetTransfer != null"> is_asset_transfer = #{pojo.isAssetTransfer}, </if>
+            <if test="pojo.isRapidAssetTransfer != null"> is_rapid_asset_transfer = #{pojo.isRapidAssetTransfer}, </if>
+            <if test="pojo.assetTransferFee != null"> asset_transfer_fee = #{pojo.assetTransferFee}, </if>
+            <if test="pojo.assetTransferRapidFee != null"> asset_transfer_rapid_fee = #{pojo.assetTransferRapidFee}, </if>
+            <if test="pojo.isSLBWalletShow != null"> is_s_l_b_wallet_show = #{pojo.isSLBWalletShow}, </if>
+            <if test="pojo.isCloudWalletShow != null"> is_cloud_wallet_show = #{pojo.isCloudWalletShow}, </if>
+            <if test="pojo.isSTWalletShow != null"> is_s_t_wallet_show = #{pojo.isSTWalletShow}, </if>
+        </set>
+         WHERE id = #{pojo.id}
+    </update>
+-->
+<!--auto generated Code
+    <select id="select" resultMap="AllColumnMap">
+        SELECT <include refid="all_column"/>
+        FROM pay_support_coin_config
+        <where>
+            <if test="pojo.id != null"> AND id = #{pojo.id} </if>
+            <if test="pojo.unit != null"> AND unit = #{pojo.unit} </if>
+            <if test="pojo.address != null"> AND address = #{pojo.address} </if>
+            <if test="pojo.status != null"> AND status = #{pojo.status} </if>
+            <if test="pojo.createTime != null"> AND create_time = #{pojo.createTime} </if>
+            <if test="pojo.updateTime != null"> AND update_time = #{pojo.updateTime} </if>
+            <if test="pojo.isRapidTransfer != null"> AND is_rapid_transfer = #{pojo.isRapidTransfer} </if>
+            <if test="pojo.isAssetTransfer != null"> AND is_asset_transfer = #{pojo.isAssetTransfer} </if>
+            <if test="pojo.isRapidAssetTransfer != null"> AND is_rapid_asset_transfer = #{pojo.isRapidAssetTransfer} </if>
+            <if test="pojo.assetTransferFee != null"> AND asset_transfer_fee = #{pojo.assetTransferFee} </if>
+            <if test="pojo.assetTransferRapidFee != null"> AND asset_transfer_rapid_fee = #{pojo.assetTransferRapidFee} </if>
+            <if test="pojo.isSLBWalletShow != null"> AND is_s_l_b_wallet_show = #{pojo.isSLBWalletShow} </if>
+            <if test="pojo.isCloudWalletShow != null"> AND is_cloud_wallet_show = #{pojo.isCloudWalletShow} </if>
+            <if test="pojo.isSTWalletShow != null"> AND is_s_t_wallet_show = #{pojo.isSTWalletShow} </if>
+        </where>
+        LIMIT 1000 
+    </select>-->
+
+<!--auto generated Code
+    <delete id="delete">
+        DELETE FROM pay_support_coin_config where id = #{pojo.id}
+    </delete>
+    -->
+    <select id="findAccountByValidCoinAndAppIdOrderByRankDesc" parameterType="java.lang.Object" resultType="com.spark.bitrade.dto.PayAccountVo">
+        SELECT c.unit, w.member_id memberId, IFNULL(w.balance ,0) balance,
+                IFNULL(w.frozen_balance ,0) frozenBalance, IFNULL(w.lock_balance ,0) lockBalance , w.address
+        FROM coin c
+        LEFT JOIN member_wallet w ON w.coin_id = c.name and w.member_id = #{memberId}
+        LEFT JOIN (select unit,rank from pay_support_coin_config where status = 1 and app_id = #{appId} order by rank desc) s ON s.unit = c.unit
+        WHERE c.unit IN (s.unit)  ORDER BY s.rank DESC
+
+    </select>
+
+    <select id="findAllByStatusAndAppIdOrderByRankDesc" parameterType="java.lang.Object" resultType="com.spark.bitrade.entity.PaySupportCoinConfig">
+        SELECT * FROM pay_support_coin_config WHERE `status` = #{status} AND app_id = #{appId} ORDER BY rank DESC
+    </select>
+</mapper>

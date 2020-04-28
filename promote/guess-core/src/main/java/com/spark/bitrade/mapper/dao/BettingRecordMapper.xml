@@ -1,0 +1,259 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.spark.bitrade.mapper.dao.BettingRecordMapper" >
+  <resultMap id="BaseResultMap" type="com.spark.bitrade.entity.BettingRecord" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="period_id" property="periodId" jdbcType="BIGINT" />
+    <result column="bet_time" property="betTime" jdbcType="TIMESTAMP" />
+    <result column="bet_symbol" property="betSymbol" jdbcType="VARCHAR" />
+    <result column="bet_num" property="betNum" jdbcType="DECIMAL" />
+    <result column="range_id" property="rangeId" jdbcType="BIGINT" />
+    <result column="guess_symbol" property="guessSymbol" jdbcType="VARCHAR" />
+    <result column="use_sms" property="useSms" jdbcType="BIT" />
+    <result column="member_id" property="memberId" jdbcType="BIGINT" />
+    <result column="promotion_code" property="promotionCode" jdbcType="VARCHAR" />
+    <result column="status" property="status" jdbcType="BIT" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, period_id, bet_time, bet_symbol, bet_num, range_id, guess_symbol, use_sms, member_id, 
+    promotion_code, status
+  </sql>
+  <select id="selectByPrimaryKey" resultType="com.spark.bitrade.entity.BettingRecord" parameterType="java.lang.Long" >
+    select 
+    *
+    from pg_betting_record
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from pg_betting_record
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.spark.bitrade.entity.BettingRecord" >
+    insert into pg_betting_record (id, period_id, bet_time, 
+      bet_symbol, bet_num, range_id, 
+      guess_symbol, use_sms, member_id, 
+      promotion_code, status)
+    values (#{id,jdbcType=BIGINT}, #{periodId,jdbcType=BIGINT}, #{betTime,jdbcType=TIMESTAMP}, 
+      #{betSymbol,jdbcType=VARCHAR}, #{betNum,jdbcType=DECIMAL}, #{rangeId,jdbcType=BIGINT}, 
+      #{guessSymbol,jdbcType=VARCHAR}, #{useSms,jdbcType=BIT}, #{memberId,jdbcType=BIGINT}, 
+      #{promotionCode,jdbcType=VARCHAR}, #{status,jdbcType=BIT})
+  </insert>
+  <insert id="insertSelective" parameterType="com.spark.bitrade.entity.BettingRecord" >
+    insert into pg_betting_record
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="periodId != null" >
+        period_id,
+      </if>
+      <if test="betTime != null" >
+        bet_time,
+      </if>
+      <if test="betSymbol != null" >
+        bet_symbol,
+      </if>
+      <if test="betNum != null" >
+        bet_num,
+      </if>
+      <if test="rangeId != null" >
+        range_id,
+      </if>
+      <if test="guessSymbol != null" >
+        guess_symbol,
+      </if>
+      <if test="useSms != null" >
+        use_sms,
+      </if>
+      <if test="memberId != null" >
+        member_id,
+      </if>
+      <if test="promotionCode != null" >
+        promotion_code,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="periodId != null" >
+        #{periodId,jdbcType=BIGINT},
+      </if>
+      <if test="betTime != null" >
+        #{betTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="betSymbol != null" >
+        #{betSymbol,jdbcType=VARCHAR},
+      </if>
+      <if test="betNum != null" >
+        #{betNum,jdbcType=DECIMAL},
+      </if>
+      <if test="rangeId != null" >
+        #{rangeId,jdbcType=BIGINT},
+      </if>
+      <if test="guessSymbol != null" >
+        #{guessSymbol,jdbcType=VARCHAR},
+      </if>
+      <if test="useSms != null" >
+        #{useSms,jdbcType=BIT},
+      </if>
+      <if test="memberId != null" >
+        #{memberId,jdbcType=BIGINT},
+      </if>
+      <if test="promotionCode != null" >
+        #{promotionCode,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=BIT},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.spark.bitrade.entity.BettingRecord" >
+    update pg_betting_record
+    <set >
+      <if test="periodId != null" >
+        period_id = #{periodId,jdbcType=BIGINT},
+      </if>
+      <if test="betTime != null" >
+        bet_time = #{betTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="betSymbol != null" >
+        bet_symbol = #{betSymbol,jdbcType=VARCHAR},
+      </if>
+      <if test="betNum != null" >
+        bet_num = #{betNum,jdbcType=DECIMAL},
+      </if>
+      <if test="rangeId != null" >
+        range_id = #{rangeId,jdbcType=BIGINT},
+      </if>
+      <if test="guessSymbol != null" >
+        guess_symbol = #{guessSymbol,jdbcType=VARCHAR},
+      </if>
+      <if test="useSms != null" >
+        use_sms = #{useSms,jdbcType=BIT},
+      </if>
+      <if test="memberId != null" >
+        member_id = #{memberId,jdbcType=BIGINT},
+      </if>
+      <if test="promotionCode != null" >
+        promotion_code = #{promotionCode,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=BIT},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.spark.bitrade.entity.BettingRecord" >
+    update pg_betting_record
+    set period_id = #{periodId,jdbcType=BIGINT},
+      bet_time = #{betTime,jdbcType=TIMESTAMP},
+      bet_symbol = #{betSymbol,jdbcType=VARCHAR},
+      bet_num = #{betNum,jdbcType=DECIMAL},
+      range_id = #{rangeId,jdbcType=BIGINT},
+      guess_symbol = #{guessSymbol,jdbcType=VARCHAR},
+      use_sms = #{useSms,jdbcType=BIT},
+      member_id = #{memberId,jdbcType=BIGINT},
+      promotion_code = #{promotionCode,jdbcType=VARCHAR},
+      status = #{status,jdbcType=BIT}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+
+  <!-- 根据活动期数ID查询投注记录 -->
+  <select id="queryByPeriodId" parameterType="java.lang.Long" resultType="com.spark.bitrade.entity.BettingRecord">
+    SELECT
+      br.*, bpr.begin_range,
+      bpr.end_range
+    FROM
+      pg_betting_record br
+      LEFT JOIN pg_betting_price_range bpr ON bpr.id = br.range_id
+    <where>
+      br.period_id=#{periodId}
+      <if test="memberId !=null and memberId > 0">
+        and br.member_id=#{memberId}
+      </if>
+    </where>
+  </select>
+
+
+  <select id="pageQueryByMemberId" resultType="com.spark.bitrade.dto.BettingRecordDTO">
+   SELECT
+      a.*, b.`status` rewardStatus,
+      b.reward_num,
+      b.symbol
+  FROM
+      (
+          SELECT
+              br.id,
+              br.period_id,
+              bc.period,
+              bc.begin_time,
+              bc.end_time,
+              br.bet_time,
+              br.bet_symbol,
+              br.bet_num,
+              br.range_id,
+              bpr.begin_range,
+              bpr.end_range,
+              br.guess_symbol,
+              br.use_sms,
+              br.`status`
+          FROM
+              pg_betting_record br
+          LEFT JOIN pg_betting_config bc ON br.period_id = bc.id
+          LEFT JOIN pg_betting_price_range bpr ON br.range_id = bpr.id
+          LEFT JOIN pg_jackpot pj ON br.range_id = pj.range_id
+          WHERE
+              br.member_id = #{memberId}
+      ) a
+  LEFT JOIN (
+      SELECT
+          pr.reward_num,
+          pr.`status`,
+          pr.symbol,
+          pr.ref_id
+      FROM
+          pg_reward pr
+      WHERE
+          pr.member_id = #{memberId}
+      AND pr.business_type = 0
+  ) b ON a.id = b.ref_id
+  GROUP BY
+      a.id
+  ORDER BY
+      a.bet_time DESC
+  </select>
+
+  <!-- add by yangch ：计算投注总额 -->
+  <select id="queryBetTotal" resultType="java.math.BigDecimal">
+    select sum(bet_num) sm from pg_betting_record br where br.period_id=#{periodId}
+  </select>
+  <!-- add by yangch ：按价格区间计算投注总额 -->
+  <select id="queryBetTotalByPriceRange" resultType="java.math.BigDecimal">
+    select sum(bet_num) sm from pg_betting_record br where br.period_id=#{periodId} and br.range_id=#{rangeId}
+  </select>
+
+  <!-- add by yangch ：获取指定周期的投注用户 -->
+  <select id="queryBettingUserByPeriodId" resultType="java.lang.String">
+    select member_id from pg_betting_record where period_id=#{periodId} group by member_id
+  </select>
+
+  <!-- add by yangch ：获取指定周期中有推荐邀请关系投注记录 -->
+  <select id="queryInviterBettingRecordByPeriodId" resultType="com.spark.bitrade.entity.BettingRecord">
+    select pbr.*,m.inviter_id from pg_betting_record pbr
+    inner join member m on pbr.member_id = m.id
+    where pbr.period_id=#{periodId}
+     and m.inviter_id is not null
+  </select>
+
+  <!-- 查询投注人数(重复投注只算一次) -->
+  <select id="findBetCount" resultType="java.lang.Integer" parameterType="map">
+    <![CDATA[
+      SELECT COUNT(DISTINCT member_id) as betNum from pg_betting_record where period_id=#{id}
+     ]]>
+  </select>
+
+</mapper>

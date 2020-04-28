@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.spark.bitrade.mapper.dao.PayWalletMemberTransferRecordMapper">
+
+<!--auto generated Code-->
+    <resultMap id="AllColumnMap" type="com.spark.bitrade.entity.PayWalletMemberTransferRecord">
+        <result column="id" property="id"/>
+        <result column="member_id" property="memberId"/>
+        <result column="member_wallet_id" property="memberWalletId"/>
+        <result column="into_address" property="intoAddress"/>
+        <result column="into_address_tag" property="intoAddressTag"/>
+        <result column="out_address" property="outAddress"/>
+        <result column="out_address_tag" property="outAddressTag"/>
+        <result column="txid" property="txid"/>
+        <result column="amount" property="amount"/>
+        <result column="unit" property="unit"/>
+        <result column="fee" property="fee"/>
+        <result column="discounts_fee" property="discountsFee"/>
+        <result column="type" property="type"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="status" property="status"/>
+    </resultMap>
+
+<!--auto generated Code-->
+    <sql id="all_column">
+        id,
+        member_id,
+        member_wallet_id,
+        into_address,
+        into_address_tag,
+        out_address,
+        out_address_tag,
+        txid,
+        amount,
+        unit,
+        fee,
+        discounts_fee,
+        type,
+        create_time,
+        update_time,
+        status
+    </sql>
+
+<!--auto generated Code-->
+    <insert id="insert">
+        INSERT INTO pay_wallet_member_transfer_record
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="pojo.id != null"> id, </if>
+            <if test="pojo.memberId != null"> member_id, </if>
+            <if test="pojo.memberWalletId != null"> member_wallet_id, </if>
+            <if test="pojo.intoAddress != null"> into_address, </if>
+            <if test="pojo.intoAddressTag != null"> into_address_tag, </if>
+            <if test="pojo.outAddress != null"> out_address, </if>
+            <if test="pojo.outAddressTag != null"> out_address_tag, </if>
+            <if test="pojo.txid != null"> txid, </if>
+            <if test="pojo.amount != null"> amount, </if>
+            <if test="pojo.unit != null"> unit, </if>
+            <if test="pojo.fee != null"> fee, </if>
+            <if test="pojo.discountsFee != null"> discounts_fee, </if>
+            <if test="pojo.type != null"> type, </if>
+            <if test="pojo.createTime != null"> create_time, </if>
+            <if test="pojo.updateTime != null"> update_time, </if>
+            <if test="pojo.status != null"> status, </if>
+        </trim>
+        VALUES
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="pojo.id != null"> #{pojo.id}, </if>
+            <if test="pojo.memberId != null"> #{pojo.memberId}, </if>
+            <if test="pojo.memberWalletId != null"> #{pojo.memberWalletId}, </if>
+            <if test="pojo.intoAddress != null"> #{pojo.intoAddress}, </if>
+            <if test="pojo.intoAddressTag != null"> #{pojo.intoAddressTag}, </if>
+            <if test="pojo.outAddress != null"> #{pojo.outAddress}, </if>
+            <if test="pojo.outAddressTag != null"> #{pojo.outAddressTag}, </if>
+            <if test="pojo.txid != null"> #{pojo.txid}, </if>
+            <if test="pojo.amount != null"> #{pojo.amount}, </if>
+            <if test="pojo.unit != null"> #{pojo.unit}, </if>
+            <if test="pojo.fee != null"> #{pojo.fee}, </if>
+            <if test="pojo.discountsFee != null"> #{pojo.discountsFee}, </if>
+            <if test="pojo.type != null"> #{pojo.type}, </if>
+            <if test="pojo.createTime != null"> #{pojo.createTime}, </if>
+            <if test="pojo.updateTime != null"> #{pojo.updateTime}, </if>
+            <if test="pojo.status != null"> #{pojo.status}, </if>
+        </trim>
+    </insert>
+
+<!--auto generated Code-->
+    <insert id="insertList">
+        INSERT INTO pay_wallet_member_transfer_record(
+        <include refid="all_column"/>
+        )VALUES
+        <foreach collection="pojos" item="pojo" index="index" separator=",">
+            (
+            #{pojo.id},
+            #{pojo.memberId},
+            #{pojo.memberWalletId},
+            #{pojo.intoAddress},
+            #{pojo.intoAddressTag},
+            #{pojo.outAddress},
+            #{pojo.outAddressTag},
+            #{pojo.txid},
+            #{pojo.amount},
+            #{pojo.unit},
+            #{pojo.fee},
+            #{pojo.discountsFee},
+            #{pojo.type},
+            #{pojo.createTime},
+            #{pojo.updateTime},
+            #{pojo.status}
+            )
+        </foreach>
+    </insert>
+
+<!--auto generated Code-->
+    <update id="update">
+        UPDATE pay_wallet_member_transfer_record
+        <set>
+            <if test="pojo.id != null"> id = #{pojo.id}, </if>
+            <if test="pojo.memberId != null"> member_id = #{pojo.memberId}, </if>
+            <if test="pojo.memberWalletId != null"> member_wallet_id = #{pojo.memberWalletId}, </if>
+            <if test="pojo.intoAddress != null"> into_address = #{pojo.intoAddress}, </if>
+            <if test="pojo.intoAddressTag != null"> into_address_tag = #{pojo.intoAddressTag}, </if>
+            <if test="pojo.outAddress != null"> out_address = #{pojo.outAddress}, </if>
+            <if test="pojo.outAddressTag != null"> out_address_tag = #{pojo.outAddressTag}, </if>
+            <if test="pojo.txid != null"> txid = #{pojo.txid}, </if>
+            <if test="pojo.amount != null"> amount = #{pojo.amount}, </if>
+            <if test="pojo.unit != null"> unit = #{pojo.unit}, </if>
+            <if test="pojo.fee != null"> fee = #{pojo.fee}, </if>
+            <if test="pojo.discountsFee != null"> discounts_fee = #{pojo.discountsFee}, </if>
+            <if test="pojo.type != null"> type = #{pojo.type}, </if>
+            <if test="pojo.createTime != null"> create_time = #{pojo.createTime}, </if>
+            <if test="pojo.status != null"> status = #{pojo.status}, </if>
+        </set>
+         WHERE id = #{pojo.id}
+    </update>
+
+<!--auto generated Code-->
+    <select id="select" resultMap="AllColumnMap">
+        SELECT <include refid="all_column"/>
+        FROM pay_wallet_member_transfer_record
+        <where>
+            <if test="pojo.id != null"> AND id = #{pojo.id} </if>
+            <if test="pojo.memberId != null"> AND member_id = #{pojo.memberId} </if>
+            <if test="pojo.memberWalletId != null"> AND member_wallet_id = #{pojo.memberWalletId} </if>
+            <if test="pojo.intoAddress != null"> AND into_address = #{pojo.intoAddress} </if>
+            <if test="pojo.intoAddressTag != null"> AND into_address_tag = #{pojo.intoAddressTag} </if>
+            <if test="pojo.outAddress != null"> AND out_address = #{pojo.outAddress} </if>
+            <if test="pojo.outAddressTag != null"> AND out_address_tag = #{pojo.outAddressTag} </if>
+            <if test="pojo.txid != null"> AND txid = #{pojo.txid} </if>
+            <if test="pojo.amount != null"> AND amount = #{pojo.amount} </if>
+            <if test="pojo.unit != null"> AND unit = #{pojo.unit} </if>
+            <if test="pojo.fee != null"> AND fee = #{pojo.fee} </if>
+            <if test="pojo.discountsFee != null"> AND discounts_fee = #{pojo.discountsFee} </if>
+            <if test="pojo.type != null"> AND type = #{pojo.type} </if>
+            <if test="pojo.createTime != null"> AND create_time = #{pojo.createTime} </if>
+            <if test="pojo.updateTime != null"> AND update_time = #{pojo.updateTime} </if>
+            <if test="pojo.status != null"> AND status = #{pojo.status} </if>
+        </where>
+        LIMIT 1000 
+    </select>
+
+<!--auto generated Code-->
+    <delete id="delete">
+        DELETE FROM pay_wallet_member_transfer_record where id = #{pojo.id}
+    </delete>
+</mapper>

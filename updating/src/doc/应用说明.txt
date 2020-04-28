@@ -1,0 +1,15 @@
+提供升级切换的updating.jar包
+ 1）升级包 在测试环境放到了 前端的nginx服务上（修改了sb的启动命令，保持和其它启动服务器的jar命令一样）
+ 2）nginx的 前端访问域名添加如果规则
+	location /updating {
+		client_max_body_size    10m;
+		proxy_pass http://192.168.1.245:6011;
+		proxy_set_header Host $host;
+		proxy_set_header X-Real-IP $remote_addr;
+	}
+ 3）测试环境访问接口：
+	http://www.400.pro/updating/stat		获取升级状态（缓存的状态，不实时从数据库中获取）：1=升级，0=正常
+	http://www.400.pro/updating/			获取升级的页面内容，也内容中参数的替换规则：开始时间用“${starttime}”参数替换，结束时间用“${endtime}”参数替换
+	http://www.400.pro/updating/nowStat		刷新升级的状态（实时从数据库中获取，更改数据库中updating表后可以手工调用该地址获取最新的升级状态）
+	http://www.400.pro/updating/healthy		升级模块的健康状态检查接口
+	http://www.400.pro/updating/api

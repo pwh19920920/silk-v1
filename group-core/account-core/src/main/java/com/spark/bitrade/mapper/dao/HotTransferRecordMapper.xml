@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.spark.bitrade.mapper.dao.HotTransferRecordMapper">
+
+    <select id="findAllBy" parameterType="java.lang.String" resultType="com.spark.bitrade.entity.HotTransferRecord">
+        SELECT h.id,h.unit,h.transfer_time,h.amount,h.balance,h.miner_fee,a.username adminName,h.cold_address,h.transaction_number
+        FROM hot_transfer_record h LEFT JOIN admin a ON h.admin_id=a.id
+        <where>
+            <if test="adminName!=null and adminName!=''">
+                AND a.username LIKE CONCAT('%',#{adminName},'%')
+            </if>
+            <if test="coldAddress!=null and coldAddress!=''">
+                AND h.cold_address=#{coldAddress}
+            </if>
+            <if test="unit!=null and unit!=''">
+                AND h.unit=#{unit}
+            </if>
+        </where>
+        ORDER BY h.id DESC
+    </select>
+
+
+
+
+</mapper>

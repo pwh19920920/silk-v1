@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.spark.bitrade.mapper.dao.QuantifyLockReWardMapper">
+
+    <select id="getByMemberId" parameterType="java.lang.Long" resultType="com.spark.bitrade.entity.QuantifyLockReWard">
+        SELECT * FROM  quantify_lock_re_ward where member_id = #{memberId}
+    </select>
+
+
+    <select id="getByPage" parameterType="java.lang.Long" resultType="com.spark.bitrade.entity.QuantifyLockReWard">
+        SELECT * FROM  quantify_lock_re_ward
+        <where>
+            <if test="memberId !=null and memberId >0">
+              member_id = #{memberId}
+            </if>
+        </where>
+    </select>
+
+    <insert id="insertVip" useGeneratedKeys="true" keyProperty="id" parameterType="java.util.Map">
+        insert into quantify_lock_re_ward(member_id,status,create_time) values(#{memberId},#{status},#{createTime})
+    </insert>
+</mapper>

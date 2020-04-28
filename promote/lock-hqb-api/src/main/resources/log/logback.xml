@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="true">
+    <property resource="log/logback.properties" />
+
+    <!--格式化输出：%d表示日期，%thread表示线程名，%-5level：级别从左显示5个字符宽度%msg：日志消息，%n是换行符 -->
+    <property scope="context" name="CONSOLE_PATTERN"
+              value='%d{yyyy-MM-dd HH:mm:ss.SSS} %level -[%thread] --- %C{36}\:%M:%L - %msg %ex{full}%n'/>
+
+    <!-- 控制台日志配置 -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <charset>${logback.charset}</charset>
+            <!-- 格式化 -->
+            <!--<pattern>%d{yyyy-MM-dd HH:mm:ss} [%p] [%t] %c{36} - %m%n</pattern>-->
+            <pattern>${CONSOLE_PATTERN}</pattern>
+        </encoder>
+    </appender>
+
+    <!-- info级别日志控制 -->
+    <appender name="FILE_INFO"
+              class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!-- 文件路径 -->
+        <file>${logback.path}/${logback.appname}.info.log</file>
+        <!-- 是否追加 默认为true -->
+        <append>true</append>
+        <!-- 滚动策略 日期+大小 策略 -->
+        <!--<rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">-->
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${logback.zip.path}/${logback.appname}.info.%d{yyyy-MM-dd}.%i.log.zip</fileNamePattern>
+            <!-- 单个日志大小 -->
+            <!--<maxFileSize>${logback.maxFileSize}</maxFileSize>-->
+            <TimeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <!--<MaxFileSize>1024MB</MaxFileSize>-->
+                <MaxFileSize>${logback.maxFileSize}</MaxFileSize>
+            </TimeBasedFileNamingAndTriggeringPolicy>
+            <!-- 日志保存周期 -->
+            <maxHistory>${logback.maxHistory}</maxHistory>
+            <!--总大小 用来指定日志文件的上限大小，那么到了这个值，就会删除旧的日志-->
+            <!--<totalSizeCap>${logback.totalSizeCap}</totalSizeCap>-->
+        </rollingPolicy>
+        <!-- 格式化 -->
+        <encoder>
+            <charset>${logback.charset}</charset>
+            <pattern>${CONSOLE_PATTERN}</pattern>
+        </encoder>
+        <!-- 级别过滤 -->
+        <!--<filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>INFO</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>-->
+    </appender>
+
+    <!-- warn级别日志控制 -->
+    <appender name="WARN_INFO"
+              class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!-- 文件路径 -->
+        <file>${logback.path}/${logback.appname}.warn.log</file>
+        <!-- 是否追加 默认为true -->
+        <append>true</append>
+        <!-- 滚动策略 日期+大小 策略 -->
+        <!--<rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">-->
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${logback.zip.path}/${logback.appname}.warn.%d{yyyy-MM-dd}.%i.log.zip</fileNamePattern>
+            <!-- 单个日志大小 -->
+            <!--<maxFileSize>${logback.maxFileSize}</maxFileSize>-->
+            <TimeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <MaxFileSize>${logback.maxFileSize}</MaxFileSize>
+            </TimeBasedFileNamingAndTriggeringPolicy>
+            <!-- 日志保存周期 -->
+            <maxHistory>${logback.maxHistory}</maxHistory>
+            <!-- 总大小 -->
+            <!--<totalSizeCap>${logback.totalSizeCap}</totalSizeCap>-->
+        </rollingPolicy>
+        <!-- 格式化 -->
+        <encoder>
+            <charset>${logback.charset}</charset>
+            <pattern>${CONSOLE_PATTERN}</pattern>
+        </encoder>
+        <!-- 级别过滤 -->
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>WARN</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+    </appender>
+
+    <!-- ERROR级别日志控制 -->
+    <appender name="ERROR_INFO"
+              class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!-- 文件路径 -->
+        <file>${logback.path}/${logback.appname}.error.log</file>
+        <!-- 是否追加 默认为true -->
+        <append>true</append>
+        <!-- 滚动策略 日期+大小 策略 -->
+        <!--<rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">-->
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${logback.zip.path}/${logback.appname}.error.%d{yyyy-MM-dd}.%i.log.zip</fileNamePattern>
+            <!-- 单个日志大小 -->
+            <!--<maxFileSize>${logback.maxFileSize}</maxFileSize>-->
+            <TimeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <MaxFileSize>${logback.maxFileSize}</MaxFileSize>
+            </TimeBasedFileNamingAndTriggeringPolicy>
+            <!-- 日志保存周期 -->
+            <maxHistory>${logback.maxHistory}</maxHistory>
+            <!-- 总大小 -->
+            <!--<totalSizeCap>${logback.totalSizeCap}</totalSizeCap>-->
+        </rollingPolicy>
+        <!-- 格式化 -->
+        <encoder>
+            <charset>${logback.charset}</charset>
+            <pattern>${CONSOLE_PATTERN}</pattern>
+        </encoder>
+        <!-- 级别过滤 -->
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>ERROR</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+    </appender>
+
+    <!--<root level="${logback.level}">
+        <appender-ref ref="CONSOLE" />
+        <appender-ref ref="FILE_INFO" />
+        <appender-ref ref="WARN_INFO" />
+        <appender-ref ref="ERROR_INFO" />
+    </root>-->
+
+    <!--生产环境、测试环境:打印控制台和输出到文件-->
+    <springProfile name="prod,test,debug">
+        <root level="${logback.level}">
+            <appender-ref ref="CONSOLE" />
+            <appender-ref ref="FILE_INFO" />
+            <appender-ref ref="WARN_INFO" />
+            <appender-ref ref="ERROR_INFO" />
+        </root>
+    </springProfile>
+
+    <!--开发环境:打印控制台-->
+    <springProfile name="dev">
+        <root level="${logback.level}">
+            <appender-ref ref="CONSOLE"/>
+        </root>
+    </springProfile>
+</configuration>

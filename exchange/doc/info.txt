@@ -1,0 +1,59 @@
+
+备注：买盘=bid，卖盘=ask
+
+盘口--后端维护接口
+  查看盘口数据接口
+    http://127.0.0.1:6005/extrade/monitor/realTimePlate?symbol=SLU/CNYT&direction=SELL
+    http://127.0.0.1:6005/extrade/monitor/plate-mini?symbol=SLU/CNYT
+    http://127.0.0.1:6005/extrade/monitor/plate-full?symbol=SLU/CNYT
+    参数：
+      symbol 交易对，必填
+      direction 购买方向，必填
+
+  查看盘口订单明细接口
+    http://127.0.0.1:6005/extrade/monitor/trader-detail?symbol=SLU/CNYT
+    http://127.0.0.1:6005/extrade/monitor/plate-detail?symbol=SLU/CNYT&direction=SELL
+    参数：
+      symbol 交易对，必填
+      direction 购买方向，可选。
+
+  重置盘口数据（注意，重置盘口数据的时候会暂停交易，即下单后会被取消订单）
+    http://127.0.0.1:6005/extrade/monitor/plate-reset?symbol=SLU/CNYT&direction=SELL/BUY
+    参数：
+      symbol 交易对，必填
+      direction 购买方向，可选。
+    日志查看的关键字：“resetTradePlate：”
+
+撮合器--后端维护接口
+  查询所有存在的交易对
+      http://127.0.0.1:6005/extrade/monitor/symbols
+
+  查看撮合器状态
+    http://127.0.0.1:6005/extrade/monitor/traderStatus?symbol=SLU/CNYT
+  参数：
+    symbol 交易对，可选
+
+  启动、重置撮合器（重置交易撮合器，根据ExchangeCoin的启用状态进行相应的启动或者暂停交易对）
+    http://127.0.0.1:6005/extrade/monitor/resetTrader?symbol=SLU/CNYT
+    参数：
+      symbol 交易对，必填
+  停止撮合器（发出停止命令后需要发送下单来触发停止）
+    http://127.0.0.1:6005/extrade/monitor/stopTrader?symbol=SLU/CNYT
+    参数：
+      symbol 交易对，必填
+
+
+内存订单--后端维护接口
+  撤销指定撮合器中所有订单
+    http://127.0.0.1:6005/extrade/monitor/cancelAllOrder?symbol=SLU/CNYT
+    参数：
+      symbol 交易对，必填
+    日志查看的关键字：“cancelAllOrder：”
+
+  查看内存中的订单
+    http://127.0.0.1:6005/extrade/monitor/order?symbol=SLU/CNYT&orderId=&direction=SELL/BUY&type=MARKET_PRICE/LIMIT_PRICE
+    参数：
+      symbol 交易对，必填
+      orderId 订单号，必填
+      direction 购买方向，必填
+      type 交易类型，必填

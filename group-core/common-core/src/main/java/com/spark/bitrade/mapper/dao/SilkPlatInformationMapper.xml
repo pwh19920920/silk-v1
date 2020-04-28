@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.spark.bitrade.mapper.dao.SilkPlatInformationMapper">
+    <!--    获取指定事件，平台消息内容 -->
+    <select id="getSilkPlatInformationByEventAndReceiving" resultType="com.spark.bitrade.entity.SilkPlatInformation">
+        select *
+        from silk_plat_information where info_type=#{infoType}
+        <if test="receivingObject !=null ">
+            and receive_type=#{receivingObject}
+        </if>
+    </select>
+
+    <!--    根据事件获取渠道开关 -->
+    <select id="getSilkPlatInformation" resultType="com.spark.bitrade.entity.SilkPlatInformation">
+        select *
+        from silk_plat_information where info_type=#{infoType}
+        <if test="infoType == 4">
+            order by use_sms desc
+        </if>
+        <if test="infoType==3">
+            order by id desc
+        </if>
+        limit 1
+    </select>
+</mapper>

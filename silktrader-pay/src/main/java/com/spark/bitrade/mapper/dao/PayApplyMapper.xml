@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+        <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.spark.bitrade.mapper.dao.PayApplyMapper">
+
+<select id="countByApplyKey" parameterType="java.lang.String" resultType="java.lang.Integer">
+
+        select count(id) from third_platform where platform_key = #{applyKey} and status = 1
+
+    </select>
+
+<select id="getApplyByAccount" parameterType="java.lang.String" resultType="com.spark.bitrade.vo.PayApplyVo">
+
+        select tpa.busi_account,
+                tpa.`status`,
+                tpa.`comment`,
+                tpa.apply_time
+        from third_platform_apply tpa
+        where tpa.busi_account = #{busiAccount}
+
+    </select>
+
+<select id="isExistApply" parameterType="java.lang.String" resultType="java.lang.Integer">
+
+        select count(id) from third_platform_apply tpa
+         where tpa.busi_account = #{busiAccount} and tpa.apply_key= #{applyKey}
+
+    </select>
+</mapper>

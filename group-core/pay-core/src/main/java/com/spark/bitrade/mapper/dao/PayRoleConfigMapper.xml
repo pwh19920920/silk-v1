@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.spark.bitrade.mapper.dao.PayRoleConfigMapper">
+
+<!--auto generated Code-->
+    <resultMap id="AllColumnMap" type="com.spark.bitrade.entity.PayRoleConfig">
+        <result column="id" property="id"/>
+        <result column="role_name" property="roleName"/>
+        <result column="parent_id" property="parentId"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+<!--auto generated Code-->
+    <sql id="all_column">
+        id,
+        role_name,
+        parent_id,
+        create_time,
+        update_time
+    </sql>
+
+<!--auto generated Code-->
+    <insert id="insert">
+        INSERT INTO pay_role_manage
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="pojo.id != null"> id, </if>
+            <if test="pojo.roleName != null"> role_name, </if>
+            <if test="pojo.parentId != null"> parent_id, </if>
+            <if test="pojo.createTime != null"> create_time, </if>
+            <if test="pojo.updateTime != null"> update_time, </if>
+        </trim>
+        VALUES
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="pojo.id != null"> #{pojo.id}, </if>
+            <if test="pojo.roleName != null"> #{pojo.roleName}, </if>
+            <if test="pojo.parentId != null"> #{pojo.parentId}, </if>
+            <if test="pojo.createTime != null"> #{pojo.createTime}, </if>
+            <if test="pojo.updateTime != null"> #{pojo.updateTime}, </if>
+        </trim>
+    </insert>
+
+<!--auto generated Code-->
+    <insert id="insertList">
+        INSERT INTO pay_role_manage(
+        <include refid="all_column"/>
+        )VALUES
+        <foreach collection="pojos" item="pojo" index="index" separator=",">
+            (
+            #{pojo.id},
+            #{pojo.roleName},
+            #{pojo.parentId},
+            #{pojo.createTime},
+            #{pojo.updateTime}
+            )
+        </foreach>
+    </insert>
+
+<!--auto generated Code-->
+    <update id="update">
+        UPDATE pay_role_manage
+        <set>
+            <if test="pojo.id != null"> id = #{pojo.id}, </if>
+            <if test="pojo.roleName != null"> role_name = #{pojo.roleName}, </if>
+            <if test="pojo.parentId != null"> parent_id = #{pojo.parentId}, </if>
+            <if test="pojo.createTime != null"> create_time = #{pojo.createTime}, </if>
+        </set>
+         WHERE id = #{pojo.id}
+    </update>
+
+<!--auto generated Code-->
+    <select id="select" resultMap="AllColumnMap">
+        SELECT <include refid="all_column"/>
+        FROM pay_role_manage
+        <where>
+            <if test="pojo.id != null"> AND id = #{pojo.id} </if>
+            <if test="pojo.roleName != null"> AND role_name = #{pojo.roleName} </if>
+            <if test="pojo.parentId != null"> AND parent_id = #{pojo.parentId} </if>
+            <if test="pojo.createTime != null"> AND create_time = #{pojo.createTime} </if>
+            <if test="pojo.updateTime != null"> AND update_time = #{pojo.updateTime} </if>
+        </where>
+        LIMIT 1000 
+    </select>
+
+<!--auto generated Code-->
+    <delete id="delete">
+        DELETE FROM pay_role_manage where id = #{pojo.id}
+    </delete>
+
+    <select id="findOneById" parameterType="java.lang.Long" resultType="com.spark.bitrade.entity.PayRoleConfig">
+        select * from pay_role_config where id = #{id}
+    </select>
+</mapper>

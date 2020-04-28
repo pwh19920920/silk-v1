@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.spark.bitrade.mapper.dao.StatisticsMapper" >
+    <!-- 疯狂比特投票统计 -->
+    <select id="voteStatistics" parameterType="java.lang.String" resultType="com.spark.bitrade.vo.VoteStatisticsVo">
+        SELECT bc.id id,bc.period period,bc.name name, bc.open_time openTime,
+        (SELECT  COUNT(DISTINCT member_id) FROM pg_betting_record WHERE period_id=bc.id) countAll,
+        IFNULL(t.newNum,0) countNew,
+        (SELECT  COUNT( member_id) FROM pg_betting_record WHERE period_id=bc.id) countVote,
+        IFNULL(t.newCount,0) countNewVote,
+        sum(br.bet_num) sumAll,
+        IFNULL(t.newBetNum,0) sumNewVote,
+        br.bet_symbol voteSymbol
+        FROM
+        pg_betting_record br
+        LEFT JOIN
+              ( SELECT id ,period ,name,open_time,begin_time,end_time FROM pg_betting_config)
+          bc ON bc.id=br.period_id
+        LEFT JOIN
+              ( SELECT count(DISTINCT m.id) newNum,br.period_id,sum(br.bet_num) newBetNum,COUNT(br.member_id) newCount
+                FROM pg_betting_record br
+                LEFT JOIN member m ON br.member_id=m.id
+                LEFT JOIN pg_betting_config bc ON br.period_id=bc.id
+                WHERE m.registration_time BETWEEN bc.begin_time AND bc.end_time GROUP BY bc.id)
+          t ON t.period_id=bc.id
+
+        <where>
+            <if test="startTime!=null and startTime!='' and endTime!=null and endTime!=''">
+                bc.open_time BETWEEN #{startTime}  AND #{endTime}
+            </if>
+        </where>
+        GROUP BY bc.id DESC
+    </select>
+
+    <!-- 疯狂比特中奖统计 -->
+    <select id="rewardStatistivs" parameterType="java.lang.String" resultType="com.spark.bitrade.vo.RewardStatisticsVo">
+        SELECT bc.id id,bc.period period,bc.name name, bc.open_time openTime,
+            IFNULL(new.newCount,0) newCount,
+            IFNULL(new.newSum,0) newSum,
+            IFNULL(old.oldCount,0) oldCount,
+            IFNULL(old.oldSum,0) oldSum,
+            br.symbol rewardSymbol
+        FROM
+        pg_reward br
+        LEFT JOIN (SELECT id ,period ,name,open_time,begin_time,end_time FROM pg_betting_config) bc ON bc.id=br.period_id
+        <!-- 新用户 -->
+        LEFT JOIN
+            (SELECT r.period_id, COUNT(DISTINCT r.member_id) newCount,  SUM(reward_num) newSum
+            FROM pg_reward r
+            LEFT JOIN member m ON r.member_id=m.id
+            LEFT JOIN pg_betting_config bc ON r.period_id=bc.id
+            WHERE m.registration_time BETWEEN bc.begin_time AND bc.end_time AND r.business_type=0 GROUP BY bc.id)
+        new ON new.period_id=bc.id
+        <!-- 老用户 -->
+        LEFT JOIN
+            (SELECT r.period_id, COUNT(DISTINCT r.member_id) oldCount, SUM(reward_num) oldSum
+            FROM pg_reward r
+            LEFT JOIN member m ON r.member_id=m.id
+            LEFT JOIN pg_betting_config bc ON r.period_id=bc.id
+            WHERE m.registration_time NOT BETWEEN bc.begin_time AND bc.end_time AND r.business_type=0 GROUP BY bc.id)
+        old ON old.period_id=bc.id
+
+        <where>
+             br.business_type=0
+            <if test="startTime!=null and startTime!='' and endTime!=null and endTime!=''">
+               AND bc.open_time BETWEEN #{startTime}  AND #{endTime}
+            </if>
+        </where>
+        GROUP BY bc.id DESC
+    </select>
+
+    <!-- 奖池统计 -->
+    <select id="jackpotStatistics" parameterType="java.lang.String" resultType="com.spark.bitrade.vo.JackpotStatisticsVo">
+        SELECT bc.id id,bc.period period,bc.name name, bc.open_time openTime,
+        IFNULL(j.jackpot_balance,0) jackpotBalance, IFNULL(j.redpacket_balance,0) redpacketBalance,
+        bc.prize_symbol prizeSymbol,IFNULL(r2.rewardNum,0) reward, bc.redpacket_prize_symbol redpacketSymbol,
+        IFNULL(sum(br.bet_num),0) betNum, bc.bet_symbol betSymbol, IFNULL(r1.rewardNum,0) rewardNum,
+        bc.rebate_ratio rebateRatio,bc.prize_ratio prizeRatio,bc.back_ratio backRatio,bc.redpacket_ratio redpacketRatio, bc.redpacket_state redpacketState,
+        IFNULL(p.countPromote,0) countPromote
+        <!-- , IFNULL( r2.rewardNum,0) redpacketNum -->
+        FROM
+        <!-- 奖池记录表 -->
+        pg_jackpot j
+        <!-- 配置表 -->
+        LEFT JOIN (SELECT id ,period ,name,open_time,begin_time,end_time,rebate_ratio,prize_ratio,back_ratio,redpacket_ratio,redpacket_state,deleted,status,bet_symbol,prize_symbol,redpacket_prize_symbol FROM pg_betting_config) bc ON bc.id=j.period_id
+        <!-- 投注表 -->
+        LEFT JOIN pg_betting_record br ON br.period_id=bc.id
+        <!-- 中奖表（竞猜）-->
+        LEFT JOIN (SELECT sum(reward_num) rewardNum,period_id FROM pg_reward WHERE status=1 AND business_type=0 GROUP BY period_id) r1 ON r1.period_id=bc.id
+        <!--  中奖表（抢红包）-->
+        <!-- LEFT JOIN (SELECT sum(reward_num) rewardNum,period_id FROM pg_reward WHERE status=4 AND business_type=1 GROUP BY period_id) r2 ON r2.period_id=bc.id -->
+        <!-- 中奖表（奖励发放总的）-->
+        LEFT JOIN (SELECT sum(reward_num) rewardNum,period_id,symbol FROM pg_reward WHERE business_type=0 GROUP BY period_id) r2 ON r2.period_id=bc.id
+        <!-- 返给用户的推荐返佣总额 -->
+        LEFT JOIN (
+            SELECT br.period_id,IFNULL(SUM(br.bet_num),0) countPromote
+            FROM
+            pg_betting_record br
+            LEFT JOIN (
+                SELECT
+                DISTINCT b.member_id,b.period_id, b.inviter_id
+                FROM
+                pg_betting_record br
+                INNER JOIN (
+                    select pbr.period_id, pbr.member_id,m.inviter_id from pg_betting_record pbr
+                    inner join member m on pbr.member_id = m.id)
+                b ON  br.period_id=b.period_id
+                WHERE br.member_id=b.inviter_id
+            )m ON m.period_id=br.period_id
+            WHERE br.member_id=m.member_id
+            GROUP BY br.period_id
+        ) p ON p.period_id=bc.id
+
+        WHERE bc.deleted=0 AND bc.status=5
+        GROUP BY j.id DESC
+    </select>
+
+
+</mapper>

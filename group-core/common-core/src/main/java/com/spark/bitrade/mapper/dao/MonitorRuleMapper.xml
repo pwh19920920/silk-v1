@@ -1,0 +1,266 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.spark.bitrade.mapper.dao.MonitorRuleMapper">
+
+
+    <!-- 权限配置列表查询 -->
+    <select id="findList" resultType="com.spark.bitrade.dto.MonitorRuleConfigDto">
+
+        select GROUP_CONCAT(id) id,
+              trigger_event,
+              trigger_times,
+              trigger_stage_cycle,
+              trigger_user_level,
+              execute_duration,
+              GROUP_CONCAT(execute_event) execute_event
+        from `monitor_rule_config`
+        group by trigger_event,trigger_times,trigger_user_level
+
+    </select>
+
+    <!-- 用户申诉记录查询 -->
+    <select id="findMemberAppealCount" parameterType="java.lang.String" resultType="com.spark.bitrade.vo.MemberAppealCountVo">
+        SELECT * from (
+            SELECT t.initiator_id,t.real_name,t.mobile_phone,t.email,t.create_time,t.orderTime,t.initiatorTotal,t1.associateTotal,t2.initiatorSuccess,t3.initiatorFail,t4.associateSuccess,t5.associateFail,(IFNULL(t3.initiatorFail,0) + IFNULL(t5.associateFail,0)) sumTotal from
+            (SELECT count(p.id) initiatorTotal,p.initiator_id,m.real_name,m.mobile_phone,m.email,p.create_time,(select o.create_time from otc_order o where o.id = p.order_id) orderTime FROM `appeal` p LEFT JOIN member m ON m.id = p.initiator_id  GROUP BY p.initiator_id) t
+            -- 被申诉
+            LEFT JOIN
+            (SELECT count(p.id) associateTotal,p.associate_id,m.real_name,m.mobile_phone,m.email,p.create_time,(select o.create_time from otc_order o where o.id = p.order_id) orderTime FROM `appeal` p LEFT JOIN member m ON m.id = p.associate_id GROUP BY p.associate_id) t1
+            ON t1.associate_id = t.initiator_id
+            -- 申诉成功
+            LEFT JOIN
+            (SELECT count(p.id) initiatorSuccess,p.initiator_id,m.real_name,m.mobile_phone,m.email,p.create_time,(select o.create_time from otc_order o where o.id = p.order_id) orderTime FROM `appeal` p LEFT JOIN member m ON m.id = p.initiator_id where p.is_success = 1 GROUP BY p.initiator_id) t2
+            ON t2.initiator_id = t.initiator_id
+            -- 申诉失败
+            LEFT JOIN
+            (SELECT count(p.id) initiatorFail,p.initiator_id,m.real_name,m.mobile_phone,m.email,p.create_time,(select o.create_time from otc_order o where o.id = p.order_id) orderTime  FROM `appeal` p  LEFT JOIN member m ON m.id = p.initiator_id where p.is_success = 0 GROUP BY p.initiator_id) t3
+            ON t3.initiator_id = t.initiator_id
+
+            -- 被申诉不成立
+            LEFT JOIN
+            (SELECT count(p.id) associateSuccess,p.associate_id,m.real_name,m.mobile_phone,m.email,p.create_time,(select o.create_time from otc_order o where o.id = p.order_id) orderTime  FROM `appeal` p LEFT JOIN member m ON m.id = p.associate_id where p.is_success = 0 GROUP BY p.associate_id) t4
+            ON t4.associate_id = t.initiator_id
+
+            -- 被申诉成立
+            LEFT JOIN
+            (SELECT count(p.id) associateFail,p.associate_id,m.real_name,m.mobile_phone,m.email,p.create_time,(select o.create_time from otc_order o where o.id = p.order_id) orderTime  FROM `appeal` p LEFT JOIN member m ON m.id = p.associate_id where p.is_success = 1 GROUP BY p.associate_id) t5
+            ON t5.associate_id = t.initiator_id
+        ) a
+
+        <where>
+            <if test="whereName!=null and whereName !=''">
+                and a.email = #{whereName} or a.mobile_phone = #{whereName}
+            </if>
+            <if test="startTime !=null and startTime!='' and endTime !=null and endTime !=''">
+                and a.create_time between #{startTime} and #{endTime}
+            </if>
+            <if test="orderStartTime !=null and orderStartTime!='' and orderEndTime !=null and orderEndTime !=''">
+                and a.orderTime between #{orderStartTime} and #{orderEndTime}
+            </if>
+        </where>
+
+        <if test="orderName != null and orderName !=''">
+            ORDER BY a.${orderName} ${sort}
+        </if>
+
+    </select>
+
+    <select id="findMemberCancelDetail" parameterType="com.spark.bitrade.vo.MemberOrderCancelVO" resultType="com.spark.bitrade.dto.MemberCancelDTO">
+        <!-- 0商家买入 买家为商家  1商家卖出 买家为用户-->
+        select order_sn,o.advertise_type,o.create_time,o.cancel_time,o.status,IF(is_manual_cancel=1,1,0) as cancelType,
+        m.mobile_phone phone,m.email,m.real_name,m.id memberId
+        from
+        otc_order o
+        left join member m on m.id=IF(advertise_type=0,o.member_id,o.customer_id)
+        <where>
+            o.status=0
+            <if test="email!=null and email!=''">
+                and m.email=#{email}
+            </if>
+            <if test="phone!=null and phone!=''">
+                and m.mobile_phone=#{phone}
+            </if>
+            <if test="createTimeStart!=null and createTimeStart!=''">
+                and o.create_time <![CDATA[>=]]> #{createTimeStart}
+            </if>
+            <if test="createTimeEnd!=null and createTimeEnd!=''">
+                and o.create_time <![CDATA[<=]]> #{createTimeEnd}
+            </if>
+            <if test="cancelTimeStart!=null and cancelTimeStart!=''">
+                and o.cancel_time <![CDATA[>=]]> #{cancelTimeStart}
+            </if>
+            <if test="cancelTimeEnd!=null and cancelTimeEnd!=''">
+                and o.cancel_time <![CDATA[<=]]> #{cancelTimeEnd}
+            </if>
+        </where>
+        ORDER BY o.create_time DESC
+    </select>
+
+    <select id="getMemberCancelCount" resultType="java.util.Map" parameterType="com.spark.bitrade.vo.MemberOrderCancelVO">
+        SELECT sumCancel.*,IFNULL(sum(is_manual_cancel1),0) cancelHandle,IFNULL(sum(is_manual_cancel0),0) cancelAuto
+        FROM
+            (SELECT mobile_phone phone,email,real_name realName,id,sum(countCancel) sumCancel
+            from
+            (SELECT *,count(is_manual_cancel) countCancel
+            from
+            (
+                select o.advertise_type,o.create_time,o.cancel_time,o.status,IF(is_manual_cancel=1,1,0) as is_manual_cancel,
+                m.mobile_phone,m.email,m.real_name,m.id
+                from
+                otc_order o
+                left join member m on m.id=IF(advertise_type=0,o.member_id,o.customer_id)
+                <where>
+                    o.status=0
+                    <if test="createTimeStart!=null and createTimeStart!=''">
+                        and o.create_time <![CDATA[>=]]> #{createTimeStart}
+                    </if>
+                    <if test="createTimeEnd!=null and createTimeEnd!=''">
+                        and o.create_time <![CDATA[<=]]> #{createTimeEnd}
+                    </if>
+                    <if test="cancelTimeStart!=null and cancelTimeStart!=''">
+                        and o.cancel_time <![CDATA[>=]]> #{cancelTimeStart}
+                    </if>
+                    <if test="cancelTimeEnd!=null and cancelTimeEnd!=''">
+                        and o.cancel_time <![CDATA[<=]]> #{cancelTimeEnd}
+                    </if>
+                </where> 
+            )tb group by id,is_manual_cancel)  tb2
+            group by id) sumCancel
+        LEFT JOIN
+        <!-- 手动is_manual_cancel1、自动is_manual_cancel0取消次数-->
+            (select *,(IF(is_manual_cancel=1,countCancel,NULL)) is_manual_cancel1,(IF(is_manual_cancel=0,countCancel,NULL)) is_manual_cancel0
+            from
+            (SELECT *,count(is_manual_cancel) countCancel
+            from
+            (
+                select IF(is_manual_cancel=1,1,0) as is_manual_cancel,m.id,m.real_name
+                from
+                otc_order o
+                left join member m on m.id=IF(advertise_type=0,o.member_id,o.customer_id)
+                <where>
+                    o.status=0
+                    <if test="createTimeStart!=null and createTimeStart!=''">
+                        and o.create_time <![CDATA[>=]]> #{createTimeStart}
+                    </if>
+                    <if test="createTimeEnd!=null and createTimeEnd!=''">
+                        and o.create_time <![CDATA[<=]]> #{createTimeEnd}
+                    </if>
+                    <if test="cancelTimeStart!=null and cancelTimeStart!=''">
+                        and o.cancel_time <![CDATA[>=]]> #{cancelTimeStart}
+                    </if>
+                    <if test="cancelTimeEnd!=null and cancelTimeEnd!=''">
+                        and o.cancel_time <![CDATA[<=]]> #{cancelTimeEnd}
+                    </if>
+                </where>
+        )tb group by id,is_manual_cancel) tb3
+            group by id,is_manual_cancel ) cancel
+        ON cancel.id=sumCancel.id
+
+        <where>
+            <if test="email!=null and email!=''">
+                and sumCancel.email=#{email}
+            </if>
+            <if test="phone!=null and phone!=''">
+                and sumCancel.phone=#{phone}
+            </if>
+        </where>
+        GROUP BY id
+        <if test="sortName!=null and sortName!='' and sort!=null and sort!=''">
+            ORDER BY ${sortName} ${sort}
+        </if>
+
+    </select>
+
+    <select id="findOneByMemberId" resultType="java.util.Map">
+        SELECT mobile_phone phone,email,real_name realName,id,sum(countCancel) sumCancel
+        from
+        (SELECT *,count(is_manual_cancel) countCancel from
+        (
+        select o.advertise_type,o.create_time,o.cancel_time,o.status,IF(is_manual_cancel=1,1,0) as is_manual_cancel,
+        m.mobile_phone,m.email,m.real_name,m.id
+        from
+        otc_order o
+        left join member m on m.id=IF(advertise_type=0,o.member_id,o.customer_id)
+        where o.status=0 and cancel_time >= DATE_SUB(NOW(),INTERVAL ${time} MINUTE)
+        )
+        tb group by id,is_manual_cancel)  tb2
+
+        <where>
+            <if test="memberId!=null and memberId!=''">
+                and tb2.id=#{memberId}
+            </if>
+        </where>
+        GROUP BY id
+    </select>
+
+    <select id="findMonitorRuleByEvent" resultType="com.spark.bitrade.dto.MonitorRuleConfigDto" parameterType="java.lang.Integer">
+
+        select GROUP_CONCAT(id) id,
+        trigger_event,
+        trigger_times,
+        trigger_stage_cycle,
+        trigger_user_level,
+        execute_duration,
+        GROUP_CONCAT(execute_event) execute_event
+        from `monitor_rule_config`
+        <where>
+            <if test="event!=null and event>-1">
+                and trigger_event= #{event}
+            </if>
+        </where>
+        group by trigger_event,trigger_times,trigger_user_level
+    </select>
+
+    <select id="findAllByType" resultType="com.spark.bitrade.entity.MonitorRuleConfig">
+        SELECT * from monitor_rule_config mrc where mrc.trigger_event = #{triggerEvent}
+    </select>
+
+    <!-- 根据触发事件，触发次数、冻结权限查询、用户等级是否已经存在该条规则 -->
+    <select id="isExistRule" resultType="int" parameterType="java.lang.Integer">
+        SELECT count(id) from monitor_rule_config mrc
+        where mrc.trigger_event = #{triggerEvent}
+             and mrc.trigger_times = #{triggerTimes}
+             and mrc.execute_event = #{executeEvent}
+             and mrc.trigger_user_level = #{userLevel}
+    </select>
+
+    <!--    根据会员ID，获取C2C订单已取消次数-->
+    <select id="countCancleOrder" resultType="java.util.Map">
+        SELECT
+            count(is_manual_cancel) countCancel
+        FROM
+            (
+                SELECT
+                IF (o.is_manual_cancel = 1, 1, 0) AS is_manual_cancel,
+                m.id
+            FROM
+                otc_order o
+            LEFT JOIN member m ON m.id =
+            IF (
+                o.advertise_type = 0,
+                o.member_id,
+                o.customer_id
+            )
+            WHERE
+                o. STATUS = 0
+            AND m.id = #{memberId}
+            ) tb
+        GROUP BY
+            id
+    </select>
+
+    <!--    根据会员等级和事件，获取拦截权限-->
+    <select id="listMonitorRuleByUserLevelAndTriggerEvent" resultType="java.util.Map">
+        SELECT
+            CEIL(trigger_stage_cycle / 60) trigger_stage_cycle,
+            execute_event,
+            trigger_times
+        FROM
+            monitor_rule_config
+        WHERE
+            trigger_user_level = #{triggerUserLevel}
+        AND trigger_event = #{triggerEvent}
+    </select>
+
+</mapper>

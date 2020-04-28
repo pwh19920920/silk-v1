@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.spark.bitrade.mapper.dao.C2cFeeStatMapper">
+
+
+    <select id="findC2cFeeStatAllAndInnerAndOuter" resultType="com.spark.bitrade.vo.C2cFeeStatSynVO">
+        SELECT
+        cfs.create_time , cfs.op_date, cfs.type, cfs.unit,
+        IFNULL(cfs.trade_amount,0) allTradeAmount,IFNULL(cfs.trade_turnover,0) allTradeTurnover,IFNULL(cfs.fee,0) allFee,
+        IFNULL(i.trade_amount,0) innerTradeAmount,IFNULL(i.trade_turnover,0) innerTradeTurnover,IFNULL(i.fee,0) innerFee,
+        IFNULL(o.trade_amount,0) outTradeAmount,IFNULL(o.trade_turnover,0) outTradeTurnover,IFNULL(o.fee,0) outFee
+        FROM c2c_fee_stat cfs
+        LEFT JOIN c2c_inner_fee_stat i ON CONCAT(i.type,i.op_date,i.unit) = CONCAT(cfs.type ,cfs.op_date,cfs.unit)
+        LEFT JOIN c2c_outer_fee_stat o ON CONCAT(o.type,o.op_date,o.unit) = CONCAT(cfs.type ,cfs.op_date,cfs.unit)
+        <where>
+            <if test="type!=null and type>-1">
+                and cfs.type=#{type}
+            </if>
+            <if test="unit!=null and unit!=''">
+                and cfs.unit=#{unit}
+            </if>
+            <if test="startTime!=null and startTime!='' and endTime!=null and endTime!=''">
+                and cfs.create_time between #{startTime} and #{endTime}
+            </if>
+        </where>
+        GROUP BY cfs.type,cfs.op_date DESC,cfs.unit
+
+
+    </select>
+
+</mapper>

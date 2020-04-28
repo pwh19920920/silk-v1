@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.spark.bitrade.mapper.dao.SysAdvertiseMapper">
+
+    <!-- 是否存在已经上线的APP活动位置的广告 -->
+    <select id="isExistAppActNormalAd" parameterType="int" resultType="int">
+        SELECT count(serial_number) FROM `sys_advertise` sd
+        where sd.sys_advertise_type = #{type}
+        and sd.sys_advertise_location = #{location}
+        and sd.`status` = #{status}
+    </select>
+
+    <!-- 根据广告类型、广告位置查询已经启用的系统广告 -->
+    <select id="queryNormalAdByTypeAndLocation" parameterType="int" resultType="com.spark.bitrade.entity.SysAdvertise">
+        SELECT * FROM `sys_advertise` sd
+        where sd.sys_advertise_type = #{type}
+        and sd.sys_advertise_location = #{location}
+        and sd.`status` = 0
+        <if test="languageCode != null" >
+            and sd.language_code = #{languageCode}
+        </if>
+        order by sort
+    </select>
+
+</mapper>

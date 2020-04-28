@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.spark.bitrade.mapper.dao.PartnerAreaMapper">
+
+    <select id="getPartnerList" parameterType="java.lang.String" resultType="com.spark.bitrade.vo.PartnerAreaVo">
+        SELECT p.member_id,m.real_name,m.mobile_phone,m.username,p.level,d.area_name,p.partner_staus FROM
+            partner_area p LEFT JOIN member m ON p.member_id=m.id LEFT JOIN dim_area d ON p.area_id=d.area_id
+            <where>
+                <if test="areaId !=null and areaId !=''">
+                   and d.area_id like  CONCAT(#{areaId},'%')
+                </if>
+                <if test="account !=null and account !=''">
+                    and (m.username LIKE CONCAT('%',#{account},'%')
+                    OR m.mobile_phone LIKE CONCAT(#{account},'%')
+                    OR m.email LIKE CONCAT(#{account},'%')
+                    OR m.real_name LIKE CONCAT('%',#{account},'%')
+                    OR m.id LIKE CONCAT('%',#{account},'%'))
+                </if>
+            </where>
+    </select>
+
+</mapper>

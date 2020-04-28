@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.spark.bitrade.mapper.dao.MemberDepositMapper">
+
+    <!-- 查询指定币种提币记录 -->
+    <select id="queryDepositByUnit" resultType="com.spark.bitrade.vo.ThirdAuthQueryVo" parameterType="java.lang.String">
+        select d.unit symbol,d.address,d.amount arrived_amount,d.create_time from member_deposit d where d.unit = #{symbol} order by create_time desc
+    </select>
+
+
+    <select id="queryFoPage" parameterType="java.util.Map" resultType="com.spark.bitrade.vo.MemberDepositVO">
+      SELECT md.*,m.username,m.mobile_phone FROM `member_deposit` md LEFT JOIN member m ON m.id = md.member_id
+        <where>
+            <if test="unit !=null and unit !=''">
+                AND md.unit = #{unit}
+            </if>
+            <if test="address !=null and address !='' ">
+                AND  md.address = #{address}
+            </if>
+            <if test="account !=null and account !='' ">
+                AND  (m.username like CONCAT('%',#{account},'%') or mobile_phone like CONCAT('%',#{account},'%') or member_id like CONCAT('%',#{account},'%') )
+            </if>
+        </where>
+        order by md.create_time desc
+    </select>
+
+    <!-- 查询 17384075214 账号的充提币统计记录 -->
+    <select id="getFixMemberStat" parameterType="java.lang.String" resultType="java.util.Map">
+        SELECT IFNULL(t1.outerInPlat,0) outerInPlat,IFNULL(t.arrived_amount,0) platWithdraw from (
+            SELECT SUM(md.amount) outerInPlat,md.member_id date FROM `member_deposit` md
+             <where>
+                 md.member_id = 125871 and md.unit = #{unit}
+                 <if test="date !=null and date !=''">
+                     and DATE(md.create_time) = #{date}
+                 </if>
+             </where>
+        ) t1
+             ,(
+                select r.member_id,SUM(r.arrived_amount) arrived_amount from withdraw_record r LEFT JOIN coin c ON c.`name` =r.coin_id
+                <where>
+                    r.member_id = 125871 and c.unit = #{unit}
+                    <if test="date !=null and date !=''">
+                       and DATE(r.create_time) = #{date}
+                    </if>
+                </where>
+            ) t
+    </select>
+</mapper>

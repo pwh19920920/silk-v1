@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.spark.bitrade.mapper.dao.PayRoleFeeRateConfigMapper">
+
+<!--auto generated Code
+    <resultMap id="AllColumnMap" type="com.spark.bitrade.entity.PayRoleFeeRateConfig">
+        <result column="id" property="id"/>
+        <result column="role_name" property="roleName"/>
+        <result column="pay_fee" property="payFee"/>
+        <result column="trade_unit" property="tradeUnit"/>
+        <result column="fee_unit" property="feeUnit"/>
+        <result column="fee_type" property="feeType"/>
+        <result column="income_fee" property="incomeFee"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+-->
+<!--auto generated Code
+    <sql id="all_column">
+        id,
+        role_name,
+        pay_fee,
+        trade_unit,
+        fee_unit,
+        fee_type,
+        income_fee,
+        create_time,
+        update_time
+    </sql>
+-->
+<!--auto generated Code
+    <insert id="insert">
+        INSERT INTO pay_role_fee_rate_config
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="pojo.id != null"> id, </if>
+            <if test="pojo.roleName != null"> role_name, </if>
+            <if test="pojo.payFee != null"> pay_fee, </if>
+            <if test="pojo.tradeUnit != null"> trade_unit, </if>
+            <if test="pojo.feeUnit != null"> fee_unit, </if>
+            <if test="pojo.feeType != null"> fee_type, </if>
+            <if test="pojo.incomeFee != null"> income_fee, </if>
+            <if test="pojo.createTime != null"> create_time, </if>
+            <if test="pojo.updateTime != null"> update_time, </if>
+        </trim>
+        VALUES
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="pojo.id != null"> #{pojo.id}, </if>
+            <if test="pojo.roleName != null"> #{pojo.roleName}, </if>
+            <if test="pojo.payFee != null"> #{pojo.payFee}, </if>
+            <if test="pojo.tradeUnit != null"> #{pojo.tradeUnit}, </if>
+            <if test="pojo.feeUnit != null"> #{pojo.feeUnit}, </if>
+            <if test="pojo.feeType != null"> #{pojo.feeType}, </if>
+            <if test="pojo.incomeFee != null"> #{pojo.incomeFee}, </if>
+            <if test="pojo.createTime != null"> #{pojo.createTime}, </if>
+            <if test="pojo.updateTime != null"> #{pojo.updateTime}, </if>
+        </trim>
+    </insert>
+-->
+<!--auto generated Code
+    <insert id="insertList">
+        INSERT INTO pay_role_fee_rate_config(
+        <include refid="all_column"/>
+        )VALUES
+        <foreach collection="pojos" item="pojo" index="index" separator=",">
+            (
+            #{pojo.id},
+            #{pojo.roleName},
+            #{pojo.payFee},
+            #{pojo.tradeUnit},
+            #{pojo.feeUnit},
+            #{pojo.feeType},
+            #{pojo.incomeFee},
+            #{pojo.createTime},
+            #{pojo.updateTime}
+            )
+        </foreach>
+    </insert>
+    -->
+<!--auto generated Code
+    <update id="update">
+        UPDATE pay_role_fee_rate_config
+        <set>
+            <if test="pojo.id != null"> id = #{pojo.id}, </if>
+            <if test="pojo.roleName != null"> role_name = #{pojo.roleName}, </if>
+            <if test="pojo.payFee != null"> pay_fee = #{pojo.payFee}, </if>
+            <if test="pojo.tradeUnit != null"> trade_unit = #{pojo.tradeUnit}, </if>
+            <if test="pojo.feeUnit != null"> fee_unit = #{pojo.feeUnit}, </if>
+            <if test="pojo.feeType != null"> fee_type = #{pojo.feeType}, </if>
+            <if test="pojo.incomeFee != null"> income_fee = #{pojo.incomeFee}, </if>
+            <if test="pojo.createTime != null"> create_time = #{pojo.createTime}, </if>
+        </set>
+         WHERE id = #{pojo.id}
+    </update>
+-->
+<!--auto generated Code
+    <select id="select" resultMap="AllColumnMap">
+        SELECT <include refid="all_column"/>
+        FROM pay_role_fee_rate_config
+        <where>
+            <if test="pojo.id != null"> AND id = #{pojo.id} </if>
+            <if test="pojo.roleName != null"> AND role_name = #{pojo.roleName} </if>
+            <if test="pojo.payFee != null"> AND pay_fee = #{pojo.payFee} </if>
+            <if test="pojo.tradeUnit != null"> AND trade_unit = #{pojo.tradeUnit} </if>
+            <if test="pojo.feeUnit != null"> AND fee_unit = #{pojo.feeUnit} </if>
+            <if test="pojo.feeType != null"> AND fee_type = #{pojo.feeType} </if>
+            <if test="pojo.incomeFee != null"> AND income_fee = #{pojo.incomeFee} </if>
+            <if test="pojo.createTime != null"> AND create_time = #{pojo.createTime} </if>
+            <if test="pojo.updateTime != null"> AND update_time = #{pojo.updateTime} </if>
+        </where>
+        LIMIT 1
+    </select>
+-->
+<!--auto generated Code
+    <delete id="delete">
+        DELETE FROM pay_role_fee_rate_config where id = #{pojo.id}
+    </delete>-->
+</mapper>

@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.spark.bitrade.mapper.dao.TechRechargeRecordMapper">
+
+    <select id="techRechargeList" parameterType="java.lang.String" resultType="com.spark.bitrade.entity.TechRechargeRecord">
+         --  活动赠送充值
+        SELECT now() createTime,CURDATE() opDate,mt.id tradeNo,mt.symbol coinUnit,m.mobile_phone memberAccount,m.real_name memberRealName,0 rechargeType,mt.amount rechargeNumber,mt.type opType,'活动赠送' remark FROM `member_transaction` mt
+         LEFT JOIN member m ON m.id = mt.member_id
+         where mt.type = 6 and mt.create_time BETWEEN DATE_SUB(NOW(),INTERVAL 1 DAY) and NOW()
+
+        UNION
+
+        -- 推广
+        SELECT now() create_time,CURDATE() op_date,mt.id trade_no,mt.symbol coin_unit,m.mobile_phone member_account,m.real_name member_real_name,0 recharge_type,mt.amount recharge_number,mt.type op_type,'推广赠送' remark FROM `member_transaction` mt
+         LEFT JOIN member m ON m.id = mt.member_id
+         where mt.type = 7 and mt.create_time BETWEEN DATE_SUB(NOW(),INTERVAL 1 DAY) and NOW()
+
+        UNION
+
+        -- 返佣
+        SELECT now() create_time,CURDATE() op_date,mt.id trade_no,mt.symbol coin_unit,m.mobile_phone member_account,m.real_name member_real_name,0 recharge_type,mt.amount recharge_number,mt.type op_type,'返佣' remark FROM `member_transaction` mt
+         LEFT JOIN member m ON m.id = mt.member_id
+         where mt.type = 12 and mt.create_time BETWEEN DATE_SUB(NOW(),INTERVAL 1 DAY) and NOW()
+
+        UNION
+
+        -- 合伙人奖励
+        SELECT now() create_time,CURDATE() op_date,mt.id trade_no,mt.symbol coin_unit,m.mobile_phone member_account,m.real_name member_real_name,0 recharge_type,mt.amount recharge_number,mt.type op_type,'合伙人奖励' remark FROM `member_transaction` mt
+         LEFT JOIN member m ON m.id = mt.member_id
+         where mt.type = 13 and mt.create_time BETWEEN DATE_SUB(NOW(),INTERVAL 1 DAY) and NOW()
+
+        UNION
+
+        -- 人工充值-操盘账户
+        SELECT now() create_time,CURDATE() op_date,mt.id trade_no,mt.symbol coin_unit,m.mobile_phone member_account,m.real_name member_real_name,0 recharge_type,mt.amount recharge_number,1 op_type,'给“操盘账户”充币' remark FROM `member_transaction` mt
+         LEFT JOIN member m ON m.id = mt.member_id
+         where mt.type = 10 and m.id in ( ${traderMemberId} ) and mt.create_time BETWEEN DATE_SUB(NOW(),INTERVAL 1 DAY) and NOW()
+
+        UNION
+
+        -- 人工充值-内部商户
+        SELECT now() create_time,CURDATE() op_date,mt.id trade_no,mt.symbol coin_unit,m.mobile_phone member_account,m.real_name member_real_name,0 recharge_type,mt.amount recharge_number,2 op_type,'给“内部商户”充币' remark FROM `member_transaction` mt
+         LEFT JOIN member m ON m.id = mt.member_id
+         where mt.type = 10 and m.id in
+                ( ${innerMemberId} ) and mt.create_time BETWEEN DATE_SUB(NOW(),INTERVAL 1 DAY) and NOW()
+
+        UNION
+
+        -- 人工充值-员工商户
+        SELECT now() create_time,CURDATE() op_date,mt.id trade_no,mt.symbol coin_unit,m.mobile_phone member_account,m.real_name member_real_name,0 recharge_type,mt.amount recharge_number,3 op_type,'给“员工商户”充币' remark FROM `member_transaction` mt
+         LEFT JOIN member m ON m.id = mt.member_id
+         where mt.type = 10 and m.id in
+                ( ${employeeMemberId} ) and mt.create_time BETWEEN DATE_SUB(NOW(),INTERVAL 1 DAY) and NOW()
+
+        UNION
+
+        -- 人工充值-回购员工商户
+        SELECT now() create_time,CURDATE() op_date,mt.id trade_no,mt.symbol coin_unit,m.mobile_phone member_account,m.real_name member_real_name,1 recharge_type,mt.amount recharge_number,4 op_type,'回购“员工商户”USDT币 币减币' remark FROM `member_transaction` mt
+         LEFT JOIN member m ON m.id = mt.member_id
+         where mt.type = 10 and m.id in
+                ( ${employeeMemberId} ) and `comment` = '回购' and mt.create_time BETWEEN DATE_SUB(NOW(),INTERVAL 1 DAY) and NOW()
+
+        UNION
+
+        -- 人工充值-外部商户充币
+        SELECT now() create_time,CURDATE() op_date,mt.id trade_no,mt.symbol coin_unit,m.mobile_phone member_account,m.real_name member_real_name,0 recharge_type,mt.amount recharge_number,5 op_type,'给“外部商户”充币' remark FROM `member_transaction` mt
+         LEFT JOIN member m ON m.id = mt.member_id
+         where mt.type = 10 and m.id not in
+                ( ${outerMemberId} ) and mt.create_time BETWEEN DATE_SUB(NOW(),INTERVAL 1 DAY) and NOW()
+    </select>
+
+    <insert id="insertRecord">
+        insert into tech_recharge_record(create_time,op_date,trade_no,coin_unit,member_account,member_real_name,recharge_type,recharge_number,op_type,remark)
+         values
+              <foreach collection="list" item="item" index="index" separator=",">
+                  (#{item.createTime},#{item.opDate},#{item.tradeNo},#{item.coinUnit},#{item.memberAccount},#{item.memberRealName},#{item.rechargeType}
+                  ,#{item.rechargeNumber},#{item.opType},#{item.remark})
+              </foreach>
+    </insert>
+</mapper>

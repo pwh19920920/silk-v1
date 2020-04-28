@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.spark.bitrade.mapper.dao.SysNotificationTemplateMapper">
+
+    <select id="selectById" resultType="com.spark.bitrade.entity.SysNotificationTemplate">
+        SELECT * from sys_notification_template where id = #{id} and usable = 1
+    </select>
+
+    <select id="findByType" resultType="com.spark.bitrade.entity.SysNotificationTemplate">
+        SELECT * from sys_notification_template where type = #{type} and notification_type = #{notificationType} and language = #{language} and usable = 1 limit 1
+    </select>
+
+</mapper>

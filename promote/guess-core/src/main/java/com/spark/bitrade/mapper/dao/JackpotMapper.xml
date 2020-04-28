@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.spark.bitrade.mapper.dao.JackpotMapper" >
+  <resultMap id="BaseResultMap" type="com.spark.bitrade.entity.Jackpot" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="period_id" property="periodId" jdbcType="BIGINT" />
+    <result column="prize_price" property="prizePrice" jdbcType="DECIMAL" />
+    <result column="jackpot_balance" property="jackpotBalance" jdbcType="DECIMAL" />
+    <result column="redpacket_balance" property="redpacketBalance" jdbcType="DECIMAL" />
+    <result column="prize_symbol" property="prizeSymbol" jdbcType="VARCHAR" />
+    <result column="redpacket_symbol" property="redpacketSymbol" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, period_id, prize_price, jackpot_balance, redpacket_balance, prize_symbol, redpacket_symbol
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select 
+    <include refid="Base_Column_List" />
+    from pg_jackpot
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+
+  <select id="selectByPeriodId" resultType="com.spark.bitrade.entity.Jackpot" >
+    SELECT
+        pj.*, bpr.begin_range,
+        bpr.end_range
+    FROM
+        pg_jackpot pj
+    LEFT JOIN pg_betting_price_range bpr ON pj.range_id = bpr.id
+    WHERE
+        pj.period_id = #{periodId}
+  </select>
+
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from pg_jackpot
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.spark.bitrade.entity.Jackpot" >
+    insert into pg_jackpot (id, period_id, prize_price, 
+      jackpot_balance, redpacket_balance, prize_symbol, 
+      redpacket_symbol)
+    values (#{id,jdbcType=BIGINT}, #{periodId,jdbcType=BIGINT}, #{prizePrice,jdbcType=DECIMAL}, 
+      #{jackpotBalance,jdbcType=DECIMAL}, #{redpacketBalance,jdbcType=DECIMAL}, #{prizeSymbol,jdbcType=VARCHAR}, 
+      #{redpacketSymbol,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.spark.bitrade.entity.Jackpot" >
+    insert into pg_jackpot
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="periodId != null" >
+        period_id,
+      </if>
+      <if test="prizePrice != null" >
+        prize_price,
+      </if>
+      <if test="jackpotBalance != null" >
+        jackpot_balance,
+      </if>
+      <if test="redpacketBalance != null" >
+        redpacket_balance,
+      </if>
+      <if test="prizeSymbol != null" >
+        prize_symbol,
+      </if>
+      <if test="redpacketSymbol != null" >
+        redpacket_symbol,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="periodId != null" >
+        #{periodId,jdbcType=BIGINT},
+      </if>
+      <if test="prizePrice != null" >
+        #{prizePrice,jdbcType=DECIMAL},
+      </if>
+      <if test="jackpotBalance != null" >
+        #{jackpotBalance,jdbcType=DECIMAL},
+      </if>
+      <if test="redpacketBalance != null" >
+        #{redpacketBalance,jdbcType=DECIMAL},
+      </if>
+      <if test="prizeSymbol != null" >
+        #{prizeSymbol,jdbcType=VARCHAR},
+      </if>
+      <if test="redpacketSymbol != null" >
+        #{redpacketSymbol,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.spark.bitrade.entity.Jackpot" >
+    update pg_jackpot
+    <set >
+      <if test="periodId != null" >
+        period_id = #{periodId,jdbcType=BIGINT},
+      </if>
+      <if test="prizePrice != null" >
+        prize_price = #{prizePrice,jdbcType=DECIMAL},
+      </if>
+      <if test="jackpotBalance != null" >
+        jackpot_balance = #{jackpotBalance,jdbcType=DECIMAL},
+      </if>
+      <if test="redpacketBalance != null" >
+        redpacket_balance = #{redpacketBalance,jdbcType=DECIMAL},
+      </if>
+      <if test="prizeSymbol != null" >
+        prize_symbol = #{prizeSymbol,jdbcType=VARCHAR},
+      </if>
+      <if test="redpacketSymbol != null" >
+        redpacket_symbol = #{redpacketSymbol,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.spark.bitrade.entity.Jackpot" >
+    update pg_jackpot
+    set period_id = #{periodId,jdbcType=BIGINT},
+      prize_price = #{prizePrice,jdbcType=DECIMAL},
+      jackpot_balance = #{jackpotBalance,jdbcType=DECIMAL},
+      redpacket_balance = #{redpacketBalance,jdbcType=DECIMAL},
+      prize_symbol = #{prizeSymbol,jdbcType=VARCHAR},
+      redpacket_symbol = #{redpacketSymbol,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

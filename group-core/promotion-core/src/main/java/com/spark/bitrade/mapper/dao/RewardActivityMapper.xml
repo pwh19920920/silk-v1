@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.spark.bitrade.mapper.dao.RewardActivityMapper">
+
+
+    <select id="findRewardActivity" resultType="com.spark.bitrade.vo.RewardActivitySettingVO">
+        SELECT r.*,coin.unit FROM reward_activity_setting r
+        LEFT JOIN coin ON coin.name=r.coin_id
+    </select>
+
+
+    <!-- 获取推荐返佣的配置列表 -->
+    <select id="getRewardList" resultType="com.spark.bitrade.vo.RewardActivityVo">
+
+        SELECT ras.id,ras.title,'act' tName FROM reward_activity_setting ras where ras.`status` = 1 and ras.is_front_show = 1
+
+        UNION
+
+        SELECT rps.id,rps.title,'promot' tName FROM reward_promotion_setting rps where rps.`status` = 1 and rps.is_front_show = 1
+    </select>
+
+    <!-- 获取返佣配置富文本内容 -->
+    <select id="getRewardActivityDetail" resultType="com.spark.bitrade.vo.RewardActivityResp" parameterType="java.lang.Object">
+        SELECT title,`data` content FROM ${tName} where id = #{id}
+    </select>
+</mapper>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.spark.bitrade.mapper.dao.LockBttcRestitutionIncomePlanMapper">
+
+    <select id="findById" parameterType="java.lang.Long"
+            resultType="com.spark.bitrade.entity.LockBttcRestitutionIncomePlan">
+        SELECT * FROM lock_bttc_restitution_income_plan WHERE lock_detail_id = #{lockDetailId} GROUP BY period DESC
+    </select>
+
+    <select id="findCanRestitutionList" resultType="com.spark.bitrade.entity.LockBttcRestitutionIncomePlan">
+       SELECT * FROM lock_bttc_restitution_income_plan WHERE status = #{status} and reward_time <![CDATA[ <= ]]> #{rewardTime} limit #{lockNum}
+    </select>
+
+    <update id="updateStatus" >
+      UPDATE lock_bttc_restitution_income_plan SET status = #{newStatus} where id = #{id} and status = #{beforeStatus}
+    </update>
+</mapper>

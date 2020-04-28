@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.spark.bitrade.mapper.dao.AdvertiseMapper">
+
+    <select id="pageQueryByOtcCoin" resultType="com.spark.bitrade.entity.transform.OtcAdvertise">
+        SELECT
+        a.country countryName,
+        a.id advertiseId,
+        a.advertise_type advertiseType,
+        a.min_limit minLimit,
+        a.max_limit maxLimit,
+        a.remain_amount remainAmount,
+        a.create_time createTime,
+        a.pay_mode payMode,
+        a.coin_id coinId,
+        a.coin_unit unit,
+        a.coin_unit coinName,
+        a.need_bind_phone needBindPhone,
+        a.need_realname needRealname,
+        a.need_trade_times needTradeTimes,
+        (
+        CASE a.price_type
+        WHEN 0 THEN
+        a.price
+        ELSE
+        round(((a.premise_rate + 100) / 100 * #{marketPrice}), #{coinScale})
+        END
+        ) price,
+        b.avatar,
+        b.username memberName,
+        b.member_level level,
+        b.transactions,
+        a.member_id memberId,
+        a.sort
+        FROM
+        advertise a
+        JOIN member b ON a.member_id = b.id
+        AND a.coin_id = #{coinId}
+        AND a.advertise_type = #{advertiseType}
+        AND a.`status` = #{status}
+        ORDER BY
+        a.member_id not in(74655,74657,74654,103369),
+        a.country,
+        a.remain_amount DESC,
+        price
+        <if test="advertiseType==0">
+            DESC
+        </if>
+        ,b.transactions
+    </select>
+
+
+    <select id="pageQueryByOtcCoinByRank" resultType="com.spark.bitrade.entity.transform.OtcAdvertise">
+        SELECT
+        a.country countryName,
+        a.id advertiseId,
+        a.advertise_type advertiseType,
+        a.min_limit minLimit,
+        a.max_limit maxLimit,
+        a.remain_amount remainAmount,
+        a.create_time createTime,
+        a.pay_mode payMode,
+        a.coin_id coinId,
+        a.coin_unit unit,
+        a.coin_unit coinName,
+        a.need_bind_phone needBindPhone,
+        a.need_realname needRealname,
+        a.need_trade_times needTradeTimes,
+        a.price_type priceType,
+        a.premise_rate premiseRate,
+        a.max_trading_orders maxTradingOrders,
+        (
+        CASE a.price_type
+        WHEN 0 THEN
+        a.price
+        ELSE
+        round(((a.premise_rate + 100) / 100 * #{marketPrice}), #{coinScale})
+        END
+        ) price,
+        b.avatar,
+        b.username memberName,
+        b.member_level level,
+        b.transactions,
+        a.member_id memberId,
+        a.sort
+        FROM
+        advertise a
+        JOIN member b ON a.member_id = b.id
+        AND a.coin_id = #{coinId}
+        AND a.advertise_type = #{advertiseType}
+        AND a.`status` = #{status}
+        ORDER BY
+        sort DESC,
+        <if test="advertiseRankType==0">
+            price
+        </if>
+        <if test="advertiseRankType==1">
+            a.remain_amount
+        </if>
+        <if test="advertiseRankType==2">
+            b.transactions
+        </if>
+        <if test="isPositive==0">
+            DESC
+        </if>
+        ,b.member_level DESC
+    </select>
+
+    <select id="findByMemberIds" resultType="com.spark.bitrade.entity.Advertise">
+        SELECT a.member_id bMemberId, a.country countryName,a.* FROM advertise a
+        where a.coin_id = #{coinId}
+        AND a.`status` = 0
+        AND ((a.price_type = 0 and
+        <![CDATA[a.min_limit <= #{number} * a.price AND a.max_limit >= #{number} * a.price ]]>) or (a.price_type = 1 and
+        <![CDATA[a.min_limit <= #{number} * #{marketPrice}  AND a.max_limit >= #{number} * #{marketPrice}  ]]>))
+        AND a.advertise_type = #{advertiseType}
+        <if test="currencyId != null">
+            AND a.currency_id = #{currencyId}
+        </if>
+        AND a.member_id in
+        <foreach collection="memberIds" item="memberId" index="index" open="(" separator="," close=")">
+            (#{memberId})
+        </foreach>
+    </select>
+    <select id="findByMemberIdAndMoney" resultType="com.spark.bitrade.entity.Advertise">
+
+        SELECT a.member_id bMemberId, a.country countryName,a.* FROM advertise a
+        where a.coin_id = #{coinId}
+        AND a.`status` = 0 and
+        <![CDATA[a.min_limit <=  #{money}  AND a.max_limit >=  #{money}  ]]>
+        AND a.advertise_type = #{advertiseType}
+        <if test="currencyId != null">
+            AND a.currency_id = #{currencyId}
+        </if>
+        AND a.member_id in
+        <foreach collection="memberIds" item="memberId" index="index" open="(" separator="," close=")">
+            (#{memberId})
+        </foreach>
+
+    </select>
+</mapper>

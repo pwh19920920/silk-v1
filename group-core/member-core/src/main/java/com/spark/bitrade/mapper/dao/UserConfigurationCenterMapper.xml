@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.spark.bitrade.mapper.dao.UserConfigurationCenterMapper">
+
+    <!--    获取当前会员，需要发送的消息通道-->
+    <resultMap id="UserConfigurationCenterResult" type="com.spark.bitrade.entity.UserConfigurationCenter">
+        <result column="triggering_event" property="triggeringEvent"/>
+        <result column="is_sms" property="isSms"/>
+        <result column="is_email" property="isEmail"/>
+        <result column="is_apns" property="isApns"/>
+    </resultMap>
+    <select id="getUserConfigurationCenterByMemberIdAndEvent" resultMap="UserConfigurationCenterResult">
+        select triggering_event,is_sms,is_email,is_apns
+        from user_configuration_center where member_id=#{memberId} and triggering_event=#{triggeringEvent} limit 1
+    </select>
+</mapper>

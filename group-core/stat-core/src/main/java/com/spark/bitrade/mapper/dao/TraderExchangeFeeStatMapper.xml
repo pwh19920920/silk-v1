@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.spark.bitrade.mapper.dao.TraderExchangeFeeStatMapper">
+
+    <select id="findAllBy" parameterType="java.lang.String" resultType="com.spark.bitrade.entity.TraderExchangeFeeStat">
+        select id, base_unit, buy_amount, buy_fee, coin_unit, create_time , op_date, sale_amount, sale_fee, traded_amount, turnover
+        from trader_exchange_fee_stat
+        <where>
+            <if test="baseUnit != null and baseUnit != ''">
+                and base_unit = #{baseUnit}
+            </if>
+            <if test="coinUnit != null and coinUnit != ''">
+                and coin_unit = #{coinUnit}
+            </if>
+            <if test="startTime != null and startTime != '' and endTime != null and endTime != ''">
+                and create_time <![CDATA[ > ]]>  #{startTime} and create_time <![CDATA[ < ]]> #{endTime}
+            </if>
+        </where>
+        order by op_date desc
+    </select>
+
+</mapper>

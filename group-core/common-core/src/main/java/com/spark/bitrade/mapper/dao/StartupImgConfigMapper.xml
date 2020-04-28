@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.spark.bitrade.mapper.dao.StartupImgConfigMapper">
+
+<!--auto generated Code-->
+    <resultMap id="AllColumnMap" type="com.spark.bitrade.entity.StartupImgConfig">
+        <result column="id" property="id"/>
+        <result column="image_name" property="imageName"/>
+        <result column="duration" property="duration"/>
+        <result column="to_url" property="toUrl"/>
+        <result column="image_show_range_start" property="imageShowRangeStart"/>
+        <result column="image_show_range_end" property="imageShowRangeEnd"/>
+        <result column="android_image_url" property="androidImageUrl"/>
+        <result column="iphone_image_url" property="iphoneImageUrl"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+<!--auto generated Code-->
+    <sql id="all_column">
+        id,
+        image_name,
+        duration,
+        to_url,
+        image_show_range_start,
+        image_show_range_end,
+        android_image_url,
+        iphone_image_url,
+        create_time,
+        update_time
+    </sql>
+
+<!--auto generated Code-->
+    <insert id="insert">
+        INSERT INTO startup_img_config
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="pojo.id != null"> id, </if>
+            <if test="pojo.imageName != null"> image_name, </if>
+            <if test="pojo.duration != null"> duration, </if>
+            <if test="pojo.toUrl != null"> to_url, </if>
+            <if test="pojo.imageShowRangeStart != null"> image_show_range_start, </if>
+            <if test="pojo.imageShowRangeEnd != null"> image_show_range_end, </if>
+            <if test="pojo.androidImageUrl != null"> android_image_url, </if>
+            <if test="pojo.iphoneImageUrl != null"> iphone_image_url, </if>
+            <if test="pojo.createTime != null"> create_time, </if>
+            <if test="pojo.updateTime != null"> update_time, </if>
+        </trim>
+        VALUES
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="pojo.id != null"> #{pojo.id}, </if>
+            <if test="pojo.imageName != null"> #{pojo.imageName}, </if>
+            <if test="pojo.duration != null"> #{pojo.duration}, </if>
+            <if test="pojo.toUrl != null"> #{pojo.toUrl}, </if>
+            <if test="pojo.imageShowRangeStart != null"> #{pojo.imageShowRangeStart}, </if>
+            <if test="pojo.imageShowRangeEnd != null"> #{pojo.imageShowRangeEnd}, </if>
+            <if test="pojo.androidImageUrl != null"> #{pojo.androidImageUrl}, </if>
+            <if test="pojo.iphoneImageUrl != null"> #{pojo.iphoneImageUrl}, </if>
+            <if test="pojo.createTime != null"> #{pojo.createTime}, </if>
+            <if test="pojo.updateTime != null"> #{pojo.updateTime}, </if>
+        </trim>
+    </insert>
+
+<!--auto generated Code-->
+    <insert id="insertList">
+        INSERT INTO startup_img_config(
+        <include refid="all_column"/>
+        )VALUES
+        <foreach collection="pojos" item="pojo" index="index" separator=",">
+            (
+            #{pojo.id},
+            #{pojo.imageName},
+            #{pojo.duration},
+            #{pojo.toUrl},
+            #{pojo.imageShowRangeStart},
+            #{pojo.imageShowRangeEnd},
+            #{pojo.androidImageUrl},
+            #{pojo.iphoneImageUrl},
+            #{pojo.createTime},
+            #{pojo.updateTime}
+            )
+        </foreach>
+    </insert>
+
+<!--auto generated Code-->
+    <update id="update">
+        UPDATE startup_img_config
+        <set>
+            <if test="pojo.id != null"> id = #{pojo.id}, </if>
+            <if test="pojo.imageName != null"> image_name = #{pojo.imageName}, </if>
+            <if test="pojo.duration != null"> duration = #{pojo.duration}, </if>
+            <if test="pojo.toUrl != null"> to_url = #{pojo.toUrl}, </if>
+            <if test="pojo.imageShowRangeStart != null"> image_show_range_start = #{pojo.imageShowRangeStart}, </if>
+            <if test="pojo.imageShowRangeEnd != null"> image_show_range_end = #{pojo.imageShowRangeEnd}, </if>
+            <if test="pojo.androidImageUrl != null"> android_image_url = #{pojo.androidImageUrl}, </if>
+            <if test="pojo.iphoneImageUrl != null"> iphone_image_url = #{pojo.iphoneImageUrl}, </if>
+            <if test="pojo.createTime != null"> create_time = #{pojo.createTime}, </if>
+        </set>
+         WHERE id = #{pojo.id}
+    </update>
+
+<!--auto generated Code-->
+    <select id="select" resultMap="AllColumnMap">
+        SELECT <include refid="all_column"/>
+        FROM startup_img_config
+        <where>
+            <if test="pojo.id != null"> AND id = #{pojo.id} </if>
+            <if test="pojo.imageName != null"> AND image_name = #{pojo.imageName} </if>
+            <if test="pojo.duration != null"> AND duration = #{pojo.duration} </if>
+            <if test="pojo.toUrl != null"> AND to_url = #{pojo.toUrl} </if>
+            <if test="pojo.imageShowRangeStart != null"> AND image_show_range_start = #{pojo.imageShowRangeStart} </if>
+            <if test="pojo.imageShowRangeEnd != null"> AND image_show_range_end = #{pojo.imageShowRangeEnd} </if>
+            <if test="pojo.androidImageUrl != null"> AND android_image_url = #{pojo.androidImageUrl} </if>
+            <if test="pojo.iphoneImageUrl != null"> AND iphone_image_url = #{pojo.iphoneImageUrl} </if>
+            <if test="pojo.createTime != null"> AND create_time = #{pojo.createTime} </if>
+            <if test="pojo.updateTime != null"> AND update_time = #{pojo.updateTime} </if>
+        </where>
+        LIMIT 1000 
+    </select>
+
+<!--auto generated Code-->
+    <delete id="delete">
+        DELETE FROM startup_img_config where id = #{pojo.id}
+    </delete>
+</mapper>

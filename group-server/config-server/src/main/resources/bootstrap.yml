@@ -1,0 +1,13 @@
+server:
+  port: 7001
+spring:
+  application:
+    name: config-server
+  profiles:
+    active: dev
+management:
+  security:
+    enabled: false
+jasypt:
+  encryptor:
+    password: tP7tFW0qH092eUgkgmRSwxpsgMdNLkjg1bkLtzvYcaIa8VSmJULh6IyO1DC9czGj7lKILD7oXivyDAGQPxrsrjCvMCX/POF9DZ8M2Jo+ZOOwKp16LKdhgQ==

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.spark.bitrade.mapper.dao.TransferSilubiumMapper">
+
+    <select id="findRecordByUidAndAppId" parameterType="java.lang.Object" resultType="com.spark.bitrade.entity.TransferSilubium">
+        SELECT * from transfer_silubium t
+        where
+        t.user_id = #{memberId}
+        <if test="appId != null and appId !=''">
+            and app_id=#{appId}
+        </if>
+        <if test="unit != null and unit !=''">
+            and coin_unit = #{unit}
+        </if>
+
+        <if test="startTime!=null and startTime!='' ">
+            and create_time <![CDATA[>=]]> #{startTime}
+        </if>
+
+        <if test="endTime!=null and endTime!='' ">
+            and create_time <![CDATA[<]]> #{endTime}
+        </if>
+        order by create_time desc
+    </select>
+
+</mapper>

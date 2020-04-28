@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.spark.bitrade.mapper.dao.FincPlatStatMapper">
+
+    <select id="findAllBy" parameterType="java.lang.String" resultType="com.spark.bitrade.entity.FincPlatStat">
+        select id, activity_total, company_total,cust_deposit_total, cust_withdraw_fee_total, cust_withdraw_total, customer_total, date, employee_business_total, inner_business_total,inner_trans_fee_total,inner_trans_total,
+        outer_in_plat_total, plat_all_total, plat_employee_total, plat_inner_total, plat_trader_total, plat_withdraw_total, promotion_total,skill_total,
+        time, trader_total, unit, wallet_total
+        from finc_plat_stat
+        <where>
+            <if test="startTime != null and startTime != '' and endTime != null and endTime != ''">
+                and time <![CDATA[ >= ]]>  #{startTime} and time <![CDATA[ <= ]]> #{endTime}
+            </if>
+        </where>
+        order by id desc
+    </select>
+
+</mapper>

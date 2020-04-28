@@ -1,0 +1,107 @@
+==========================分页或者条件查询模板======================================================
+controller层
+            //分页条件
+            QOrder qOrder = QOrder.order;
+            List<BooleanExpression> booleanExpressionList = new ArrayList();
+            BooleanExpression b = qOrder.id.eq(1L);
+            booleanExpressionList.add(b);
+            List<Order> orderList = orderService.queryWhereOrPage(booleanExpressionList, pageNo-1, pageSize);
+service层
+             /**
+                  * 条件查询对象 pageNo pageSize 同时传时分页
+                  *
+                  * @param booleanExpressionList
+                  * @param pageNo
+                  * @param pageSize
+                  * @return
+                  */
+                 public List<MemberApplication> queryWhereOrPage(List<BooleanExpression> booleanExpressionList, Integer pageNo, Integer pageSize) {
+                     JPAQuery<MemberApplication> jpaQuery = queryFactory.selectFrom(QMemberApplication.memberApplication);
+                     if (booleanExpressionList != null)
+                         jpaQuery.where(booleanExpressionList.toArray(booleanExpressionList.toArray(new BooleanExpression[booleanExpressionList.size()])));
+                     if (pageNo != null && pageSize != null)
+                         return jpaQuery.offset(pageNo).limit(pageSize).fetch();
+                     return jpaQuery.fetch();
+                 }
+
+
+
+=======================================================================================================
+   [新]封装后的分页  @date 2018/1/12 15:00
+    public Page<OtcCoin> pageQuery(Integer pageNo, Integer pageSize, String name, String nameCn) {
+           //排序方式 (需要倒序 这样    Criteria.sort("id","createTime.desc") ) //参数实体类为字段名
+           Sort orders = Criteria.sort("id");
+           //分页参数
+           PageRequest pageRequest = new PageRequest(pageNo, pageSize, orders);
+           //查询条件
+           Criteria<OtcCoin> specification = new Criteria<OtcCoin>();
+           specification.add(Restrictions.like("name", name, false));
+           specification.add(Restrictions.like("nameCn", nameCn, false));
+           return otcCoinDao.findAll(specification, pageRequest);
+       }
+
+========================================================================================
+/**
+     * @param otcCoinQuery otc货币查询字段的封装(类字段名称需要与实体保持一致)
+     * 参考链接 http://blog.csdn.net/zhengxiangwen/article/details/63815551
+     * @return
+     * @author rongyu
+     * @description 分页请求
+     * @date 2018/1/11 15:04
+     */
+    public Page<OtcCoin> pageQuery(Integer pageNo, Integer pageSize, final OtcCoinQuery otcCoinQuery) {
+        //排序方式
+        Sort.Order exchangeOrder1 = new Sort.Order(Sort.Direction.ASC, "id");//new 多个
+        Sort orders = new Sort(exchangeOrder1);//可以添加多个
+        //分页参数
+        PageRequest pageRequest = new PageRequest(pageNo, pageSize, orders);
+        //查询条件
+        Specification<OtcCoin> specification = new Specification<OtcCoin>() {
+            @Override
+            public Predicate toPredicate(Root<OtcCoin> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {
+                List<Predicate> list = new ArrayList<Predicate>();//保存查询条件
+                //条件
+                if (otcCoinQuery.getName() != null && !StringUtils.isEmpty(otcCoinQuery.getName())) {
+                    list.add(criteriaBuilder.like(root.get("name").as(String.class), "%" + otcCoinQuery.getName() + "%"));
+                }
+                if (otcCoinQuery.getNameCn() != null && !StringUtils.isEmpty(otcCoinQuery.getNameCn())) {
+                    list.add(criteriaBuilder.like(root.get("nameCn").as(String.class), "%" + otcCoinQuery.getNameCn() + "%"));
+                }
+                Predicate[] p = new Predicate[list.size()];//转数组对象
+                return criteriaBuilder.and(list.toArray(p));
+            }
+        };
+        //分页查询
+        return otcCoinDao.findAll(specification, pageRequest);
+    }
+
+=======================================================================================================================
+ /**
+     * @author rongyu
+     * @description 分页请求
+     * @date 2018/1/11 15:04
+     */
+    public Page<OtcCoin> pageQuery(Integer pageNo, Integer pageSize, String name, String nameCn) {
+        //排序方式
+        Sort.Order exchangeOrder1 = new Sort.Order(Sort.Direction.ASC, "id");
+        Sort orders = new Sort(exchangeOrder1);
+        //分页参数
+        PageRequest pageRequest = new PageRequest(pageNo, pageSize, orders);
+        //查询条件
+        Specification<OtcCoin> specification = new Specification<OtcCoin>() {
+            @Override
+            public Predicate toPredicate(Root<OtcCoin> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {
+                List<Predicate> list = new ArrayList<Predicate>();//保存查询条件
+                //条件
+                if (StringUtils.isNotBlank(name)) {
+                    list.add(criteriaBuilder.like(root.get("name").as(String.class), "%" + name + "%"));
+                }
+                if (StringUtils.isNotBlank(nameCn)) {
+                    list.add(criteriaBuilder.like(root.get("nameCn").as(String.class), "%" + nameCn + "%"));
+                }
+                Predicate[] p = new Predicate[list.size()];//转数组对象
+                return criteriaBuilder.and(list.toArray(p));
+            }
+        };
+        return otcCoinDao.findAll(specification, pageRequest);
+    }

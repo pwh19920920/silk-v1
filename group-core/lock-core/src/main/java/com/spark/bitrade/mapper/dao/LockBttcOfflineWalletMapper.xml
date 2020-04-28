@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="com.spark.bitrade.mapper.dao.LockBttcOfflineWalletMapper">
+    <select id="findLockBttcOfflineWalletVoByMemberId" resultType="com.spark.bitrade.vo.LockBttcOfflineWalletVo">
+        SELECT IFNULL(
+                  (SELECT balance FROM lock_bttc_offline_wallet WHERE member_id = #{memberId})
+                  ,0) enableUnlockAmount
+                ,IFNULL(
+                  (SELECT unlocked_amount FROM lock_bttc_offline_wallet WHERE member_id = #{memberId})
+                  ,0) unlockedAmount
+                ,IFNULL(
+                  (SELECT balance FROM member_wallet where member_id = #{memberId} and coin_id = 'BTTC')
+                  ,0) balance
+    </select>
+
+
+    <select id="findLockBttcIeoOfflineWalletBalanceByMemberId" resultType="java.math.BigDecimal">
+        SELECT  ifnull(balance,0) from lock_bttc_ieo_offline_wallet where member_id = #{memberId}
+    </select>
+
+    <update id="decreaseOfflineWallet" parameterType="com.spark.bitrade.entity.LockBttcOfflineWallet">
+        <selectKey keyProperty='id' resultType='long' order='BEFORE'>
+            SELECT
+            (select id FROM lock_bttc_offline_wallet WHERE
+            id = #{walletId}) id
+            from DUAL
+        </selectKey>
+        update lock_bttc_offline_wallet set
+           last_release_amount = if(balance &lt; ${am}, balance , ${am}),
+           unlocked_amount = unlocked_amount + if(balance &lt; ${am}, balance , ${am}),
+           balance = balance - if(balance &lt; ${am}, balance , ${am})
+           where id= #{walletId}
+    </update>
+</mapper>

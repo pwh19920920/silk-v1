@@ -1,0 +1,45 @@
+package com.spark.bitrade.entity;
+
+import cn.afterturn.easypoi.excel.annotation.Excel;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.Data;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
+import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import java.io.Serializable;
+import java.util.Date;
+
+/**
+ * 部门
+ *
+ * @author Zhang Jinwei
+ * @date 2017年12月18日
+ */
+@Entity
+@Data
+@Table
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class Department implements Serializable{
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Id
+    private Long id;
+    @Excel(name = "部门名称", orderNum = "1", width = 20)
+    @NotNull(message = "部门名称不能为空")
+    @Column(unique = true,nullable = false)
+    private String name;
+
+    private String remark;
+
+    private Long leaderId;
+
+    @CreationTimestamp
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date createTime;
+
+    @UpdateTimestamp
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date updateTime;
+}

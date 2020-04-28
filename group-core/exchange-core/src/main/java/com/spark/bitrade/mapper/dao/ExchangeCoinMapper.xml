@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.spark.bitrade.mapper.dao.ExchangeCoinMapper">
+
+    <select id="findTraderDiscount" resultType="java.util.Map" parameterType="java.lang.String">
+        SELECT symbol,enable FROM exchange_coin
+        <where>
+            <if test="symbol!=null and symbol!=''">
+                and symbol=#{symbol}
+            </if>
+            <if test="coinSymbol!=null and coinSymbol!=''">
+                and coin_symbol=#{coinSymbol}
+            </if>
+            <if test="baseSymbol!=null and baseSymbol!=''">
+                and base_symbol=#{baseSymbol}
+            </if>
+        </where>
+    </select>
+
+</mapper>

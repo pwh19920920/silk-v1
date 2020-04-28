@@ -1,0 +1,637 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.spark.bitrade.mapper.dao.ExchangeFeeStatMapper">
+
+    <!--======================================== 总币币交易手续费 ========================================== -->
+    <select id="exchangeFeeTotal" parameterType="java.lang.String" resultType="com.spark.bitrade.entity.ExchangeFeeStat">
+       SELECT
+            now() createTime,
+            DATE(#{endTime}) opDate,
+            cn.coin_symbol coinUnit,
+            IFNULL(t1.buy_fee, 0) buyFee,
+            IFNULL(t1.buy_amount, 0) buyAmount,
+            cn.base_symbol baseUnit,
+            IFNULL(t2.sale_fee, 0) saleFee,
+            IFNULL(t2.sale_amount, 0) saleAmount,
+            IFNULL(t3.tradedAmount, 0) tradedAmount,
+            IFNULL(t4.turnover, 0) turnover
+        FROM
+            exchange_coin cn
+        LEFT JOIN (
+            SELECT
+                sum(mt.fee) buy_fee,
+                sum(mt.amount) buy_amount,
+                e.coin_symbol,
+                e.base_symbol
+            FROM
+                member_transaction mt
+            LEFT JOIN exchange_order e ON e.order_id = mt.ref_id
+            WHERE
+                e.direction = 0
+            and e.status != 0
+            AND mt.type = 3
+            AND mt.amount > 0
+            AND mt.create_time BETWEEN #{startTime} and #{endTime}
+            GROUP BY
+                e.coin_symbol,e.base_symbol
+        ) t1 ON t1.coin_symbol = cn.coin_symbol
+        and t1.base_symbol = cn.base_symbol
+        LEFT JOIN (
+            SELECT
+                sum(mt.fee) sale_fee,
+                sum(mt.amount) sale_amount,
+                e.coin_symbol,
+                e.base_symbol
+            FROM
+                member_transaction mt
+            LEFT JOIN exchange_order e ON e.order_id = mt.ref_id
+            WHERE
+                e.direction = 1
+                and e.status != 0
+            AND mt.type = 3
+            AND mt.amount > 0
+            AND mt.create_time BETWEEN #{startTime} and #{endTime}
+            GROUP BY
+                e.coin_symbol,e.base_symbol
+        ) t2 ON t2.coin_symbol = cn.coin_symbol
+        and t2.base_symbol = cn.base_symbol
+        LEFT JOIN (
+            SELECT
+                sum(abs(mt.amount)) tradedAmount,
+                e.coin_symbol,
+                e.base_symbol
+            FROM
+                member_transaction mt
+            LEFT JOIN exchange_order e ON e.order_id = mt.ref_id
+            WHERE mt.symbol = e.coin_symbol
+            AND mt.type = 3
+            AND mt.create_time BETWEEN #{startTime} and #{endTime}
+            GROUP BY
+                e.coin_symbol,e.base_symbol
+        ) t3 ON t3.coin_symbol = cn.coin_symbol
+        and t3.base_symbol = cn.base_symbol
+        LEFT JOIN (
+        select sum(z2.turnover) turnover,
+                z2.coin_symbol,
+         z2.base_symbol from (
+            SELECT
+                (CASE
+                        WHEN mt.symbol = e.base_symbol THEN
+                            abs(mt.amount)
+                        ELSE
+                            0
+                        END
+                ) turnover,
+                e.coin_symbol,
+                e.base_symbol
+            FROM
+                member_transaction mt
+            LEFT JOIN exchange_order e ON e.order_id = mt.ref_id
+            WHERE mt.type = 3
+            and e.status != 0
+            AND mt.create_time BETWEEN #{startTime} and #{endTime}
+        ) z2
+        group by z2.coin_symbol,z2.base_symbol
+        ) t4 ON t4.coin_symbol = cn.coin_symbol
+        and t4.base_symbol = cn.base_symbol
+
+        UNION
+
+        SELECT
+            now() createTime,
+            'total' opDate,
+            cn.coin_symbol coinUnit,
+            IFNULL(t1.buy_fee, 0) buyFee,
+            IFNULL(t1.buy_amount, 0) buyAmount,
+            cn.base_symbol baseUnit,
+            IFNULL(t2.sale_fee, 0) saleFee,
+            IFNULL(t2.sale_amount, 0) saleAmount,
+            IFNULL(t3.tradedAmount, 0) tradedAmount,
+            IFNULL(t4.turnover, 0) turnover
+        FROM
+            exchange_coin cn
+        LEFT JOIN (
+            SELECT
+                sum(mt.fee) buy_fee,
+                sum(mt.amount) buy_amount,
+                e.coin_symbol,
+                e.base_symbol
+            FROM
+                member_transaction mt
+            LEFT JOIN exchange_order e ON e.order_id = mt.ref_id
+            WHERE
+                e.direction = 0
+                and e.status != 0
+            AND mt.type = 3
+            AND mt.amount > 0
+
+            GROUP BY
+                e.coin_symbol,e.base_symbol
+        ) t1 ON t1.coin_symbol = cn.coin_symbol
+        and t1.base_symbol = cn.base_symbol
+        LEFT JOIN (
+            SELECT
+                sum(mt.fee) sale_fee,
+                sum(mt.amount) sale_amount,
+                e.coin_symbol,
+                e.base_symbol
+            FROM
+                member_transaction mt
+            LEFT JOIN exchange_order e ON e.order_id = mt.ref_id
+            WHERE
+                e.direction = 1
+                and e.status != 0
+            AND mt.type = 3
+            AND mt.amount > 0
+
+            GROUP BY
+                e.coin_symbol,e.base_symbol
+        ) t2 ON t2.coin_symbol = cn.coin_symbol
+        and t2.base_symbol = cn.base_symbol
+        LEFT JOIN (
+            SELECT
+                sum(abs(mt.amount)) tradedAmount,
+                e.coin_symbol,
+                e.base_symbol
+            FROM
+                member_transaction mt
+            LEFT JOIN exchange_order e ON e.order_id = mt.ref_id
+            WHERE mt.symbol = e.coin_symbol
+            and e.status != 0
+            AND mt.type = 3
+
+            GROUP BY
+                e.coin_symbol,e.base_symbol
+        ) t3 ON t3.coin_symbol = cn.coin_symbol
+        and t3.base_symbol = cn.base_symbol
+        LEFT JOIN (
+        select sum(z2.turnover) turnover,
+                z2.coin_symbol,
+         z2.base_symbol from (
+            SELECT
+                (CASE
+                        WHEN mt.symbol = e.base_symbol THEN
+                            abs(mt.amount)
+                        ELSE
+                            0
+                        END
+                ) turnover,
+                e.coin_symbol,
+                e.base_symbol
+            FROM
+                member_transaction mt
+            LEFT JOIN exchange_order e ON e.order_id = mt.ref_id
+            WHERE mt.type = 3
+            and e.status != 0
+
+        ) z2
+        group by z2.coin_symbol,z2.base_symbol
+        ) t4 ON t4.coin_symbol = cn.coin_symbol
+        and t4.base_symbol = cn.base_symbol
+
+
+
+    </select>
+
+    <select id="dayOfFeeStat" parameterType="java.lang.String"  resultType="com.spark.bitrade.entity.ExchangeFeeStat">
+        SELECT
+            now() createTime,
+            DATE(#{endTime}) opDate,
+            cn.coin_symbol coinUnit,
+            IFNULL(t1.buy_fee, 0) buyFee,
+            IFNULL(t1.buy_amount, 0) buyAmount,
+            cn.base_symbol baseUnit,
+            IFNULL(t2.sale_fee, 0) saleFee,
+            IFNULL(t2.sale_amount, 0) saleAmount,
+            IFNULL(t3.tradedAmount, 0) tradedAmount,
+            IFNULL(t4.turnover, 0) turnover
+        FROM
+            exchange_coin cn
+        LEFT JOIN (
+            SELECT
+                sum(mt.fee) buy_fee,
+                sum(mt.amount) buy_amount,
+                e.coin_symbol,
+                e.base_symbol
+            FROM
+                member_transaction mt
+            LEFT JOIN exchange_order e ON e.order_id = mt.ref_id
+            WHERE
+                e.direction = 0
+            AND mt.type = 3
+            AND mt.amount > 0
+            AND mt.create_time BETWEEN #{startTime} and #{endTime}
+            GROUP BY
+                e.coin_symbol,e.base_symbol
+        ) t1 ON t1.coin_symbol = cn.coin_symbol
+        and t1.base_symbol = cn.base_symbol
+        LEFT JOIN (
+            SELECT
+                sum(mt.fee) sale_fee,
+                sum(mt.amount) sale_amount,
+                e.coin_symbol,
+                e.base_symbol
+            FROM
+                member_transaction mt
+            LEFT JOIN exchange_order e ON e.order_id = mt.ref_id
+            WHERE
+                e.direction = 1
+                and e.status != 0
+            AND mt.type = 3
+            AND mt.amount > 0
+            AND mt.create_time BETWEEN #{startTime} and #{endTime}
+            GROUP BY
+                e.coin_symbol,e.base_symbol
+        ) t2 ON t2.coin_symbol = cn.coin_symbol
+        and t2.base_symbol = cn.base_symbol
+        LEFT JOIN (
+            SELECT
+                sum(abs(mt.amount)) tradedAmount,
+                e.coin_symbol,
+                e.base_symbol
+            FROM
+                member_transaction mt
+            LEFT JOIN exchange_order e ON e.order_id = mt.ref_id
+            WHERE mt.symbol = e.coin_symbol
+            AND mt.type = 3
+            and e.status != 0
+            AND mt.create_time BETWEEN #{startTime} and #{endTime}
+            GROUP BY
+                e.coin_symbol,e.base_symbol
+        ) t3 ON t3.coin_symbol = cn.coin_symbol
+        and t3.base_symbol = cn.base_symbol
+        LEFT JOIN (
+        select sum(z2.turnover) turnover,
+                z2.coin_symbol,
+         z2.base_symbol from (
+            SELECT
+                (CASE
+                        WHEN mt.symbol = e.base_symbol THEN
+                            abs(mt.amount)
+                        ELSE
+                            0
+                        END
+                ) turnover,
+                e.coin_symbol,
+                e.base_symbol
+            FROM
+                member_transaction mt
+            LEFT JOIN exchange_order e ON e.order_id = mt.ref_id
+            WHERE mt.type = 3
+            and e.status != 0
+            AND mt.create_time BETWEEN #{startTime} and #{endTime}
+        ) z2
+        group by z2.coin_symbol,z2.base_symbol
+        ) t4 ON t4.coin_symbol = cn.coin_symbol
+        and t4.base_symbol = cn.base_symbol
+    </select>
+
+    <!-- 获取统计最新日期 -->
+    <select id="getMaxOpDate" resultType="java.lang.String">
+        SELECT op_date FROM exchange_fee_stat where op_date !='total' order by op_date desc limit 1
+    </select>
+
+    <insert id="insertAndUpdate" parameterType="com.spark.bitrade.entity.ExchangeFeeStat">
+        insert into exchange_fee_stat(create_time,op_date,coin_unit,base_unit,traded_amount,turnover,buy_fee,sale_fee,buy_amount,sale_amount)
+        values(#{createTime},#{opDate},#{coinUnit},#{baseUnit},#{tradedAmount},#{turnover},#{buyFee},#{saleFee},#{buyAmount},#{saleAmount})
+        ON DUPLICATE KEY UPDATE traded_amount=#{tradedAmount},turnover=#{turnover},buy_fee=#{buyFee},sale_fee=#{saleFee},buy_amount=#{buyAmount},sale_amount=#{saleAmount}
+    </insert>
+
+    <update id="updateTotal" parameterType="com.spark.bitrade.entity.ExchangeFeeStat">
+        update exchange_fee_stat set traded_amount = traded_amount + #{tradedAmount},turnover= turnover + #{turnover}
+        ,buy_amount= buy_amount + #{buyAmount}
+        ,sale_amount= sale_amount + #{saleAmount}
+        ,buy_fee= buy_fee + #{buyFee},sale_fee = sale_fee + #{saleFee} where coin_unit = #{coinUnit} and base_unit = #{baseUnit} and op_date ='total'
+    </update>
+    <!--======================================== 总币币交易手续费 End========================================== -->
+
+    <!--======================================== 操盘账户币币交易手续费 ========================================== -->
+    <select id="traderExchangeFeeTotal" parameterType="java.lang.String" resultType="com.spark.bitrade.entity.ExchangeFeeStat">
+        SELECT
+        now() createTime,
+        DATE(#{endTime}) opDate,
+        cn.coin_symbol coinUnit,
+        IFNULL(t1.buy_fee, 0) buyFee,
+        IFNULL(t1.buy_amount, 0) buyAmount,
+        cn.base_symbol baseUnit,
+        IFNULL(t2.sale_fee, 0) saleFee,
+        IFNULL(t2.sale_amount, 0) saleAmount,
+        IFNULL(t3.tradedAmount, 0) tradedAmount,
+        IFNULL(t4.turnover, 0) turnover
+        FROM
+        exchange_coin cn
+        LEFT JOIN (
+        SELECT
+        sum(mt.fee) buy_fee,
+        sum(mt.amount) buy_amount,
+        e.coin_symbol,
+        e.base_symbol
+        FROM
+        member_transaction mt
+        LEFT JOIN exchange_order e ON e.order_id = mt.ref_id
+        WHERE
+        mt.member_id in ( ${traderMemberId} )
+        and  e.direction = 0
+        and e.status != 0
+        AND mt.type = 3
+        AND mt.amount > 0
+        AND mt.create_time BETWEEN #{startTime} and #{endTime}
+        GROUP BY
+        e.coin_symbol,e.base_symbol
+        ) t1 ON t1.coin_symbol = cn.coin_symbol
+        and t1.base_symbol = cn.base_symbol
+        LEFT JOIN (
+        SELECT
+        sum(mt.fee) sale_fee,
+        sum(mt.amount) sale_amount,
+        e.coin_symbol,
+        e.base_symbol
+        FROM
+        member_transaction mt
+        LEFT JOIN exchange_order e ON e.order_id = mt.ref_id
+        WHERE
+        mt.member_id in ( ${traderMemberId} )
+        and e.direction = 1
+        and e.status != 0
+        AND mt.type = 3
+        AND mt.amount > 0
+        AND mt.create_time BETWEEN #{startTime} and #{endTime}
+        GROUP BY
+        e.coin_symbol,e.base_symbol
+        ) t2 ON t2.coin_symbol = cn.coin_symbol
+        and t2.base_symbol = cn.base_symbol
+        LEFT JOIN (
+        SELECT
+        sum(abs(mt.amount)) tradedAmount,
+        e.coin_symbol,
+        e.base_symbol
+        FROM
+        member_transaction mt
+        LEFT JOIN exchange_order e ON e.order_id = mt.ref_id
+        WHERE
+        mt.member_id in ( ${traderMemberId} )
+        and mt.symbol = e.coin_symbol
+        and e.status != 0
+        AND mt.type = 3
+        AND mt.create_time BETWEEN #{startTime} and #{endTime}
+        GROUP BY
+        e.coin_symbol,e.base_symbol
+        ) t3 ON t3.coin_symbol = cn.coin_symbol
+        and t3.base_symbol = cn.base_symbol
+        LEFT JOIN (
+        select sum(z2.turnover) turnover,
+        z2.coin_symbol,
+        z2.base_symbol from (
+        SELECT
+        (CASE
+        WHEN mt.symbol = e.base_symbol THEN
+        abs(mt.amount)
+        ELSE
+        0
+        END
+        ) turnover,
+        e.coin_symbol,
+        e.base_symbol
+        FROM
+        member_transaction mt
+        LEFT JOIN exchange_order e ON e.order_id = mt.ref_id
+        WHERE
+        mt.member_id in ( ${traderMemberId} )
+        and mt.type = 3
+        and e.status != 0
+        AND mt.create_time BETWEEN #{startTime} and #{endTime}
+        ) z2
+        group by z2.coin_symbol,z2.base_symbol
+        ) t4 ON t4.coin_symbol = cn.coin_symbol
+        and t4.base_symbol = cn.base_symbol
+
+        UNION
+
+        SELECT
+        now() createTime,
+        'total' opDate,
+        cn.coin_symbol coinUnit,
+        IFNULL(t1.buy_fee, 0) buyFee,
+        IFNULL(t1.buy_amount, 0) buyAmount,
+        cn.base_symbol baseUnit,
+        IFNULL(t2.sale_fee, 0) saleFee,
+        IFNULL(t2.sale_amount, 0) saleAmount,
+        IFNULL(t3.tradedAmount, 0) tradedAmount,
+        IFNULL(t4.turnover, 0) turnover
+        FROM
+        exchange_coin cn
+        LEFT JOIN (
+        SELECT
+        sum(mt.fee) buy_fee,
+        sum(mt.amount) buy_amount,
+        e.coin_symbol,
+        e.base_symbol
+        FROM
+        member_transaction mt
+        LEFT JOIN exchange_order e ON e.order_id = mt.ref_id
+        WHERE
+        mt.member_id in ( ${traderMemberId} )
+        and e.status != 0
+        and  e.direction = 0
+        AND mt.type = 3
+        AND mt.amount > 0
+
+        GROUP BY
+        e.coin_symbol,e.base_symbol
+        ) t1 ON t1.coin_symbol = cn.coin_symbol
+        and t1.base_symbol = cn.base_symbol
+        LEFT JOIN (
+        SELECT
+        sum(mt.fee) sale_fee,
+        sum(mt.amount) sale_amount,
+        e.coin_symbol,
+        e.base_symbol
+        FROM
+        member_transaction mt
+        LEFT JOIN exchange_order e ON e.order_id = mt.ref_id
+        WHERE
+        mt.member_id in ( ${traderMemberId} )
+        and e.status != 0
+        and  e.direction = 1
+        AND mt.type = 3
+        AND mt.amount > 0
+
+        GROUP BY
+        e.coin_symbol,e.base_symbol
+        ) t2 ON t2.coin_symbol = cn.coin_symbol
+        and t2.base_symbol = cn.base_symbol
+        LEFT JOIN (
+        SELECT
+        sum(abs(mt.amount)) tradedAmount,
+        e.coin_symbol,
+        e.base_symbol
+        FROM
+        member_transaction mt
+        LEFT JOIN exchange_order e ON e.order_id = mt.ref_id
+        WHERE
+        mt.member_id in ( ${traderMemberId} )
+        and mt.symbol = e.coin_symbol
+        and e.status != 0
+        AND mt.type = 3
+
+        GROUP BY
+        e.coin_symbol,e.base_symbol
+        ) t3 ON t3.coin_symbol = cn.coin_symbol
+        and t3.base_symbol = cn.base_symbol
+        LEFT JOIN (
+        select sum(z2.turnover) turnover,
+        z2.coin_symbol,
+        z2.base_symbol from (
+        SELECT
+        (CASE
+        WHEN mt.symbol = e.base_symbol THEN
+        abs(mt.amount)
+        ELSE
+        0
+        END
+        ) turnover,
+        e.coin_symbol,
+        e.base_symbol
+        FROM
+        member_transaction mt
+        LEFT JOIN exchange_order e ON e.order_id = mt.ref_id
+        WHERE
+        mt.member_id in ( ${traderMemberId} )
+        and  mt.type = 3
+        and e.status != 0
+
+        ) z2
+        group by z2.coin_symbol,z2.base_symbol
+        ) t4 ON t4.coin_symbol = cn.coin_symbol
+        and t4.base_symbol = cn.base_symbol
+    </select>
+
+
+    <select id="traderDayOfFeeStat" parameterType="java.lang.String" resultType="com.spark.bitrade.entity.ExchangeFeeStat">
+        SELECT
+        now() createTime,
+        DATE(#{endTime}) opDate,
+        cn.coin_symbol coinUnit,
+        IFNULL(t1.buy_fee, 0) buyFee,
+        IFNULL(t1.buy_amount, 0) buyAmount,
+        cn.base_symbol baseUnit,
+        IFNULL(t2.sale_fee, 0) saleFee,
+        IFNULL(t2.sale_amount, 0) saleAmount,
+        IFNULL(t3.tradedAmount, 0) tradedAmount,
+        IFNULL(t4.turnover, 0) turnover
+        FROM
+        exchange_coin cn
+        LEFT JOIN (
+        SELECT
+        sum(mt.fee) buy_fee,
+        sum(mt.amount) buy_amount,
+        e.coin_symbol,
+        e.base_symbol
+        FROM
+        member_transaction mt
+        LEFT JOIN exchange_order e ON e.order_id = mt.ref_id
+        WHERE
+        mt.member_id in ( ${traderMemberId} )
+        and  e.direction = 0
+        and e.status != 0
+        AND mt.type = 3
+        AND mt.amount > 0
+        AND mt.create_time BETWEEN #{startTime} and #{endTime}
+        GROUP BY
+        e.coin_symbol,e.base_symbol
+        ) t1 ON t1.coin_symbol = cn.coin_symbol
+        and t1.base_symbol = cn.base_symbol
+        LEFT JOIN (
+        SELECT
+        sum(mt.fee) sale_fee,
+        sum(mt.amount) sale_amount,
+        e.coin_symbol,
+        e.base_symbol
+        FROM
+        member_transaction mt
+        LEFT JOIN exchange_order e ON e.order_id = mt.ref_id
+        WHERE
+        mt.member_id in ( ${traderMemberId} )
+        and e.direction = 1
+        and e.status != 0
+        AND mt.type = 3
+        AND mt.amount > 0
+        AND mt.create_time BETWEEN #{startTime} and #{endTime}
+        GROUP BY
+        e.coin_symbol,e.base_symbol
+        ) t2 ON t2.coin_symbol = cn.coin_symbol
+        and t2.base_symbol = cn.base_symbol
+        LEFT JOIN (
+        SELECT
+        sum(abs(mt.amount)) tradedAmount,
+        e.coin_symbol,
+        e.base_symbol
+        FROM
+        member_transaction mt
+        LEFT JOIN exchange_order e ON e.order_id = mt.ref_id
+        WHERE
+        mt.member_id in ( ${traderMemberId} )
+        and mt.symbol = e.coin_symbol
+        and e.status != 0
+        AND mt.type = 3
+        AND mt.create_time BETWEEN #{startTime} and #{endTime}
+        GROUP BY
+        e.coin_symbol,e.base_symbol
+        ) t3 ON t3.coin_symbol = cn.coin_symbol
+        and t3.base_symbol = cn.base_symbol
+        LEFT JOIN (
+        select sum(z2.turnover) turnover,
+        z2.coin_symbol,
+        z2.base_symbol from (
+        SELECT
+        (CASE
+        WHEN mt.symbol = e.base_symbol THEN
+        abs(mt.amount)
+        ELSE
+        0
+        END
+        ) turnover,
+        e.coin_symbol,
+        e.base_symbol
+        FROM
+        member_transaction mt
+        LEFT JOIN exchange_order e ON e.order_id = mt.ref_id
+        WHERE
+        mt.member_id in ( ${traderMemberId} )
+        and mt.type = 3
+        and e.status != 0
+        AND mt.create_time BETWEEN #{startTime} and #{endTime}
+        ) z2
+        group by z2.coin_symbol,z2.base_symbol
+        ) t4 ON t4.coin_symbol = cn.coin_symbol
+        and t4.base_symbol = cn.base_symbol
+    </select>
+
+    <!-- 获取统计最新日期 -->
+    <select id="getTraderMaxOpDate" resultType="java.lang.String">
+        SELECT op_date FROM trader_exchange_fee_stat where op_date !='total' order by op_date desc limit 1
+    </select>
+
+    <insert id="traderInsertAndUpdate" parameterType="com.spark.bitrade.entity.ExchangeFeeStat">
+        insert into trader_exchange_fee_stat(create_time,op_date,coin_unit,base_unit,traded_amount,turnover,buy_fee,sale_fee,buy_amount,sale_amount)
+        values(#{createTime},#{opDate},#{coinUnit},#{baseUnit},#{tradedAmount},#{turnover},#{buyFee},#{saleFee},#{buyAmount},#{saleAmount})
+        ON DUPLICATE KEY UPDATE traded_amount=#{tradedAmount},turnover=#{turnover},buy_fee=#{buyFee},sale_fee=#{saleFee},buy_amount=#{buyAmount},sale_amount=#{saleAmount}
+    </insert>
+
+    <update id="traderUpdateTotal" parameterType="com.spark.bitrade.entity.ExchangeFeeStat">
+        update trader_exchange_fee_stat set traded_amount = traded_amount + #{tradedAmount},turnover= turnover + #{turnover}
+        ,buy_amount= buy_amount + #{buyAmount}
+        ,sale_amount= sale_amount + #{saleAmount}
+        ,buy_fee= buy_fee + #{buyFee},sale_fee = sale_fee + #{saleFee} where coin_unit = #{coinUnit} and base_unit = #{baseUnit} and op_date ='total'
+    </update>
+
+    <select id="traderCount" resultType="java.lang.Integer">
+        select count(*) from trader_exchange_fee_stat where op_date = 'total'
+    </select>
+
+    <insert id="traderInsert" parameterType="com.spark.bitrade.entity.ExchangeFeeStat">
+        insert into trader_exchange_fee_stat(create_time,op_date,coin_unit,base_unit,traded_amount,turnover,buy_fee,sale_fee)
+        values(#{createTime},#{opDate},#{coinUnit},#{baseUnit},#{tradedAmount},#{turnover},#{buyFee},#{saleFee})
+    </insert>
+    <!--======================================== 操盘账户币币交易手续费 End========================================== -->
+</mapper>

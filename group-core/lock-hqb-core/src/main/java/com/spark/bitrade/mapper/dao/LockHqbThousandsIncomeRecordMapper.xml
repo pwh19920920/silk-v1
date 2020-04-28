@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.spark.bitrade.mapper.dao.LockHqbThousandsIncomeRecordMapper">
+
+    <select id="yesterdayThousandsIncome" parameterType="java.lang.Object"
+            resultType="com.spark.bitrade.entity.LockHqbThousandsIncomeRecord">
+        SELECT * FROM lock_hqb_thousands_income_record
+        <where>
+            app_id = #{appId} and coin_symbol = #{unit}
+            <if test="time!=null and ''!=time">
+                and op_time = #{time}
+            </if>
+        </where>
+        <if test="time==null or ''==time">
+            ORDER BY op_time DESC LIMIT 1
+        </if>
+
+    </select>
+
+    <select id="lastMonthThousandsIncome" parameterType="java.lang.Object"
+            resultType="com.spark.bitrade.entity.LockHqbThousandsIncomeRecord">
+        SELECT * FROM lock_hqb_thousands_income_record
+        WHERE app_id = #{appId} AND coin_symbol = #{unit} ORDER BY op_time DESC LIMIT #{limit}
+
+    </select>
+</mapper>

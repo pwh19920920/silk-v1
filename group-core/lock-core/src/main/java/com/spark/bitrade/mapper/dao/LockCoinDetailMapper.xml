@@ -1,0 +1,317 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.spark.bitrade.mapper.dao.LockCoinDetailMapper">
+
+     <resultMap id="lockCoinDetail" type="com.spark.bitrade.entity.LockCoinDetailBuilder">
+         <result column="id" property="id"/>
+         <!--<result column="member_id" property="memberId"/>-->
+         <!--<result column="type" property="type" typeHandler="org.apache.ibatis.type.EnumOrdinalTypeHandler"/>-->
+         <result column="coin_unit" property="symbol"/>
+         <result column="activitie_id" property="refActivitieId"/>
+         <result column="total_amount" property="lockNum"/>
+         <result column="lock_price" property="lockPrice"/>
+         <!--<result column="remain_amount" property="remainAmount"/>-->
+         <result column="lock_time" property="lockTime"/>
+         <result column="plan_unlock_time" property="planUnlockTime"/>
+         <result column="plan_income" property="planIncome"/>
+         <!--<result column="status" property="status" typeHandler="org.apache.ibatis.type.EnumOrdinalTypeHandler"/>-->
+         <result column="unlock_time" property="unlockTime"/>
+         <result column="cancle_time" property="cancleTime"/>
+         <result column="lockCopies" property="lockCopies"/>
+         <result column="earning_rate" property="earningRate"/>
+         <result column="cycle" property="cycle"/>
+         <result column="cycle" property="cycle"/>
+
+     </resultMap>
+
+    <resultMap id="unLockCoinDetail" type="com.spark.bitrade.entity.UnLockCoinDetailBuilder">
+        <result column="id" property="id"/>
+        <result column="coin_unit" property="symbol"/>
+        <result column="total_amount" property="lockNum"/>
+        <result column="lock_time" property="lockTime"/>
+        <result column="lock_price" property="lockPrice"/>
+        <!--<result column="threshold_type" property="thresholdType" typeHandler="org.apache.ibatis.type.EnumOrdinalTypeHandler"/>-->
+        <result column="num" property="unlockNum"/>
+        <result column="lastUnLockPrice" property="lastUnLockPrice"/>
+        <result column="lastUnlockTime" property="lastUnlockTime"/>
+        <result column="remain_amount" property="remainAmount"/>
+        <!--<result column="status" property="status" typeHandler="org.apache.ibatis.type.EnumOrdinalTypeHandler"/>-->
+        <result column="note" property="note"/>
+    </resultMap>
+
+
+    <select id="pageQueryByMemberAndActivitId"  resultMap="lockCoinDetail">
+
+       SELECT
+       a.*,d.earning_rate,d.lock_days/30 cycle,a.total_amount/d.unit_per_amount lockCopies, d.activitie_id
+        FROM
+            lock_coin_detail a
+        LEFT JOIN (
+            SELECT
+               		b.id,
+                    b.activitie_id,
+                    b.lock_days,
+                    b.earning_rate,
+                    b.unit_per_amount
+            FROM
+                lock_coin_activitie_setting b
+            LEFT JOIN lock_coin_activitie_project c ON b.activitie_id = c.id
+        ) d ON a.ref_activitie_id = d.id
+        WHERE
+        d.activitie_id = #{activitieId} AND  a.member_id = #{memberId} AND a.type = #{type} order by a.id desc
+    </select>
+
+
+    <select id="pageQueryByMember"  resultMap="lockCoinDetail">
+        SELECT
+        a.*,d.earning_rate,d.lock_days/30 cycle,a.total_amount/d.unit_per_amount lockCopies, d.activitie_id
+        FROM
+        lock_coin_detail a
+        LEFT JOIN (
+        SELECT
+        b.id,
+        b.activitie_id,
+        b.lock_days,
+        b.earning_rate,
+        b.unit_per_amount
+        FROM
+        lock_coin_activitie_setting b
+        LEFT JOIN lock_coin_activitie_project c ON b.activitie_id = c.id
+        ) d ON a.ref_activitie_id = d.id
+        WHERE
+        a.member_id = #{memberId} and type = #{type} order by a.id desc
+    </select>
+
+    <select id="pageQueryByMemberAndTypeAndSymbol"  resultMap="lockCoinDetail">
+        SELECT
+        a.*,d.earning_rate,d.lock_days/30 cycle,a.total_amount/d.unit_per_amount lockCopies, d.activitie_id
+        FROM
+        lock_coin_detail a
+        LEFT JOIN (
+        SELECT
+        b.id,
+        b.activitie_id,
+        b.lock_days,
+        b.earning_rate,
+        b.unit_per_amount
+        FROM
+        lock_coin_activitie_setting b
+        LEFT JOIN lock_coin_activitie_project c ON b.activitie_id = c.id
+        ) d ON a.ref_activitie_id = d.id
+        WHERE
+        a.member_id = #{memberId} and type = #{type} and coin_unit =#{symbol} order by a.id desc
+    </select>
+
+    <select id="findOneByid"  resultMap="lockCoinDetail">
+        SELECT
+            c.*, (e.price * e.usdt_pricecny) unLockPriceCNY,
+            (
+                c.totalcny * c.damages_amount
+            ) damagesAmount,
+            e.usdt_pricecny unLockUSDTPriceCNY,
+            e.settlement_type settlementType,
+            e.settlement_amount settlementIncome,
+            e.income_type incomeType
+        FROM
+            (
+                SELECT
+                    a.*, d.earning_rate,
+                    d.lock_days / 30 cycle,
+                    a.total_amount / d.unit_per_amount lockCopies,
+                    d.activitie_id,
+                    d.damages_amount
+                FROM
+                    lock_coin_detail a
+                LEFT JOIN (
+                    SELECT
+                        b.id,
+                        b.activitie_id,
+                        b.lock_days,
+                        b.earning_rate,
+                        b.unit_per_amount,
+                        b.damages_amount
+                    FROM
+                        lock_coin_activitie_setting b
+                    LEFT JOIN lock_coin_activitie_project c ON b.activitie_id = c.id
+                ) d ON a.ref_activitie_id = d.id
+                WHERE
+                    a.id = #{lockCoinDetailId}
+            ) c
+        LEFT JOIN unlock_coin_detail e ON c.id = e.lock_coin_detail_id
+    </select>
+
+    <select id="findOneByIdAndType"  resultType="com.spark.bitrade.entity.LockCoinDetail">
+        SELECT * from lock_coin_detail l where id = #{id} and type = #{type}
+    </select>
+
+    <select id="findOneByIdAndTypeAndMemberId"  resultType="com.spark.bitrade.entity.LockCoinDetail">
+        SELECT * from lock_coin_detail l where id = #{id} and type = #{type} and member_id = #{memberId}
+    </select>
+
+
+    <select id="findHandleLockDetail"  resultMap="unLockCoinDetail">
+        SELECT
+            *
+        FROM
+            (
+                SELECT
+                    a.*, b.threshold_type,
+                    b.note
+                FROM
+                    lock_coin_detail a
+                LEFT JOIN lock_coin_recharge_setting b ON a.ref_activitie_id = b.id
+                WHERE
+                    type = 1
+            ) c
+        LEFT JOIN (
+            SELECT
+                id,
+                lock_coin_detail_id,
+                lastUnLockPrice,
+                lastUnlockTime,
+                amount,
+                count(d.id) num
+            FROM
+                (
+                    SELECT
+                        id,
+                        lock_coin_detail_id,
+                        price lastUnLockPrice,
+                        create_time lastUnlockTime,
+                        amount
+                    FROM
+                        unlock_coin_detail
+                    ORDER BY
+                        id DESC
+                ) d
+            GROUP BY
+                d.lock_coin_detail_id
+        ) e ON c.id = e.lock_coin_detail_id WHERE  member_id = #{memberId} order by c.id desc
+    </select>
+
+
+    <select id="findHandleUnLockDetail"  resultType="com.spark.bitrade.entity.UnlockCoinDetail">
+        SELECT * from unlock_coin_detail where lock_coin_detail_id = #{lockCoinDetailId} ORDER BY create_time desc
+    </select>
+
+    <!-- 查询用户锁定状态cny总额 -->
+    <select id="queryUserQuantifyTotalCny" resultType="java.math.BigDecimal" parameterType="java.lang.Long">
+        SELECT sum(lcd.totalcny) totalcny FROM `lock_coin_detail` lcd
+         where lcd.type = 4 and lcd.`status` = 0 and lcd.member_id = #{memberId}
+    </select>
+    <!-- 分页查询-->
+    <select id="findByPlanUnlockTimeAndSmsSendStatus" resultType="com.spark.bitrade.dto.LockCoinDetailVo">
+        SELECT s1.mobile_phone,s2.id,s2.sms_send_status FROM lock_coin_detail s2 LEFT JOIN member s1 ON s1.id=s2.member_id
+        <where>
+            <![CDATA[
+        AND NOW() >= plan_unlock_time
+         ]]>
+            AND s2.sms_send_status=#{smsSendStatus}
+            AND s2.type = #{type}
+        </where>
+
+    </select>
+
+    <!-- 查询总的锁仓收益 -->
+    <select id="queryTotalInCome" resultType="java.math.BigDecimal">
+        SELECT sum(lcd.plan_income) totalIncome FROM `lock_coin_detail` lcd LEFT JOIN lock_coin_activitie_setting lcas on lcd.ref_activitie_id = lcas.id
+        where lcd.coin_unit = #{unit} and lcd.`status` = 0 and lcd.member_id = #{memberId} and lcas.type = #{type}
+    </select>
+
+    <select id="findByMemberIdAndType" parameterType="java.lang.Object" resultType="com.spark.bitrade.entity.LockCoinDetail">
+        SELECT * FROM lock_coin_detail WHERE member_id = #{memberId} AND type = #{type} AND status in (0,3);
+    </select>
+
+    <select id="statTotalAndIncome" resultType="java.util.Map" parameterType="java.lang.Object">
+        select * from
+        (select IFNULL(sum(total_amount),0)lockAmount from lock_coin_detail where member_id =#{memberId} and type = #{type} and status = 0 and coin_unit = #{symbol}) total,
+        (select IFNULL(sum(plan_income),0)incomeAmount from lock_coin_detail where member_id =#{memberId} and type = #{type} and coin_unit = #{symbol} )income
+    </select>
+
+    <!-- 根据用户id查询是否存在满足STO锁仓新等级条件的锁仓数量(360天) -->
+    <select id="queryQualificationDetailByMemberId" parameterType="java.lang.Object" resultType="java.math.BigDecimal">
+        SELECT sum(total_amount) cnt from lock_coin_detail lcd
+         where type = 6 and member_id =#{memberId}
+
+         <if test="symbol !=null and symbol!=''">
+             and coin_unit = #{symbol}
+         </if>
+        <if test="lockDays !=0 and lockDays!=-1">
+             and DATEDIFF(lcd.plan_unlock_time,lock_time) = #{lockDays}
+         </if>
+    </select>
+    <!-- 根据用户id查询子部门总业绩数量 -->
+    <select id="queryMemberSubAmount" parameterType="java.lang.Long" resultType="java.math.BigDecimal">
+        SELECT sub_department_amount_total from lock_market_performance_total where member_id = #{memberId}
+        <if test="symbol !=null and symbol!=''">
+            and symbol = #{symbol}
+        </if>
+    </select>
+
+
+    <!-- 根据锁仓id查询未返佣的锁仓记录详情 -->
+    <select id="queryLockDetailById" parameterType="java.lang.Long" resultType="com.spark.bitrade.entity.LockCoinDetail">
+        select * from lock_coin_detail where type = 6 and id = #{id}
+    </select>
+
+    <!-- 根据锁仓id查询是否存在返佣记录 -->
+    <select id="isExistRewardRecord" parameterType="java.lang.Long" resultType="int">
+        select count(id) from lock_market_reward_detail lm where lm.lock_detail_id=#{lockDetailId};
+    </select>
+
+    <select id="findGoldenKeyLockRecords" resultType="com.spark.bitrade.entity.CustomerLockCoinDetail">
+        select lc.id id,lc.coin_unit coinUnit,lc.total_amount totalAmount,lc.begin_days lockDays,
+            lc.remain_amount remainAmount,lc.lock_time lockTime,lc.unlock_time unlockTime,lc.status status
+         from lock_coin_detail lc where lc.member_id=#{memberId} and lc.type=#{lockType}
+          order by lc.lock_time desc
+    </select>
+
+    <select id="listAll" resultType="com.spark.bitrade.dto.LockCoinActivitieProjectDto">
+        SELECT * from lock_coin_activitie_project
+        where type in (8,7)
+    </select>
+    <select id="memberCount" parameterType="java.lang.String" resultType="com.spark.bitrade.dto.LockCoinActivitieProjectDto">
+        SELECT
+          COUNT(DISTINCT member_id) as memberTotal,d.ref_activitie_id as id
+        FROM
+          lock_coin_detail d
+        WHERE
+          ref_activitie_id IN
+          <foreach collection="list" item="id" index="index" open="(" close=")" separator=",">
+            #{id}
+          </foreach>
+        GROUP BY
+          d.ref_activitie_id
+    </select>
+    <select id="selectInternational"
+            resultType="com.spark.bitrade.entity.LockCoinActivitieProjectInternational">
+        select * from lock_coin_activitie_project_international
+        where project_id = #{projectId} and international_type = #{type}
+    </select>
+    <select id="findProjectById" resultType="com.spark.bitrade.dto.LockCoinActivitieProjectDto">
+        select * from lock_coin_activitie_project where id = #{activiteId}
+    </select>
+    <select id="findByMemberIds" resultType="com.spark.bitrade.entity.LockCoinDetail">
+        select * from lock_coin_detail where member_id = #{memberId} and ref_activitie_id in
+        <foreach collection="list" item="setting" index="index" open="(" close=")" separator=",">
+            #{setting.id}
+        </foreach>
+    </select>
+    <select id="selectInternationalSetting"
+            resultType="com.spark.bitrade.entity.LockCoinActivitieSettingInternational">
+        select * from lock_coin_activitie_setting_international
+        where setting_id = #{settingId} and international_type = #{type}
+    </select>
+    <select id="selectByActivitieIds" resultType="com.spark.bitrade.entity.LockCoinActivitieSetting">
+        select * from lock_coin_activitie_setting where id in
+        <foreach collection="list" item="id" index="index" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </select>
+    <select id="findByMemberId" resultType="com.spark.bitrade.entity.LockCoinDetail">
+        select * from lock_coin_detail where member_id = #{memberId} and ref_activitie_id = #{activitieId}
+    </select>
+
+
+</mapper>

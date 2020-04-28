@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.spark.bitrade.mapper.dao.BettingPriceRangeMapper" >
+  <resultMap id="BaseResultMap" type="com.spark.bitrade.entity.BettingPriceRange" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="period_id" property="periodId" jdbcType="BIGINT" />
+    <result column="seq_id" property="seqId" jdbcType="INTEGER" />
+    <result column="group_name" property="groupName" jdbcType="VARCHAR" />
+    <result column="begin_range" property="beginRange" jdbcType="DECIMAL" />
+    <result column="end_range" property="endRange" jdbcType="DECIMAL" />
+    <result column="order_id" property="orderId" jdbcType="INTEGER" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, period_id, seq_id, group_name, begin_range, end_range, order_id
+  </sql>
+
+  <select id="selectByPrimaryKey" resultType="com.spark.bitrade.entity.BettingPriceRange" >
+    select 
+    *
+    from pg_betting_price_range
+    where id = #{id}
+  </select>
+
+  <select id="selectByPeriodId" resultType="com.spark.bitrade.entity.BettingPriceRange" >
+    SELECT
+        bpr.*,SUM(br.bet_num) number
+    FROM
+        pg_betting_price_range bpr
+    LEFT JOIN pg_betting_record br ON bpr.id = br.range_id
+    WHERE
+        bpr.period_id = #{periodId}
+    GROUP BY
+        bpr.id
+  </select>
+
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from pg_betting_price_range
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.spark.bitrade.entity.BettingPriceRange" >
+    insert into pg_betting_price_range (id, period_id, seq_id, 
+      group_name, begin_range, end_range, 
+      order_id)
+    values (#{id,jdbcType=BIGINT}, #{periodId,jdbcType=BIGINT}, #{seqId,jdbcType=INTEGER}, 
+      #{groupName,jdbcType=VARCHAR}, #{beginRange,jdbcType=DECIMAL}, #{endRange,jdbcType=DECIMAL}, 
+      #{orderId,jdbcType=INTEGER})
+  </insert>
+  <insert id="insertSelective" parameterType="com.spark.bitrade.entity.BettingPriceRange" >
+    insert into pg_betting_price_range
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="periodId != null" >
+        period_id,
+      </if>
+      <if test="seqId != null" >
+        seq_id,
+      </if>
+      <if test="groupName != null" >
+        group_name,
+      </if>
+      <if test="beginRange != null" >
+        begin_range,
+      </if>
+      <if test="endRange != null" >
+        end_range,
+      </if>
+      <if test="orderId != null" >
+        order_id,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="periodId != null" >
+        #{periodId,jdbcType=BIGINT},
+      </if>
+      <if test="seqId != null" >
+        #{seqId,jdbcType=INTEGER},
+      </if>
+      <if test="groupName != null" >
+        #{groupName,jdbcType=VARCHAR},
+      </if>
+      <if test="beginRange != null" >
+        #{beginRange,jdbcType=DECIMAL},
+      </if>
+      <if test="endRange != null" >
+        #{endRange,jdbcType=DECIMAL},
+      </if>
+      <if test="orderId != null" >
+        #{orderId,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.spark.bitrade.entity.BettingPriceRange" >
+    update pg_betting_price_range
+    <set >
+      <if test="periodId != null" >
+        period_id = #{periodId,jdbcType=BIGINT},
+      </if>
+      <if test="seqId != null" >
+        seq_id = #{seqId,jdbcType=INTEGER},
+      </if>
+      <if test="groupName != null" >
+        group_name = #{groupName,jdbcType=VARCHAR},
+      </if>
+      <if test="beginRange != null" >
+        begin_range = #{beginRange,jdbcType=DECIMAL},
+      </if>
+      <if test="endRange != null" >
+        end_range = #{endRange,jdbcType=DECIMAL},
+      </if>
+      <if test="orderId != null" >
+        order_id = #{orderId,jdbcType=INTEGER},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.spark.bitrade.entity.BettingPriceRange" >
+    update pg_betting_price_range
+    set period_id = #{periodId,jdbcType=BIGINT},
+      seq_id = #{seqId,jdbcType=INTEGER},
+      group_name = #{groupName,jdbcType=VARCHAR},
+      begin_range = #{beginRange,jdbcType=DECIMAL},
+      end_range = #{endRange,jdbcType=DECIMAL},
+      order_id = #{orderId,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

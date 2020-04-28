@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.spark.bitrade.mapper.dao.LockUttMemberMapper">
+
+    <select id="findBttcImportList" resultType="com.spark.bitrade.vo.LockBttcImportVo">
+        SELECT
+        DATE_FORMAT(create_time,'%Y-%m-%d %H:%i:%s') as importTime,
+        balance as amount,
+        member_id as memberId
+        FROM
+        ${tableName}
+        WHERE
+        member_id=#{memberId}
+        AND status=1
+
+    </select>
+
+</mapper>

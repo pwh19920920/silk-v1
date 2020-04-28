@@ -1,0 +1,6 @@
+ 火币交易数据获取接口测试地址：
+ https://api.huobi.pro/market/trade?AccessKeyId=44dfbd12-89145178-dffabcb2-42ebe&SignatureMethod=HmacSHA256&SignatureVersion=2&Timestamp=2018-04-15T04%3A54%3A34&symbol=btcusdt
+
+上币：
+ 1）在https://www.huobipro.com/zh-cn/coin_coin/exchange/#s=btc_usdt查询是否有带上的币
+ 2）使用测试地址，更改symbol的值即可测试

@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.spark.bitrade.mapper.dao.SilkTraderPayMapper">
+
+
+    <select id="findAll" resultType="com.spark.bitrade.entity.SilkTraderContract">SELECT * FROM silk_trader_contract</select>
+
+    <insert id="create" parameterType="com.spark.bitrade.entity.SilkTraderContract" >
+        INSERT INTO silk_trader_contract(async_notify_url,busi_account,comment,contract_no,contract_start,create_time,discount,expire_time,message_key,period,status,busi_url)
+        VALUES(#{asyncNotifyUrl},#{busiAccount},#{comment},#{contractNo},now(),now(),#{discount},#{expireTime},#{messageKey},#{period},#{status},#{busiUrl})
+    </insert>
+
+    <select id="findOne" parameterType="java.lang.Long" resultType="com.spark.bitrade.entity.SilkTraderContract">
+        SELECT * FROM silk_trader_contract WHERE id=#{id}
+    </select>
+    
+    <delete id="deletes" parameterType="java.lang.Long" >DELETE FROM silk_trader_contract WHERE id in
+      <foreach collection="array" open="(" separator="," close=")" item="ids">
+          #{ids}
+      </foreach>
+    </delete>
+
+    <update id="update" parameterType="com.spark.bitrade.entity.SilkTraderContract">
+        UPDATE silk_trader_contract SET
+        async_notify_url=#{asyncNotifyUrl},
+        busi_account=#{busiAccount},
+        comment=#{comment},
+        contract_no=#{contractNo},
+        discount=#{discount},
+        expire_time=#{expireTime},
+        message_key=#{messageKey},
+        period=#{period},
+        update_time=now(),
+        busi_url=#{busiUrl}
+        WHERE id=#{id}
+    </update>
+
+    <select id="findStatusById" parameterType="long" resultType="int">SELECT status FROM silk_trader_contract WHERE id=#{id}</select>
+
+    <update id="updateStatus" parameterType="java.lang.Long"> UPDATE silk_trader_contract SET status=#{status} WHERE id=#{id}</update>
+
+    <select id="findDetailAll" parameterType="java.lang.String"  resultType="com.spark.bitrade.entity.SilkTraderContractDetail">SELECT * FROM silk_trader_contract_detail WHERE contract_no=#{contractNo}</select>
+
+    <select id="findDetailOne" parameterType="java.lang.Long" resultType="com.spark.bitrade.entity.SilkTraderContractDetail">
+        SELECT * FROM silk_trader_contract_detail WHERE id=#{id}
+    </select>
+
+    <insert id="createDetail" parameterType="com.spark.bitrade.entity.SilkTraderContractDetail">
+        INSERT INTO silk_trader_contract_detail
+        (busi_coin,busi_coin_fee_rate,comment,contract_coin,contract_no,create_time,currency)
+        VALUES(#{busiCoin},#{busiCoinFeeRate},#{comment},#{contractCoin},#{contractNo},now(),#{currency})
+    </insert>
+
+    <delete id="deletesDetail" parameterType="java.lang.Long" >DELETE FROM silk_trader_contract_detail WHERE id IN
+      <foreach collection="array" open="(" separator="," close=")" item="ids">
+          #{ids}
+      </foreach>
+    </delete>
+
+    <update id="updateDetail" parameterType="com.spark.bitrade.entity.SilkTraderContractDetail">
+        UPDATE silk_trader_contract_detail SET
+        busi_coin=#{busiCoin},
+        busi_coin_fee_rate=#{busiCoinFeeRate},
+        comment=#{comment},
+        contract_coin=#{contractCoin},
+        update_time=now(),
+        currency=#{currency}
+        WHERE id=#{id}
+    </update>
+
+</mapper>

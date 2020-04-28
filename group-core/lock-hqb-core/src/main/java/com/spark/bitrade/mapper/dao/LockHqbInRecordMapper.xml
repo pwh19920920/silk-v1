@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.spark.bitrade.mapper.dao.LockHqbInRecordMapper">
+
+    <select id="selectAsPage" resultType="com.spark.bitrade.entity.LockHqbInRecord">
+        SELECT * FROM lock_hqb_in_record
+        <where>
+            AND status = 0
+            AND apply_time <![CDATA[ < ]]> #{applyTime}
+            <if test="appId != null">
+                AND app_id = #{appId}
+            </if>
+            <if test="coinSymbol != null">
+                AND coin_symbol = #{coinSymbol}
+            </if>
+        </where>
+        ORDER BY apply_time DESC limit ${beg}, ${size}
+    </select>
+</mapper>

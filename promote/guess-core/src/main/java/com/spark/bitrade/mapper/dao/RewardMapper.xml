@@ -1,0 +1,265 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.spark.bitrade.mapper.dao.RewardMapper" >
+  <resultMap id="BaseResultMap" type="com.spark.bitrade.entity.Reward" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="period_id" property="periodId" jdbcType="BIGINT" />
+    <result column="reward_num" property="rewardNum" jdbcType="DECIMAL" />
+    <result column="symbol" property="symbol" jdbcType="VARCHAR" />
+    <result column="business_type" property="businessType" jdbcType="BIT" />
+    <result column="member_id" property="memberId" jdbcType="BIGINT" />
+    <result column="promotion_code" property="promotionCode" jdbcType="VARCHAR" />
+    <result column="status" property="status" jdbcType="BIT" />
+    <result column="get_time" property="getTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, period_id, reward_num, symbol, business_type, member_id, promotion_code, status, 
+    get_time
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select 
+    <include refid="Base_Column_List" />
+    from pg_reward
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from pg_reward
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.spark.bitrade.entity.Reward" >
+    insert into pg_reward (id, period_id, reward_num, 
+      symbol, business_type, member_id, 
+      promotion_code, status, get_time
+      )
+    values (#{id,jdbcType=BIGINT}, #{periodId,jdbcType=BIGINT}, #{rewardNum,jdbcType=DECIMAL}, 
+      #{symbol,jdbcType=VARCHAR}, #{businessType,jdbcType=BIT}, #{memberId,jdbcType=BIGINT}, 
+      #{promotionCode,jdbcType=VARCHAR}, #{status,jdbcType=BIT}, #{getTime,jdbcType=TIMESTAMP}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.spark.bitrade.entity.Reward" >
+    insert into pg_reward
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="periodId != null" >
+        period_id,
+      </if>
+      <if test="rewardNum != null" >
+        reward_num,
+      </if>
+      <if test="symbol != null" >
+        symbol,
+      </if>
+      <if test="businessType != null" >
+        business_type,
+      </if>
+      <if test="memberId != null" >
+        member_id,
+      </if>
+      <if test="promotionCode != null" >
+        promotion_code,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+      <if test="getTime != null" >
+        get_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="periodId != null" >
+        #{periodId,jdbcType=BIGINT},
+      </if>
+      <if test="rewardNum != null" >
+        #{rewardNum,jdbcType=DECIMAL},
+      </if>
+      <if test="symbol != null" >
+        #{symbol,jdbcType=VARCHAR},
+      </if>
+      <if test="businessType != null" >
+        #{businessType,jdbcType=BIT},
+      </if>
+      <if test="memberId != null" >
+        #{memberId,jdbcType=BIGINT},
+      </if>
+      <if test="promotionCode != null" >
+        #{promotionCode,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=BIT},
+      </if>
+      <if test="getTime != null" >
+        #{getTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.spark.bitrade.entity.Reward" >
+    update pg_reward
+    <set >
+      <if test="periodId != null" >
+        period_id = #{periodId,jdbcType=BIGINT},
+      </if>
+      <if test="rewardNum != null" >
+        reward_num = #{rewardNum,jdbcType=DECIMAL},
+      </if>
+      <if test="symbol != null" >
+        symbol = #{symbol,jdbcType=VARCHAR},
+      </if>
+      <if test="businessType != null" >
+        business_type = #{businessType,jdbcType=BIT},
+      </if>
+      <if test="memberId != null" >
+        member_id = #{memberId,jdbcType=BIGINT},
+      </if>
+      <if test="promotionCode != null" >
+        promotion_code = #{promotionCode,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=BIT},
+      </if>
+      <if test="getTime != null" >
+        get_time = #{getTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.spark.bitrade.entity.Reward" >
+    update pg_reward
+    set period_id = #{periodId,jdbcType=BIGINT},
+      reward_num = #{rewardNum,jdbcType=DECIMAL},
+      symbol = #{symbol,jdbcType=VARCHAR},
+      business_type = #{businessType,jdbcType=BIT},
+      member_id = #{memberId,jdbcType=BIGINT},
+      promotion_code = #{promotionCode,jdbcType=VARCHAR},
+      status = #{status,jdbcType=BIT},
+      get_time = #{getTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+
+
+  <!-- 中奖记录查询 -->
+  <select id="prizeRecord" parameterType="java.lang.Long" resultType="com.spark.bitrade.entity.Reward">
+    SELECT * from pg_reward r
+    <where>
+      r.period_id = #{periodId} and r.business_type = 0
+      <if test="memberId !=null and memberId > 0">
+        and r.member_id=#{memberId}
+      </if>
+    </where>
+    GROUP BY r.member_id;
+
+  </select>
+
+  <!-- 中奖、红包记录查询 -->
+  <select id="queryByPeriodIdAndType" parameterType="java.lang.Object" resultType="com.spark.bitrade.entity.Reward">
+    SELECT * from pg_reward r
+    <where>
+      r.period_id = #{periodId} and r.business_type = #{type}
+      <if test="memberId !=null and memberId > 0">
+        and r.member_id=#{memberId}
+      </if>
+    </where>
+  </select>
+
+  <select id="pageQueryByMemberId" resultType="com.spark.bitrade.entity.Reward">
+    SELECT
+        pr.*, bc.period,
+        bc.redpacket_symbol redpacketSymbol,
+        bc.redpacket_grade_ratio redpacketGradeRatio,
+        bc.redpacket_use_num redpacketUseNum
+    FROM
+        pg_reward pr
+    LEFT JOIN pg_betting_config bc ON pr.period_id = bc.id
+    WHERE
+        pr.member_id = #{memberId} and pr.business_type = #{type} ORDER BY bc.period DESC
+  </select>
+
+  <select id="pageQueryByType" resultType="com.spark.bitrade.entity.Reward">
+   SELECT
+        pr.id,
+        pr.period_id,
+        pr.symbol,
+        pr.business_type,
+        pr.member_id,
+        pr.promotion_code,
+        pr.`status`,
+        pr.version,
+        pr.is_best_luck,
+        SUM(pr.reward_num) rewardNum
+    FROM
+        pg_reward pr
+    WHERE
+        pr.business_type = #{type}
+    AND pr.period_id = #{periodId}
+    AND pr.reward_num > 0
+    GROUP BY
+        member_id
+    ORDER BY
+        rewardNum DESC
+  </select>
+
+  <select id="pageQueryAll" resultType="com.spark.bitrade.entity.Reward">
+    SELECT
+        pr.id,
+        pr.period_id,
+        pr.symbol,
+        pr.business_type,
+        pr.member_id,
+        pr.promotion_code,
+        pr.`status`,
+        pr.version,
+        pr.is_best_luck,
+        pr.reward_num
+    FROM
+        pg_reward pr
+    WHERE
+        pr.period_id = #{periodId}
+        AND pr.reward_num > 0
+    ORDER BY
+        id DESC
+  </select>
+
+
+  <select id="findByBettingId" resultType="com.spark.bitrade.entity.Reward">
+    SELECT
+        *
+    FROM
+        pg_reward pr
+    WHERE
+        pr.member_id = #{memberId}
+        and pr.business_type = #{type}
+        and pr.ref_id=#{bettingId}
+        <if test="status!=null and status>-1">
+          and status = #{status}
+        </if>
+  </select>
+
+  <select id="findOneByMemberIdAndPeriodId" resultType="com.spark.bitrade.entity.Reward">
+  SELECT
+	*
+  FROM
+      pg_reward pr
+  WHERE
+      pr.member_id = #{memberId} and
+      pr.period_id = #{periodId} and
+      pr.business_type = #{type}
+    <if test="status!=null and status>-1">
+      and status = #{status}
+    </if>
+
+  </select>
+
+
+  <!--根据期数统计本期红包中奖总额  -->
+  <select id="findRewardAmount" resultType="java.math.BigDecimal" parameterType="map" >
+    <![CDATA[
+        SELECT SUM(reward_num) FROM pg_reward where  period_id=#{id} and business_type=#{businessType} and status=#{status}
+    ]]>
+  </select>
+
+
+</mapper>

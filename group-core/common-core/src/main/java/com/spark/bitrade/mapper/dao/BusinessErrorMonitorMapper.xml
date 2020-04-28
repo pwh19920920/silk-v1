@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.spark.bitrade.mapper.dao.BusinessErrorMonitorMapper">
+
+
+    <select id="findBy" resultType="com.spark.bitrade.entity.BusinessErrorMonitor" parameterType="java.lang.Integer">
+        SELECT *
+        FROM business_error_monitor
+        <where>
+            <if test="type!=null and type>-1">
+               AND type=#{type}
+            </if>
+            <if test="maintenanceStatus!=null and maintenanceStatus>-1">
+                AND maintenance_status=#{maintenanceStatus}
+            </if>
+        </where>
+        <!--<if test="statusSort !=null and statusSort == 1">
+            ORDER BY maintenance_status DESC,
+            <if test="timeSort!=null and timeSort==1">
+                maintenance_time DESC
+            </if>
+            <if test="timeSort!=null and timeSort==0">
+                maintenance_time ASC
+            </if>
+        </if>-->
+
+        <if test="timeSort!=null">
+            ORDER BY
+            <if test="timeSort!=null and timeSort==1">
+                create_time DESC
+            </if>
+            <if test="timeSort!=null and timeSort==0">
+                create_time ASC
+            </if>
+        </if>
+        <!-- <if test="statusSort !=null and statusSort==0">
+            ORDER BY maintenance_status ASC,
+            <if test="timeSort!=null and timeSort==1">
+                maintenance_time DESC
+            </if>
+            <if test="timeSort!=null and timeSort==0">
+                maintenance_time ASC
+            </if>
+        </if>  -->
+
+    </select>
+
+    <select id="findUnMaintenanceStatus"  resultType="java.lang.Integer">
+       SELECT COUNT(1) FROM business_error_monitor WHERE maintenance_status=0
+    </select>
+
+</mapper>

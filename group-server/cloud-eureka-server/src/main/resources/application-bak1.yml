@@ -1,0 +1,12 @@
+# spring:
+#   profiles:
+#     active:prod
+server:
+  port: 8761
+eureka:
+  instance:
+    hostname: 127.0.0.1
+  client:
+    register-with-eureka: false
+    fetch-registry: false
+

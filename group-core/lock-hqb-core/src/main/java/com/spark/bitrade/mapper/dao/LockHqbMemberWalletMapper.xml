@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.spark.bitrade.mapper.dao.LockHqbMemberWalletMapper">
+
+    <select id="findByAppIdAndUnitAndMemberId" parameterType="java.lang.Object"
+            resultType="com.spark.bitrade.entity.LockHqbMemberWallet">
+        SELECT * FROM lock_hqb_member_wallet
+        WHERE member_id = #{memberId} AND app_id = #{appId} AND coin_symbol = #{unit}
+
+    </select>
+
+    <select id="findJoin" parameterType="java.lang.Object" resultType="com.spark.bitrade.entity.LockHqbMemberWallet">
+         select * from lock_hqb_member_wallet
+         where member_id = #{memberId} AND app_id = #{appId} and ( lock_amount <![CDATA[>]]> 0 or plan_in_amount <![CDATA[>]]> 0 )
+    </select>
+
+    <update id="updateWalletByDecrease">
+        UPDATE lock_hqb_member_wallet SET accumulate_out_amount = accumulate_out_amount + #{outAmount},
+              lock_amount = lock_amount - if(plan_in_amount <![CDATA[>=]]> #{outAmount}, 0, #{outAmount} - plan_in_amount),
+              plan_in_amount = plan_in_amount - if(plan_in_amount <![CDATA[>=]]> #{outAmount}, #{outAmount}, plan_in_amount)
+               where plan_in_amount + lock_amount <![CDATA[>=]]> #{outAmount} and id = #{lockHqbMemberWallet.id};
+    </update>
+
+    <select id="selectAsPage" resultType="com.spark.bitrade.entity.LockHqbMemberWallet">
+        SELECT * FROM lock_hqb_member_wallet
+        <where>
+            AND lock_amount > 0
+            <if test="appId != null">
+                AND app_id = #{appId}
+            </if>
+            <if test="coinSymbol != null">
+                AND coin_symbol = #{coinSymbol}
+            </if>
+        </where>
+        ORDER BY id limit ${beg}, ${size}
+    </select>
+
+    <insert id="insertNoRepeat">
+        INSERT INTO lock_hqb_member_wallet
+         (`member_id`, `app_id`, `coin_symbol`, `plan_in_amount`, `lock_amount`, `accumulate_income`, `accumulate_in_amount`, `accumulate_out_amount`)
+          select ${lockHqbMemberWallet.memberId}, ${lockHqbMemberWallet.appId}, ${lockHqbMemberWallet.coinSymbol}, ${lockHqbMemberWallet.planInAmount},
+          ${lockHqbMemberWallet.lockAmount}, ${lockHqbMemberWallet.accumulateIncome}, ${lockHqbMemberWallet.accumulateInAmount}, ${lockHqbMemberWallet.accumulateOutAmount}
+           from DUAL where not exists
+		(SELECT * from lock_hqb_member_wallet where member_id = ${lockHqbMemberWallet.memberId} and coin_symbol = ${lockHqbMemberWallet.coinSymbol} AND app_id =${lockHqbMemberWallet.appId});
+    </insert>
+</mapper>

@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>bitrade-parent</artifactId>
+        <groupId>com.spark.bitrade</groupId>
+        <version>1.0</version>
+        <relativePath></relativePath>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>group-core</artifactId>
+    <packaging>pom</packaging>
+    <name>group-core</name>
+    <url>http://www.example.com</url>
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <mvn.framework.version>1.0</mvn.framework.version>
+    </properties>
+
+    <modules>
+        <module>enum-core</module>
+
+        <module>common-core</module>
+        <module>member-core</module>
+        <module>account-core</module>
+        <module>promotion-core</module>
+        <module>partner-core</module>
+        <module>lock-core</module>
+        <module>cms-core</module>
+        <module>pay-core</module>
+        <module>admin-core</module>
+        <module>stat-core</module>
+        <module>otc-core</module>
+        <module>exchange-core</module>
+        <module>lock-hqb-core</module>
+    </modules>
+
+    <dependencyManagement>
+        <dependencies>
+            <!-- Framework-->
+            <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>4.11</version>
+                <scope>test</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                </configuration>
+            </plugin>
+
+            <!--编译时跳过测试-->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

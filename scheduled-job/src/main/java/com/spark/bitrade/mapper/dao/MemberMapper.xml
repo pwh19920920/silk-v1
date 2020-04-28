@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.spark.bitrade.mapper.dao.MemberMapper">
+
+    <select id="getMemberIds" parameterType="java.lang.Integer" resultType="String">
+
+        SELECT member_id from finc_member_account where member_type = #{type}
+
+    </select>
+
+    <select id="getMemberIdsByTypes" resultType="String" parameterType="java.lang.String">
+        SELECT GROUP_CONCAT(member_id) memberIds FROM `finc_member_account` where member_type in(${types}) GROUP BY member_type
+    </select>
+
+</mapper>

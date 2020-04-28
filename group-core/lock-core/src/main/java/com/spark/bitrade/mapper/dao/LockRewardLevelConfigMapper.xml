@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.spark.bitrade.mapper.dao.LockRewardLevelConfigMapper">
+
+    <!-- 查询级差配置列表(id倒序) -->
+    <select id="getLockRewardLevelConfigList" resultType="com.spark.bitrade.entity.LockRewardLevelConfig">
+        SELECT * FROM  lock_reward_level_config
+        where symbol=#{symbol} ORDER BY level_id DESC
+
+    </select>
+
+
+    <!-- 根据id查询级差配置 -->
+    <select id="getLevelConfigById" resultType="com.spark.bitrade.entity.LockRewardLevelConfig">
+
+      SELECT * FROM  lock_reward_level_config WHERE level_id = #{levelId} and symbol=#{symbol}
+
+    </select>
+
+    <select id="findMinimum" resultType="com.spark.bitrade.entity.LockRewardLevelConfig">
+        SELECT * FROM lock_reward_level_config l
+        where l.symbol=#{symbol}
+         ORDER BY l.reward_rate asc,l.level_id asc LIMIT 1
+    </select>
+
+</mapper>

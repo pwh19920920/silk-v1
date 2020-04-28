@@ -1,0 +1,314 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.spark.bitrade.mapper.dao.C2cFeeStatMapper">
+
+
+
+
+
+    <!--======================================== 总C2C交易手续费 ========================================== -->
+
+    <select id="c2cFeeTotal" parameterType="java.lang.String" resultType="com.spark.bitrade.entity.C2cFeeStat">
+        SELECT now() createTime,DATE(#{endTime}) opDate,IFNULL(t1.amout,0) tradeAmount,IFNULL(t1.number,0) tradeTurnover,IFNULL(t.fee,0) fee,t1.type,t1.unit from (
+        SELECT sum(oo.money) amout,sum(oo.number) number,DATE(oo.release_time) create_time,0 type,c.unit FROM `otc_order` oo
+        LEFT JOIN otc_coin c ON c.id = oo.coin_id where oo.advertise_type =0 and oo.`status` = 3 and oo.release_time BETWEEN #{startTime} and #{endTime} GROUP BY c.id
+        ) t1
+
+        LEFT JOIN  (
+        SELECT sum(mt.fee) fee,DATE(mt.create_time) create_time,mt.symbol from member_transaction mt where mt.type=4  and mt.create_time BETWEEN #{startTime} and #{endTime} GROUP BY mt.symbol
+        ) t
+        ON t.symbol=t1.unit
+
+        UNION
+
+        SELECT now() creatTime,DATE(#{endTime}) opDate,IFNULL(t1.amout,0) traderAmount,IFNULL(t1.number,0) tradeTurnover,IFNULL(t.fee,0) fee,t1.type,t1.unit from (
+        SELECT sum(oo.money) amout,sum(oo.number) number,DATE(oo.release_time) create_time,1 type,c.unit FROM `otc_order` oo
+        LEFT JOIN otc_coin c ON c.id = oo.coin_id where oo.advertise_type =1 and oo.`status` = 3  and oo.release_time BETWEEN #{startTime} and #{endTime} GROUP BY c.id
+        ) t1
+
+        LEFT JOIN  (
+        SELECT sum(mt.fee) fee,DATE(mt.create_time) create_time,mt.symbol from member_transaction mt where  mt.type=5  and mt.create_time BETWEEN #{startTime} and #{endTime} GROUP BY mt.symbol
+        ) t
+        ON t.symbol=t1.unit
+
+        UNION
+
+        -- 总买家
+        SELECT now() creatTime,'total' opDate,IFNULL(t1.amout,0) tradeAmount,IFNULL(t1.number,0) traderTurnover,IFNULL(t.fee,0) fee,t1.type,t1.unit from (
+        SELECT sum(oo.money) amout,sum(oo.number) number,'total' create_time,0 type,c.unit FROM `otc_order` oo
+        LEFT JOIN otc_coin c ON c.id = oo.coin_id where oo.advertise_type =0 and oo.`status` = 3 and oo.release_time &lt;= #{endTime} GROUP BY c.id
+        ) t1
+
+        LEFT JOIN  (
+        SELECT sum(mt.fee) fee,'total' create_time,mt.symbol from member_transaction mt where mt.type=4 and mt.create_time &lt;= #{endTime} GROUP BY mt.symbol
+        ) t
+        ON t.symbol=t1.unit
+
+
+
+        UNION
+
+        SELECT now() creatTime,'total' opDate,IFNULL(t1.amout,0) tradeAmount,IFNULL(t1.number,0) traderTurnover,IFNULL(t.fee,0) fee,t1.type,t1.unit from (
+        SELECT sum(oo.money) amout,sum(oo.number) number,'total' create_time,1 type,c.unit FROM `otc_order` oo
+        LEFT JOIN otc_coin c ON c.id = oo.coin_id where oo.advertise_type =1 and oo.`status` = 3 and oo.release_time &lt;= #{endTime} GROUP BY c.id
+        ) t1
+
+        LEFT JOIN  (
+        SELECT sum(mt.fee) fee,'total' create_time,mt.symbol from member_transaction mt where  mt.type=5 and mt.create_time &lt;= #{endTime} GROUP BY mt.symbol
+        ) t
+        ON t.symbol=t1.unit
+    </select>
+
+    <select id="dayOfFeeStat" parameterType="java.lang.String" resultType="com.spark.bitrade.entity.C2cFeeStat">
+        SELECT now() createTime,DATE(#{endTime}) opDate,IFNULL(t1.amout,0) tradeAmount,IFNULL(t1.number,0) tradeTurnover,IFNULL(t.fee,0) fee,t1.type,t1.unit from (
+        SELECT sum(oo.money) amout,sum(oo.number) number,DATE(oo.release_time) create_time,0 type,c.unit FROM `otc_order` oo
+        LEFT JOIN otc_coin c ON c.id = oo.coin_id where oo.advertise_type =0 and oo.`status` = 3 and oo.release_time BETWEEN #{startTime} and #{endTime} GROUP BY c.id
+        ) t1
+
+        LEFT JOIN  (
+        SELECT sum(mt.fee) fee,DATE(mt.create_time) create_time,mt.symbol from member_transaction mt where mt.type=4  and mt.create_time BETWEEN #{startTime} and #{endTime} GROUP BY mt.symbol
+        ) t
+        ON t.symbol=t1.unit
+
+        UNION
+
+        SELECT now() creatTime,DATE(#{endTime}) opDate,IFNULL(t1.amout,0) traderAmount,IFNULL(t1.number,0) tradeTurnover,IFNULL(t.fee,0) fee,t1.type,t1.unit from (
+        SELECT sum(oo.money) amout,sum(oo.number) number,DATE(oo.release_time) create_time,1 type,c.unit FROM `otc_order` oo
+        LEFT JOIN otc_coin c ON c.id = oo.coin_id where oo.advertise_type =1 and oo.`status` = 3  and oo.release_time BETWEEN #{startTime} and #{endTime} GROUP BY c.id
+        ) t1
+
+        LEFT JOIN  (
+        SELECT sum(mt.fee) fee,DATE(mt.create_time) create_time,mt.symbol from member_transaction mt where  mt.type=5  and mt.create_time BETWEEN #{startTime} and #{endTime} GROUP BY mt.symbol
+        ) t
+        ON t.symbol=t1.unit
+    </select>
+
+    <!-- 获取统计最新日期 -->
+    <select id="getMaxOpDate" resultType="java.lang.String">
+        SELECT op_date FROM c2c_fee_stat where op_date !='total' order by op_date desc limit 1
+    </select>
+
+    <insert id="insertAndUpdate" parameterType="com.spark.bitrade.entity.C2cFeeStat">
+        insert into c2c_fee_stat(create_time,op_date,`type`,trade_amount,trade_turnover,fee,unit)
+        values(#{createTime},#{opDate},#{type},#{tradeAmount},#{tradeTurnover},#{fee},#{unit})
+        ON DUPLICATE KEY UPDATE trade_amount=#{tradeAmount},trade_turnover=#{tradeTurnover},fee=#{fee}
+    </insert>
+
+    <update id="updateTotal" parameterType="com.spark.bitrade.entity.C2cFeeStat">
+        insert into c2c_fee_stat(create_time,op_date,`type`,trade_amount,trade_turnover,fee,unit)
+        values(#{createTime},'total',#{type},#{tradeAmount},#{tradeTurnover},#{fee},#{unit})
+        ON DUPLICATE KEY UPDATE trade_amount = trade_amount + #{tradeAmount},trade_turnover=trade_turnover + #{tradeTurnover},fee=fee+#{fee}
+    </update>
+
+    <!--======================================== 总C2C交易手续费 End========================================== -->
+
+    <!--======================================== 内部商家C2C交易手续费 ========================================== -->
+
+
+    <select id="innerC2cFeeTotal" parameterType="java.lang.String" resultType="com.spark.bitrade.entity.C2cFeeStat">
+        SELECT now() createTime,DATE(#{endTime}) opDate,IFNULL(t1.amout,0) tradeAmount,IFNULL(t1.number,0) tradeTurnover,IFNULL(t.fee,0) fee,t1.type,t1.unit from (
+        SELECT sum(oo.money) amout,sum(oo.number) number,DATE(oo.release_time) create_time,0 type,c.unit FROM `otc_order` oo
+        LEFT JOIN otc_coin c ON c.id = oo.coin_id where oo.advertise_type =0 and oo.`status` = 3 and oo.release_time BETWEEN #{startTime} and #{endTime} and oo.member_id in(${innerMemberId}) GROUP BY c.id
+        ) t1
+
+        LEFT JOIN  (
+        SELECT sum(mt.fee) fee,DATE(mt.create_time) create_time,mt.symbol from member_transaction mt where mt.member_id in (${innerMemberId}) and mt.type=4  and mt.create_time BETWEEN #{startTime} and #{endTime} GROUP BY mt.symbol
+        ) t
+        ON t.symbol=t1.unit
+
+        UNION
+
+        SELECT now() creatTime,DATE(#{endTime}) opDate,IFNULL(t1.amout,0) traderAmount,IFNULL(t1.number,0) tradeTurnover,IFNULL(t.fee,0) fee,t1.type,t1.unit from (
+        SELECT sum(oo.money) amout,sum(oo.number) number,DATE(oo.release_time) create_time,1 type,c.unit FROM `otc_order` oo
+        LEFT JOIN otc_coin c ON c.id = oo.coin_id where oo.advertise_type =1 and oo.`status` = 3  and oo.release_time BETWEEN #{startTime} and #{endTime} and oo.member_id in(${innerMemberId}) GROUP BY c.id
+        ) t1
+
+        LEFT JOIN  (
+        SELECT sum(mt.fee) fee,DATE(mt.create_time) create_time,mt.symbol from member_transaction mt where mt.member_id in (${innerMemberId}) and mt.type=5  and mt.create_time BETWEEN #{startTime} and #{endTime} GROUP BY mt.symbol
+        ) t
+        ON t.symbol=t1.unit
+
+        UNION
+
+        -- 总买家
+        SELECT now() creatTime,'total' opDate,IFNULL(t1.amout,0) tradeAmount,IFNULL(t1.number,0) traderTurnover,IFNULL(t.fee,0) fee,t1.type,t1.unit from (
+        SELECT sum(oo.money) amout,sum(oo.number) number,'total' create_time,0 type,c.unit FROM `otc_order` oo
+        LEFT JOIN otc_coin c ON c.id = oo.coin_id where oo.advertise_type =0 and oo.`status` = 3 and oo.release_time &lt;= #{endTime} and oo.member_id in(${innerMemberId}) GROUP BY c.id
+        ) t1
+
+        LEFT JOIN  (
+        SELECT sum(mt.fee) fee,'total' create_time,mt.symbol from member_transaction mt where mt.member_id in (${innerMemberId}) and mt.type=4 and mt.create_time &lt;= #{endTime} GROUP BY mt.symbol
+        ) t
+        ON t.symbol=t1.unit
+
+
+
+        UNION
+
+        SELECT now() creatTime,'total' opDate,IFNULL(t1.amout,0) tradeAmount,IFNULL(t1.number,0) traderTurnover,IFNULL(t.fee,0) fee,t1.type,t1.unit from (
+        SELECT sum(oo.money) amout,sum(oo.number) number,'total' create_time,1 type,c.unit FROM `otc_order` oo
+        LEFT JOIN otc_coin c ON c.id = oo.coin_id where oo.advertise_type =1 and oo.`status` = 3 and oo.release_time &lt;= #{endTime} and oo.member_id in (${innerMemberId}) GROUP BY c.id
+        ) t1
+
+        LEFT JOIN  (
+        SELECT sum(mt.fee) fee,'total' create_time,mt.symbol from member_transaction mt where mt.member_id in (${innerMemberId}) and mt.type=5 and mt.create_time &lt;= #{endTime} GROUP BY mt.symbol
+        ) t
+        ON t.symbol=t1.unit
+    </select>
+
+    <select id="innerC2cDayOfFeeStat" parameterType="java.lang.String" resultType="com.spark.bitrade.entity.C2cFeeStat">
+        SELECT now() createTime,DATE(#{endTime}) opDate,IFNULL(t1.amout,0) tradeAmount,IFNULL(t1.number,0) tradeTurnover,IFNULL(t.fee,0) fee,t1.type,t1.unit from (
+        SELECT sum(oo.money) amout,sum(oo.number) number,DATE(oo.release_time) create_time,0 type,c.unit FROM `otc_order` oo
+        LEFT JOIN otc_coin c ON c.id = oo.coin_id where oo.advertise_type =0 and oo.`status` = 3 and oo.release_time BETWEEN #{startTime} and #{endTime} and oo.member_id in (${innerMemberId}) GROUP BY c.id
+        ) t1
+
+        LEFT JOIN  (
+        SELECT sum(mt.fee) fee,DATE(mt.create_time) create_time,mt.symbol from member_transaction mt where mt.member_id in (${innerMemberId}) and mt.type=4  and mt.create_time BETWEEN #{startTime} and #{endTime} GROUP BY mt.symbol
+        ) t
+        ON t.symbol=t1.unit
+
+        UNION
+
+        SELECT now() creatTime,DATE(#{endTime}) opDate,IFNULL(t1.amout,0) traderAmount,IFNULL(t1.number,0) tradeTurnover,IFNULL(t.fee,0) fee,t1.type,t1.unit from (
+        SELECT sum(oo.money) amout,sum(oo.number) number,DATE(oo.release_time) create_time,1 type,c.unit FROM `otc_order` oo
+        LEFT JOIN otc_coin c ON c.id = oo.coin_id where oo.advertise_type =1 and oo.`status` = 3  and oo.release_time BETWEEN #{startTime} and #{endTime} and oo.member_id in(${innerMemberId}) GROUP BY c.id
+        ) t1
+
+        LEFT JOIN  (
+        SELECT sum(mt.fee) fee,DATE(mt.create_time) create_time,mt.symbol from member_transaction mt where mt.member_id in (${innerMemberId}) and mt.type=5  and mt.create_time BETWEEN #{startTime} and #{endTime} GROUP BY mt.symbol
+        ) t
+        ON t.symbol=t1.unit
+    </select>
+
+    <!-- 获取统计最新日期 -->
+    <select id="getInnerMaxOpDate" resultType="java.lang.String">
+        SELECT op_date FROM c2c_inner_fee_stat where op_date !='total' order by op_date desc limit 1
+    </select>
+
+    <insert id="innerInsertAndUpdate" parameterType="com.spark.bitrade.entity.C2cFeeStat">
+        insert into c2c_inner_fee_stat(create_time,op_date,`type`,trade_amount,trade_turnover,fee,unit)
+        values(#{createTime},#{opDate},#{type},#{tradeAmount},#{tradeTurnover},#{fee},#{unit})
+        ON DUPLICATE KEY UPDATE trade_amount=#{tradeAmount},trade_turnover=#{tradeTurnover},fee=#{fee}
+    </insert>
+
+    <update id="innerUpdateTotal" parameterType="com.spark.bitrade.entity.C2cFeeStat">
+        insert into c2c_inner_fee_stat(create_time,op_date,`type`,trade_amount,trade_turnover,fee,unit)
+        values(#{createTime},'total',#{type},#{tradeAmount},#{tradeTurnover},#{fee},#{unit})
+        ON DUPLICATE KEY UPDATE trade_amount = trade_amount + #{tradeAmount},trade_turnover=trade_turnover + #{tradeTurnover},fee=fee+#{fee}
+    </update>
+
+    <select id="innerFeeCount" resultType="java.lang.Integer">
+        select count(*) from c2c_inner_fee_stat where op_date = 'total'
+    </select>
+
+    <insert id="innerFeeInsert" parameterType="com.spark.bitrade.entity.C2cFeeStat">
+        insert into c2c_inner_fee_stat(create_time,op_date,`type`,trade_amount,trade_turnover,fee,unit)
+        values(#{createTime},#{opDate},#{type},#{tradeAmount},#{tradeTurnover},#{fee},#{unit})
+    </insert>
+    <!--======================================== 内部商家C2C交易手续费 End========================================== -->
+
+    <!--======================================== 外部商家C2C交易手续费 ========================================== -->
+
+
+    <select id="outerC2cFeeTotal" parameterType="java.lang.String" resultType="com.spark.bitrade.entity.C2cFeeStat">
+        SELECT now() createTime,DATE(#{endTime}) opDate,IFNULL(t1.amout,0) tradeAmount,IFNULL(t1.number,0) tradeTurnover,IFNULL(t.fee,0) fee,t1.type,t1.unit from (
+        SELECT sum(oo.money) amout,sum(oo.number) number,DATE(oo.release_time) create_time,0 type,c.unit FROM `otc_order` oo
+        LEFT JOIN otc_coin c ON c.id = oo.coin_id where oo.advertise_type =0 and oo.`status` = 3 and oo.release_time BETWEEN #{startTime} and #{endTime} and oo.member_id not in (${innerMemberId}) GROUP BY c.id
+        ) t1
+
+        LEFT JOIN  (
+        SELECT sum(mt.fee) fee,DATE(mt.create_time) create_time,mt.symbol from member_transaction mt where mt.member_id not in (${innerMemberId}) and mt.type=4  and mt.create_time BETWEEN #{startTime} and #{endTime} GROUP BY mt.symbol
+        ) t
+        ON t.symbol=t1.unit
+
+        UNION
+
+        SELECT now() creatTime,DATE(#{endTime}) opDate,IFNULL(t1.amout,0) traderAmount,IFNULL(t1.number,0) tradeTurnover,IFNULL(t.fee,0) fee,t1.type,t1.unit from (
+        SELECT sum(oo.money) amout,sum(oo.number) number,DATE(oo.release_time) create_time,1 type,c.unit FROM `otc_order` oo
+        LEFT JOIN otc_coin c ON c.id = oo.coin_id where oo.advertise_type =1 and oo.`status` = 3  and oo.release_time BETWEEN #{startTime} and #{endTime} and oo.member_id not in (${innerMemberId}) GROUP BY c.id
+        ) t1
+
+        LEFT JOIN  (
+        SELECT sum(mt.fee) fee,DATE(mt.create_time) create_time,mt.symbol from member_transaction mt where mt.member_id not in (${innerMemberId}) and mt.type=5  and mt.create_time BETWEEN #{startTime} and #{endTime} GROUP BY mt.symbol
+        ) t
+        ON t.symbol=t1.unit
+
+        UNION
+
+        -- 总买家
+        SELECT now() creatTime,'total' opDate,IFNULL(t1.amout,0) tradeAmount,IFNULL(t1.number,0) traderTurnover,IFNULL(t.fee,0) fee,t1.type,t1.unit from (
+        SELECT sum(oo.money) amout,sum(oo.number) number,'total' create_time,0 type,c.unit FROM `otc_order` oo
+        LEFT JOIN otc_coin c ON c.id = oo.coin_id where oo.advertise_type =0 and oo.`status` = 3 and oo.release_time &lt;= #{endTime} and oo.member_id not in (${innerMemberId}) GROUP BY c.id
+        ) t1
+
+        LEFT JOIN  (
+        SELECT sum(mt.fee) fee,'total' create_time,mt.symbol from member_transaction mt where mt.member_id not in (${innerMemberId}) and mt.type=4 and mt.create_time &lt;= #{endTime} GROUP BY mt.symbol
+        ) t
+        ON t.symbol=t1.unit
+
+
+
+        UNION
+
+        SELECT now() creatTime,'total' opDate,IFNULL(t1.amout,0) tradeAmount,IFNULL(t1.number,0) traderTurnover,IFNULL(t.fee,0) fee,t1.type,t1.unit from (
+        SELECT sum(oo.money) amout,sum(oo.number) number,'total' create_time,1 type,c.unit FROM `otc_order` oo
+        LEFT JOIN otc_coin c ON c.id = oo.coin_id where oo.advertise_type =1 and oo.`status` = 3 and oo.release_time &lt;= #{endTime} and oo.member_id not in(${innerMemberId}) GROUP BY c.id
+        ) t1
+
+        LEFT JOIN  (
+        SELECT sum(mt.fee) fee,'total' create_time,mt.symbol from member_transaction mt where mt.member_id not in (${innerMemberId}) and mt.type=5 and mt.create_time &lt;= #{endTime} GROUP BY mt.symbol
+        ) t
+        ON t.symbol=t1.unit
+    </select>
+
+    <select id="outerC2cDayOfFeeStat" parameterType="java.lang.String" resultType="com.spark.bitrade.entity.C2cFeeStat">
+        SELECT now() createTime,DATE(#{endTime}) opDate,IFNULL(t1.amout,0) tradeAmount,IFNULL(t1.number,0) tradeTurnover,IFNULL(t.fee,0) fee,t1.type,t1.unit from (
+        SELECT sum(oo.money) amout,sum(oo.number) number,DATE(oo.release_time) create_time,0 type,c.unit FROM `otc_order` oo
+        LEFT JOIN otc_coin c ON c.id = oo.coin_id where oo.advertise_type =0 and oo.`status` = 3 and oo.release_time BETWEEN #{startTime} and #{endTime} and oo.member_id not in (${innerMemberId}) GROUP BY c.id
+        ) t1
+
+        LEFT JOIN  (
+        SELECT sum(mt.fee) fee,DATE(mt.create_time) create_time,mt.symbol from member_transaction mt where mt.member_id not in (${innerMemberId}) and mt.type=4  and mt.create_time BETWEEN #{startTime} and #{endTime} GROUP BY mt.symbol
+        ) t
+        ON t.symbol=t1.unit
+
+        UNION
+
+        SELECT now() creatTime,DATE(#{endTime}) opDate,IFNULL(t1.amout,0) traderAmount,IFNULL(t1.number,0) tradeTurnover,IFNULL(t.fee,0) fee,t1.type,t1.unit from (
+        SELECT sum(oo.money) amout,sum(oo.number) number,DATE(oo.release_time) create_time,1 type,c.unit FROM `otc_order` oo
+        LEFT JOIN otc_coin c ON c.id = oo.coin_id where oo.advertise_type =1 and oo.`status` = 3  and oo.release_time BETWEEN #{startTime} and #{endTime} and oo.member_id not in (${innerMemberId}) GROUP BY c.id
+        ) t1
+
+        LEFT JOIN  (
+        SELECT sum(mt.fee) fee,DATE(mt.create_time) create_time,mt.symbol from member_transaction mt where mt.member_id not in (${innerMemberId}) and mt.type=5  and mt.create_time BETWEEN #{startTime} and #{endTime} GROUP BY mt.symbol
+        ) t
+        ON t.symbol=t1.unit
+    </select>
+
+    <!-- 获取统计最新日期 -->
+    <select id="getOuterMaxOpDate" resultType="java.lang.String">
+        SELECT op_date FROM c2c_outer_fee_stat where op_date !='total' order by op_date desc limit 1
+    </select>
+
+    <insert id="outerInsertAndUpdate" parameterType="com.spark.bitrade.entity.C2cFeeStat">
+        insert into c2c_outer_fee_stat(create_time,op_date,`type`,trade_amount,trade_turnover,fee,unit)
+        values(#{createTime},#{opDate},#{type},#{tradeAmount},#{tradeTurnover},#{fee},#{unit})
+        ON DUPLICATE KEY UPDATE trade_amount=#{tradeAmount},trade_turnover=#{tradeTurnover},fee=#{fee}
+    </insert>
+
+    <update id="outerUpdateTotal" parameterType="com.spark.bitrade.entity.C2cFeeStat">
+        insert into c2c_outer_fee_stat(create_time,op_date,`type`,trade_amount,trade_turnover,fee,unit)
+        values(#{createTime},'total',#{type},#{tradeAmount},#{tradeTurnover},#{fee},#{unit})
+        ON DUPLICATE KEY UPDATE trade_amount = trade_amount + #{tradeAmount},trade_turnover=trade_turnover + #{tradeTurnover},fee=fee+#{fee}
+    </update>
+
+    <select id="outerFeeCount" resultType="java.lang.Integer">
+        select count(*) from c2c_outer_fee_stat where op_date = 'total'
+    </select>
+
+    <insert id="outerFeeInsert" parameterType="com.spark.bitrade.entity.C2cFeeStat">
+        insert into c2c_outer_fee_stat(create_time,op_date,`type`,trade_amount,trade_turnover,fee,unit)
+        values(#{createTime},#{opDate},#{type},#{tradeAmount},#{tradeTurnover},#{fee},#{unit})
+    </insert>
+    <!--======================================== 外部商家C2C交易手续费 End========================================== -->
+</mapper>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.spark.bitrade.mapper.dao.PayWalletPlatMemberBindMapper">
+
+    <select id="findByMemberIdAndAppId" parameterType="java.lang.Object" resultType="com.spark.bitrade.entity.PayWalletPlatMemberBind">
+        select * from pay_wallet_plat_member_bind where member_id = #{memberId} and app_id = #{appId};
+
+    </select>
+
+</mapper>

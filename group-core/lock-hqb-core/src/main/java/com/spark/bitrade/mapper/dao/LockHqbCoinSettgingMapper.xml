@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.spark.bitrade.mapper.dao.LockHqbCoinSettgingMapper">
+
+    <select id="findValidSettingByAppId" parameterType="java.lang.String"
+            resultType="com.spark.bitrade.entity.LockHqbCoinSettgingVo">
+
+        SELECT lhcs.*,lhcse.activity_name_cn activityNameCn,lhcse.activity_name_en activityNameEn,lhcse.activity_name_ko activityNameKo,lhcse.activity_name_zh_tw activityNameZhTw FROM lock_hqb_coin_settging lhcs LEFT JOIN lock_hqb_coin_settging_extend lhcse ON lhcse.setting_id = lhcs.activity_id
+        WHERE lhcs.app_id = #{appId} AND lhcs.status = 1 AND lhcs.valid_time <![CDATA[>]]>  unix_timestamp(now())*1000
+        order by lhcs.create_time asc
+
+    </select>
+
+    <select id="findInvalidSettingByAppId" parameterType="java.lang.String"
+            resultType="com.spark.bitrade.entity.LockHqbCoinSettgingVo">
+
+        SELECT lhcs.*,lhcse.activity_name_cn,lhcse.activity_name_en,lhcse.activity_name_ko,lhcse.activity_name_zh_tw FROM lock_hqb_coin_settging lhcs LEFT JOIN lock_hqb_coin_settging_extend lhcse ON lhcse.setting_id = lhcs.activity_id
+        WHERE lhcs.app_id = #{appId} AND (lhcs.status = 2 or lhcs.valid_time <![CDATA[<]]>  unix_timestamp(now()))*1000
+        order by lhcs.create_time asc
+    </select>
+
+    <select id="findByAppId" parameterType="java.lang.String"
+            resultType="com.spark.bitrade.entity.LockHqbCoinSettgingVo">
+        SELECT lhcs.*,lhcse.activity_name_cn,lhcse.activity_name_en,lhcse.activity_name_ko,lhcse.activity_name_zh_tw FROM lock_hqb_coin_settging lhcs LEFT JOIN lock_hqb_coin_settging_extend lhcse ON lhcse.setting_id = lhcs.activity_id
+         where lhcs.app_id = #{appId}
+    </select>
+
+</mapper>

@@ -1,0 +1,7 @@
+
+http://api.400.pro/gateway/nowStat
+http://api.400.pro/gateway/stat
+http://api.400.pro/healthy
+
+线上通过 curl命令调用
+# curl "http://127.0.0.1:6600/gateway/nowStat"

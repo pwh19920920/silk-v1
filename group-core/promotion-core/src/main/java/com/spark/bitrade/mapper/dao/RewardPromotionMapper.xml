@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.spark.bitrade.mapper.dao.RewardPromotionMapper">
+
+    <select id="findByTypeAndCoin" parameterType="java.lang.Object" resultType="java.lang.Long">
+        SELECT id FROM reward_promotion_setting
+        <where>
+            type=#{type}
+            <if test="coinId != null and coinId != ''">
+                and coin_id=#{coinId}
+            </if>
+            <if test="coinId == null or coinId == ''">
+                and coin_id is null
+            </if>
+        </where>
+    </select>
+
+
+</mapper>

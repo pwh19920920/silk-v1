@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.spark.bitrade.mapper.dao.PartnerBusinessMonthTempMapper">
+
+
+    <delete id="deleteDataByStatisticalCycleAndLevel" parameterType="com.spark.bitrade.dto.PartnerBusinessDto">
+        delete from partner_business_month where statistical_cycle = #{month}
+    </delete>
+
+
+    <insert id="savePartnerBusinessMonth" parameterType="com.spark.bitrade.dto.PartnerBusinessDto">
+        insert into partner_business_month
+        (
+                area_id,
+                month_add_user_num,
+                month_income_amount,
+                month_trade_amount,
+                statistical_cycle
+        )
+        select
+                area_id,
+                month_add_user_num,
+                month_income_amount,
+                month_trade_amount,
+                #{month}
+                from partner_business_month_temp where statistical_cycle = #{date}
+    </insert>
+
+</mapper>

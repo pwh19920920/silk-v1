@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.spark.bitrade.mapper.dao.BranchRecordMapper" >
+  <resultMap id="BaseResultMap" type="com.spark.bitrade.entity.BranchRecord" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="period_id" property="periodId" jdbcType="BIGINT" />
+    <result column="symbol" property="symbol" jdbcType="VARCHAR" />
+    <result column="amount" property="amount" jdbcType="DECIMAL" />
+    <result column="happen_time" property="happenTime" jdbcType="TIMESTAMP" />
+    <result column="expend_member_id" property="expendMemberId" jdbcType="BIGINT" />
+    <result column="income_member_id" property="incomeMemberId" jdbcType="BIGINT" />
+    <result column="branch_type" property="branchType" jdbcType="BIT" />
+    <result column="business_type" property="businessType" jdbcType="BIT" />
+    <result column="special" property="special" jdbcType="BIT" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, period_id, symbol, amount, happen_time, expend_member_id, income_member_id, branch_type, 
+    business_type, special
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select 
+    <include refid="Base_Column_List" />
+    from pg_branch_record
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from pg_branch_record
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.spark.bitrade.entity.BranchRecord" >
+    insert into pg_branch_record (id, period_id, symbol, 
+      amount, happen_time, expend_member_id, 
+      income_member_id, branch_type, business_type, 
+      special)
+    values (#{id,jdbcType=BIGINT}, #{periodId,jdbcType=BIGINT}, #{symbol,jdbcType=VARCHAR}, 
+      #{amount,jdbcType=DECIMAL}, #{happenTime,jdbcType=TIMESTAMP}, #{expendMemberId,jdbcType=BIGINT}, 
+      #{incomeMemberId,jdbcType=BIGINT}, #{branchType,jdbcType=BIT}, #{businessType,jdbcType=BIT}, 
+      #{special,jdbcType=BIT})
+  </insert>
+  <insert id="insertSelective" parameterType="com.spark.bitrade.entity.BranchRecord" >
+    insert into pg_branch_record
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="periodId != null" >
+        period_id,
+      </if>
+      <if test="symbol != null" >
+        symbol,
+      </if>
+      <if test="amount != null" >
+        amount,
+      </if>
+      <if test="happenTime != null" >
+        happen_time,
+      </if>
+      <if test="expendMemberId != null" >
+        expend_member_id,
+      </if>
+      <if test="incomeMemberId != null" >
+        income_member_id,
+      </if>
+      <if test="branchType != null" >
+        branch_type,
+      </if>
+      <if test="businessType != null" >
+        business_type,
+      </if>
+      <if test="special != null" >
+        special,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="periodId != null" >
+        #{periodId,jdbcType=BIGINT},
+      </if>
+      <if test="symbol != null" >
+        #{symbol,jdbcType=VARCHAR},
+      </if>
+      <if test="amount != null" >
+        #{amount,jdbcType=DECIMAL},
+      </if>
+      <if test="happenTime != null" >
+        #{happenTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="expendMemberId != null" >
+        #{expendMemberId,jdbcType=BIGINT},
+      </if>
+      <if test="incomeMemberId != null" >
+        #{incomeMemberId,jdbcType=BIGINT},
+      </if>
+      <if test="branchType != null" >
+        #{branchType,jdbcType=BIT},
+      </if>
+      <if test="businessType != null" >
+        #{businessType,jdbcType=BIT},
+      </if>
+      <if test="special != null" >
+        #{special,jdbcType=BIT},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.spark.bitrade.entity.BranchRecord" >
+    update pg_branch_record
+    <set >
+      <if test="periodId != null" >
+        period_id = #{periodId,jdbcType=BIGINT},
+      </if>
+      <if test="symbol != null" >
+        symbol = #{symbol,jdbcType=VARCHAR},
+      </if>
+      <if test="amount != null" >
+        amount = #{amount,jdbcType=DECIMAL},
+      </if>
+      <if test="happenTime != null" >
+        happen_time = #{happenTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="expendMemberId != null" >
+        expend_member_id = #{expendMemberId,jdbcType=BIGINT},
+      </if>
+      <if test="incomeMemberId != null" >
+        income_member_id = #{incomeMemberId,jdbcType=BIGINT},
+      </if>
+      <if test="branchType != null" >
+        branch_type = #{branchType,jdbcType=BIT},
+      </if>
+      <if test="businessType != null" >
+        business_type = #{businessType,jdbcType=BIT},
+      </if>
+      <if test="special != null" >
+        special = #{special,jdbcType=BIT},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.spark.bitrade.entity.BranchRecord" >
+    update pg_branch_record
+    set period_id = #{periodId,jdbcType=BIGINT},
+      symbol = #{symbol,jdbcType=VARCHAR},
+      amount = #{amount,jdbcType=DECIMAL},
+      happen_time = #{happenTime,jdbcType=TIMESTAMP},
+      expend_member_id = #{expendMemberId,jdbcType=BIGINT},
+      income_member_id = #{incomeMemberId,jdbcType=BIGINT},
+      branch_type = #{branchType,jdbcType=BIT},
+      business_type = #{businessType,jdbcType=BIT},
+      special = #{special,jdbcType=BIT}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+
+  <!-- 根据期数id和业务类型为红包扣除查询当期红包扣除总额,生成红包的总额  -->
+  <select id="findRedpacketDeductAmount" resultType="java.math.BigDecimal" parameterType="map" >
+    <![CDATA[
+        SELECT SUM(amount) as redparketNum FROM pg_branch_record where period_id=#{id} and business_type=#{businessType}
+    ]]>
+  </select>
+
+  <!-- 根据周期id、指定的业务类型和支付类型统计总额 -->
+  <select id="findBusinessAmount" resultType="java.math.BigDecimal">
+    <![CDATA[
+        SELECT SUM(amount) as sm FROM pg_branch_record
+        where period_id=#{periodId}
+        and business_type=#{businessType}
+        and branch_type =#{branchType}
+    ]]>
+  </select>
+
+
+</mapper>

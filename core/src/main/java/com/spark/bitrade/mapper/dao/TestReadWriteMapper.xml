@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.spark.bitrade.mapper.dao.TestReadWriteMapper">
+ 
+<!--<select id="query"  resultType="com.spark.bitrade.entity.TestReadWrite">
+    select id ,user_name 
+    from test_read_write
+    where 1=1
+    <if test="userName != null">
+      and user_name like CONCAT('%',#{userName},'%')
+    </if>
+</select>-->
+    <select id="query"  resultType="com.spark.bitrade.entity.TestReadWrite">
+        select *
+        from test_read_write
+        where 1=1
+        <if test="userName != null">
+            and user_name like CONCAT('%',#{userName},'%')
+        </if>
+    </select>
+</mapper>

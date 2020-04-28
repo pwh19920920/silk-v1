@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.spark.bitrade.mapper.dao.LockMarketLevelMapper">
+
+
+    <select id="findByMemberId" parameterType="java.lang.Object" resultType="com.spark.bitrade.entity.LockMarketLevel">
+        SELECT * FROM lock_market_level WHERE member_id=#{memberId} and symbol = #{symbol}
+    </select>
+
+    <select id="findSubInfoByMemberId" parameterType="java.lang.Object" resultType="com.spark.bitrade.vo.StoSubInfoVo">
+        <!--   select l.*,m.mobile_phone,m.registration_time,m.email,m.username,m.real_name from
+           (
+               SELECT member_id,level FROM lock_market_level WHERE member_id IN (
+               SELECT id FROM member WHERE inviter_id = #{memberId})
+           ) l
+           LEFT JOIN member m ON m.id = l.member_id -->
+
+        <!-- select IFNULL(l.level,#{defaultLevel}) level,m.id memberId,m.inviter_id ,
+         m.mobile_phone,m.registration_time,m.email,m.username,m.real_name
+         from member m
+         left join lock_market_level l on l.member_id = m.id
+         where
+           m.inviter_id = #{memberId}
+           and l.symbol = #{symbol} -->
+        select distinct m.id memberId, IFNULL(l.level,'-') level, m.inviter_id ,
+        m.mobile_phone,m.registration_time,m.email,m.username,m.real_name
+        from member m
+        left join lock_market_level l on l.member_id = m.id
+        <where>
+            m.inviter_id = #{memberId}
+            <if test="symbol!=null and symbol!=''">
+                and l.symbol = #{symbol}
+            </if>
+        </where>
+
+    </select>
+
+
+</mapper>

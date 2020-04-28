@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.spark.bitrade.mapper.dao.PayWalletMemberBindMapper">
+
+    <!--auto generated Code-->
+    <resultMap id="AllColumnMap" type="com.spark.bitrade.entity.PayWalletMemberBind">
+        <result column="id" property="id"/>
+        <result column="wallet_mark_id" property="walletMarkId"/>
+        <result column="member_id" property="memberId"/>
+        <result column="bind_time" property="bindTime"/>
+        <result column="token" property="token"/>
+        <result column="token_expire_time" property="tokenExpireTime"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="usable" property="usable"/>
+    </resultMap>
+
+    <!--auto generated Code-->
+    <sql id="all_column">
+        id,
+        wallet_mark_id,
+        member_id,
+        bind_time,
+        token,
+        token_expire_time,
+        create_time,
+        update_time,
+        usable
+    </sql>
+
+    <!--auto generated Code
+    <insert id="insert">
+        INSERT INTO pay_wallet_member_bind
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="pojo.id != null"> id, </if>
+            <if test="pojo.walletMarkId != null"> wallet_mark_id, </if>
+            <if test="pojo.memberId != null"> member_id, </if>
+            <if test="pojo.bindTime != null"> bind_time, </if>
+            <if test="pojo.token != null"> token, </if>
+            <if test="pojo.tokenExpireTime != null"> token_expire_time, </if>
+            <if test="pojo.createTime != null"> create_time, </if>
+            <if test="pojo.updateTime != null"> update_time, </if>
+            <if test="pojo.usable != null"> usable, </if>
+        </trim>
+        VALUES
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="pojo.id != null"> #{pojo.id}, </if>
+            <if test="pojo.walletMarkId != null"> #{pojo.walletMarkId}, </if>
+            <if test="pojo.memberId != null"> #{pojo.memberId}, </if>
+            <if test="pojo.bindTime != null"> #{pojo.bindTime}, </if>
+            <if test="pojo.token != null"> #{pojo.token}, </if>
+            <if test="pojo.tokenExpireTime != null"> #{pojo.tokenExpireTime}, </if>
+            <if test="pojo.createTime != null"> #{pojo.createTime}, </if>
+            <if test="pojo.updateTime != null"> #{pojo.updateTime}, </if>
+            <if test="pojo.usable != null"> #{pojo.usable}, </if>
+        </trim>
+    </insert>
+-->
+    <!--auto generated Code
+    <insert id="insertList">
+        INSERT INTO pay_wallet_member_bind(
+        <include refid="all_column"/>
+        )VALUES
+        <foreach collection="pojos" item="pojo" index="index" separator=",">
+            (
+            #{pojo.id},
+            #{pojo.walletMarkId},
+            #{pojo.memberId},
+            #{pojo.bindTime},
+            #{pojo.token},
+            #{pojo.tokenExpireTime},
+            #{pojo.createTime},
+            #{pojo.updateTime},
+            #{pojo.usable}
+            )
+        </foreach>
+    </insert>
+    -->
+
+    <!--auto generated Code
+    <update id="update">
+        UPDATE pay_wallet_member_bind
+        <set>
+            <if test="pojo.id != null"> id = #{pojo.id}, </if>
+            <if test="pojo.walletMarkId != null"> wallet_mark_id = #{pojo.walletMarkId}, </if>
+            <if test="pojo.memberId != null"> member_id = #{pojo.memberId}, </if>
+            <if test="pojo.bindTime != null"> bind_time = #{pojo.bindTime}, </if>
+            <if test="pojo.token != null"> token = #{pojo.token}, </if>
+            <if test="pojo.tokenExpireTime != null"> token_expire_time = #{pojo.tokenExpireTime}, </if>
+            <if test="pojo.createTime != null"> create_time = #{pojo.createTime}, </if>
+            <if test="pojo.usable != null"> usable = #{pojo.usable}, </if>
+        </set>
+        WHERE id = #{pojo.id}
+    </update>
+-->
+    <!--auto generated Code
+    <select id="select" resultMap="AllColumnMap">
+        SELECT <include refid="all_column"/>
+        FROM pay_wallet_member_bind
+        <where>
+            <if test="pojo.id != null"> AND id = #{pojo.id} </if>
+            <if test="pojo.walletMarkId != null"> AND wallet_mark_id = #{pojo.walletMarkId} </if>
+            <if test="pojo.memberId != null"> AND member_id = #{pojo.memberId} </if>
+            <if test="pojo.bindTime != null"> AND bind_time = #{pojo.bindTime} </if>
+            <if test="pojo.token != null"> AND token = #{pojo.token} </if>
+            <if test="pojo.tokenExpireTime != null"> AND token_expire_time = #{pojo.tokenExpireTime} </if>
+            <if test="pojo.createTime != null"> AND create_time = #{pojo.createTime} </if>
+            <if test="pojo.updateTime != null"> AND update_time = #{pojo.updateTime} </if>
+            <if test="pojo.usable != null"> AND usable = #{pojo.usable} </if>
+        </where>
+        LIMIT 1
+    </select>
+-->
+    <!--auto generated Code
+    <delete id="delete">
+        DELETE FROM pay_wallet_member_bind where id = #{pojo.id}
+    </delete>
+    -->
+</mapper>

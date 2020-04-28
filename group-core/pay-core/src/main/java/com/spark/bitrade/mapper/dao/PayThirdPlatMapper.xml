@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.spark.bitrade.mapper.dao.PayThirdPlatMapper">
+
+
+    <select id="getThirdPlayList" resultType="com.spark.bitrade.entity.ThirdPlatform" parameterType="java.lang.String">
+
+        SELECT * FROM `third_platform`
+         <where>
+             <if test="platName !=null and platName !=''">
+                 platform_name =#{platName}
+             </if>
+         </where>
+
+    </select>
+
+    <select id="getByKey" parameterType="java.lang.String" resultType="com.spark.bitrade.entity.ThirdPlatform">
+
+      SELECT * FROM `third_platform` where platform_key = #{applyKey}
+
+    </select>
+
+</mapper>

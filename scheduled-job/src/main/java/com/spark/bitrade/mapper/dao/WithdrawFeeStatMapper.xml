@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.spark.bitrade.mapper.dao.WithdrawFeeStatMapper">
+
+    <!-- =================总提币手续费统计================ -->
+    <select id="listFeeTotal" parameterType="java.lang.String" resultType="com.spark.bitrade.entity.WithdrawFeeStat">
+        SELECT now() time,DATE(#{endTime}) date,cn.unit,IFNULL(wft.amountTotal,0) withdrawTotal,IFNULL(wft.feeTotal,0) withdrawFeeTotal,IFNULL(wft.actualArrived,0) actualArrivedTotal from coin cn
+
+        LEFT JOIN(
+
+        SELECT mt.symbol as unit,sum(mt.amount) amountTotal,sum(mt.fee) feeTotal,sum(mt.amount)-sum(mt.fee) actualArrived
+         FROM `member_transaction` mt where mt.type = 1 and mt.create_time BETWEEN #{startTime} and #{endTime} GROUP BY mt.symbol
+
+        ) wft ON wft.unit = cn.unit
+
+        UNION
+
+        SELECT now() time,'total' date,cn.unit,IFNULL(wft.amountTotal,0) withdrawTotal,IFNULL(wft.feeTotal,0) withdrawFeeTotal,IFNULL(wft.actualArrived,0) actualArrivedTotal from coin cn
+
+        LEFT JOIN(
+
+        SELECT mt.symbol as unit,sum(mt.amount) amountTotal,sum(mt.fee) feeTotal,sum(mt.amount)-sum(mt.fee) actualArrived
+         FROM `member_transaction` mt where mt.type = 1 GROUP BY mt.symbol
+
+        ) wft ON wft.unit = cn.unit
+    </select>
+
+    <select id="dayOfFeeStat" parameterType="java.lang.String" resultType="com.spark.bitrade.entity.WithdrawFeeStat">
+          SELECT now() time,DATE(#{endTime}) date,cn.unit,IFNULL(wft.amountTotal,0) withdrawTotal,IFNULL(wft.feeTotal,0) withdrawFeeTotal,IFNULL(wft.actualArrived,0) actualArrivedTotal from coin cn
+
+        LEFT JOIN(
+
+        SELECT mt.symbol as unit,sum(mt.amount) amountTotal,sum(mt.fee) feeTotal,sum(mt.amount)-sum(mt.fee) actualArrived
+         FROM `member_transaction` mt where mt.type = 1 and mt.create_time BETWEEN #{startTime} and #{endTime} GROUP BY mt.symbol
+
+        ) wft ON wft.unit = cn.unit
+    </select>
+
+    <!-- 获取统计最新日期 -->
+    <select id="getMaxOpDate" resultType="java.lang.String">
+        SELECT date FROM withdraw_fee_stat where date !='total' order by date desc limit 1
+    </select>
+    
+    <insert id="insertOrUpdate" parameterType="com.spark.bitrade.entity.WithdrawFeeStat">
+        insert into withdraw_fee_stat(`time`,`date`,unit,withdraw_total,actual_arrived_total,withdraw_fee_total)
+         values(#{time},#{date},#{unit},#{withdrawTotal},#{actualArrivedTotal},#{withdrawFeeTotal})
+          ON DUPLICATE KEY UPDATE withdraw_total=#{withdrawTotal},actual_arrived_total=#{actualArrivedTotal},withdraw_fee_total=#{withdrawFeeTotal}
+    </insert>
+
+    <update id="updateTotal" parameterType="com.spark.bitrade.entity.WithdrawFeeStat">
+        update withdraw_fee_stat set withdraw_total = withdraw_total + #{withdrawTotal},actual_arrived_total= actual_arrived_total + #{actualArrivedTotal}
+            ,withdraw_fee_total= withdraw_fee_total + #{withdrawFeeTotal} where unit = #{unit} and date ='total'
+    </update>
+    <!-- =================总提币手续费统计 End ================ -->
+
+    <!-- =================操盘手提币手续费统计================ -->
+    <select id="traderListFeeStat" parameterType="java.lang.String" resultType="com.spark.bitrade.entity.WithdrawFeeStat">
+        SELECT now() time,DATE(#{endTime}) date,cn.unit,IFNULL(wft.amountTotal,0) withdrawTotal,IFNULL(wft.feeTotal,0) withdrawFeeTotal,IFNULL(wft.actualArrived,0) actualArrivedTotal from coin cn
+
+        LEFT JOIN(
+
+        SELECT mt.symbol as unit,sum(mt.amount) amountTotal,sum(mt.fee) feeTotal,sum(mt.amount)-sum(mt.fee) actualArrived
+         FROM `member_transaction` mt where mt.member_id in( ${traderMemberId} ) and  mt.type = 1 and mt.create_time BETWEEN #{startTime} and #{endTime} GROUP BY mt.symbol
+
+        ) wft ON wft.unit = cn.unit
+
+        UNION
+
+        SELECT now() time,'total' date,cn.unit,IFNULL(wft.amountTotal,0) withdrawTotal,IFNULL(wft.feeTotal,0) withdrawFeeTotal,IFNULL(wft.actualArrived,0) actualArrived from coin cn
+
+        LEFT JOIN(
+
+        SELECT mt.symbol as unit,sum(mt.amount) amountTotal,sum(mt.fee) feeTotal,sum(mt.amount)-sum(mt.fee) actualArrived
+         FROM `member_transaction` mt where mt.member_id in( ${traderMemberId} ) and mt.type = 1 GROUP BY mt.symbol
+
+        ) wft ON wft.unit = cn.unit
+    </select>
+
+    <select id="traderDayOfFeeStat" parameterType="java.lang.String" resultType="com.spark.bitrade.entity.WithdrawFeeStat">
+        SELECT now() time,DATE(#{endTime}) date,cn.unit,IFNULL(wft.amountTotal,0) withdrawTotal,IFNULL(wft.feeTotal,0) withdrawFeeTotal,IFNULL(wft.actualArrived,0) actualArrivedTotal from coin cn
+
+        LEFT JOIN(
+
+        SELECT mt.symbol as unit,sum(mt.amount) amountTotal,sum(mt.fee) feeTotal,sum(mt.amount)-sum(mt.fee) actualArrived
+         FROM `member_transaction` mt where mt.member_id in( ${traderMemberId} ) and  mt.type = 1 and mt.create_time BETWEEN #{startTime} and #{endTime} GROUP BY mt.symbol
+
+        ) wft ON wft.unit = cn.unit
+    </select>
+
+    <!-- 获取统计最新日期 -->
+    <select id="getTraderMaxOpDate" resultType="java.lang.String">
+          SELECT date FROM trader_withdraw_fee_stat where date !='total' order by date desc limit 1
+    </select>
+
+    <insert id="traderInsertAndUpdate" parameterType="com.spark.bitrade.entity.WithdrawFeeStat">
+        insert into trader_withdraw_fee_stat(`time`,`date`,unit,withdraw_total,actual_arrived_total,withdraw_fee_total)
+        values(#{time},#{date},#{unit},#{withdrawTotal},#{actualArrivedTotal},#{withdrawFeeTotal})
+        ON DUPLICATE KEY UPDATE withdraw_total=#{withdrawTotal},actual_arrived_total=#{actualArrivedTotal},withdraw_fee_total=#{withdrawFeeTotal}
+    </insert>
+
+    <update id="traderUpdateTotal" parameterType="com.spark.bitrade.entity.WithdrawFeeStat">
+        update trader_withdraw_fee_stat set withdraw_total = withdraw_total + #{withdrawTotal},actual_arrived_total= actual_arrived_total + #{actualArrivedTotal}
+        ,withdraw_fee_total= withdraw_fee_total + #{withdrawFeeTotal} where unit = #{unit} and date ='total'
+    </update>
+
+    <select id="traderCount" resultType="java.lang.Integer">
+        select count(*) from trader_withdraw_fee_stat where date = 'total'
+    </select>
+
+    <insert id="traderInsert" parameterType="com.spark.bitrade.entity.WithdrawFeeStat">
+        insert into trader_withdraw_fee_stat(`time`,`date`,unit,withdraw_total,actual_arrived_total,withdraw_fee_total)
+        values(#{time},#{date},#{unit},#{withdrawTotal},#{actualArrivedTotal},#{withdrawFeeTotal})
+    </insert>
+    <!-- =================操盘手提币手续费统计 End================ -->
+</mapper>

@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.spark.bitrade.mapper.dao.ExchangeOrderMapper">
+ 
+    <select id="queryCurrent"  resultType="com.spark.bitrade.entity.ExchangeOrder">
+        select * from exchange_order where member_id=#{memberId} and  status=0
+        <if test="symbol != null and symbol != ''">
+            and symbol=#{symbol}
+        </if>
+
+        <if test="coinSymbol != null and coinSymbol != ''">
+            and coin_symbol=#{coinSymbol}
+        </if>
+        <if test="baseSymbol != null and baseSymbol != ''">
+            and base_symbol=#{baseSymbol}
+        </if>
+        <if test="direction != null ">
+            and direction=#{direction}
+        </if>
+        <if test="status != null ">
+            and status=#{status}
+        </if>
+        order by time desc
+    </select>
+
+    <select id="queryHistory"  resultType="com.spark.bitrade.entity.ExchangeOrder">
+        select * from exchange_order where member_id=#{memberId} and  status!=0
+        <if test="symbol != null and symbol != ''">
+            and symbol=#{symbol}
+        </if>
+        <if test="coinSymbol != null and coinSymbol != ''">
+            and coin_symbol=#{coinSymbol}
+        </if>
+        <if test="baseSymbol != null and baseSymbol != ''">
+            and base_symbol=#{baseSymbol}
+        </if>
+        <if test="direction != null ">
+            and direction=#{direction}
+        </if>
+        <if test="status != null ">
+            and status=#{status}
+        </if>
+        order by time desc
+    </select>
+
+    <!-- 查询所有订单 -->
+    <select id="queryAll"  resultType="com.spark.bitrade.entity.ExchangeOrder">
+        select * from exchange_order where member_id=#{memberId}
+        <if test="symbol != null and symbol != ''">
+            and symbol=#{symbol}
+        </if>
+        order by time desc
+    </select>
+
+    <select id="queryByOrderId"  resultType="com.spark.bitrade.entity.ExchangeOrder">
+        select * from exchange_order where order_id=#{orderId}
+    </select>
+
+    <select id="findTodayOrderCancelTimes"  resultType="java.lang.Integer">
+        select count(1) cnt from exchange_order
+        where symbol=#{symbol}
+        and member_id=#{memberId}
+        and status=2
+        and canceled_time <![CDATA[ >= ]]> #{startTick}
+        and canceled_time <![CDATA[ < ]]> #{endTick}
+    </select>
+
+    <!-- 超时订单 -->
+    <select id="findOvertimeOrder"  resultType="com.spark.bitrade.entity.ExchangeOrder">
+        select * from exchange_order where  status=0 and symbol=#{symbol}  and time <![CDATA[ < ]]> #{overtimeTick}
+    </select>
+
+</mapper>

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.spark.bitrade.mapper.dao.MemberPermissionRelieveTaskMapper">
+
+    <select id="queryByMemberAndType"  resultType="com.spark.bitrade.entity.MemberPermissionsRelieveTask">
+        SELECT
+        *
+        FROM
+        member_permissions_relieve_task a
+        WHERE
+        a.member_id = #{memberId}
+        AND a.relieve_permissions_type = #{type}
+        AND a.status = 0
+        AND usable = 1
+        LIMIT 1
+    </select>
+
+    <select id="queryAllTask"  resultType="com.spark.bitrade.entity.MemberPermissionsRelieveTask">
+        SELECT
+        *
+        FROM
+        member_permissions_relieve_task a
+        WHERE
+         <![CDATA[
+        a.relieve_time <= NOW()
+        ]]>
+        AND a. STATUS = 0
+        AND usable = 1;
+    </select>
+    <select id="queryListByMemberAndType" resultType="com.spark.bitrade.entity.MemberPermissionsRelieveTask">
+        SELECT
+        *
+        FROM
+        member_permissions_relieve_task a
+        WHERE
+        a.member_id = #{memberId}
+        AND a.relieve_permissions_type IN (#{typeOne},#{typeTwo})
+        AND a.status = 0
+        AND usable = 1
+    </select>
+
+</mapper>

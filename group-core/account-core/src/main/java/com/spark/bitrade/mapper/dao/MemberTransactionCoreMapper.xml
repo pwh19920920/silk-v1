@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.spark.bitrade.mapper.dao.MemberTransactionCoreMapper">
+
+    <select id="queryByTypeAndTime"  resultType="com.spark.bitrade.dto.MemberTransactionDTO">
+        SELECT
+        id, amount, create_time createTime, symbol, `type`, fee,`comment`
+        FROM
+            member_transaction m
+        where
+            m.member_id = #{memberId}
+        <if test="type!=null and type!=''">
+            AND m.type = #{type}
+        </if>
+         <if test="startTime!=null and startTime!='' and endTime!=null and endTime!=''">
+             <![CDATA[
+                AND SUBSTR(m.create_time,1,10) >= #{startTime}
+                AND SUBSTR(m.create_time,1,10) <= #{endTime}
+             ]]>
+        </if>
+        ORDER BY
+            m.create_time DESC
+    </select>
+
+    <select id="findBy" parameterType="java.util.Map" resultType="com.spark.bitrade.dto.MemberTransactionDetailDTO">
+        SELECT mt.id,m.username memberUsername,mt.type,mt.amount,mt.symbol,mt.fee,mt.create_time,mt.comment,
+        mt.fee_discount_coin_unit,mt.fee_discount_amount
+        FROM member_transaction mt LEFT JOIN member m ON mt.member_id=m.id
+        <where>
+            <if test="memberId!=null and memberId!=''">
+                AND mt.member_id=#{memberId}
+            </if>
+            <if test="userName!=null and userName!=''">
+                AND m.username LIKE CONCAT('%',#{userName},'%')
+            </if>
+            <if test="type!=null">
+                AND mt.type=#{type}
+            </if>
+            <if test="symbol!=null and symbol!=''">
+                AND mt.symbol=#{symbol}
+            </if>
+            <if test="minMoney!=null and minMoney!=''">
+                AND mt.amount &gt;=#{minMoney}
+            </if>
+            <if test=" maxMoney!=null and maxMoney!=''">
+                AND mt.amount &lt;= #{maxMoney}
+            </if>
+            <if test="minFee!=null and minFee!=''">
+                AND mt.fee &gt;=#{minFee}
+            </if>
+            <if test=" maxFee!=null and maxFee!=''">
+                AND mt.fee &lt;= #{maxFee}
+            </if>
+            <if test="startTime!=null and startTime!='' and endTime!=null and endTime!=''">
+                AND mt.create_time &gt;= #{startTime} AND mt.create_time &lt;= #{endTime}
+            </if>
+        </where>
+        ORDER BY mt.id DESC
+    </select>
+    <select id="findFeeDto" resultType="com.spark.bitrade.dto.FeeOtcExchangeDto">
+        SELECT SUM(a.feeTotal) as fee,a.coinUnit,a.transactionType FROM (
+        SELECT
+        CASE m.type
+        WHEN 24 THEN
+        SUM(amount)
+        WHEN 1 THEN
+        SUM(fee)
+        END AS feeTotal,
+        m.symbol as coinUnit,m.type as transactionType
+        FROM
+        member_transaction m
+        WHERE m.type in (24,1)
+        AND m.create_time  <![CDATA[>=]]> #{startTime} AND m.create_time <![CDATA[<=]]> #{endTime}
+        GROUP BY m.symbol,m.type
+        HAVING feeTotal>0
+        UNION ALL
+        SELECT
+        SUM(k.fee_discount_amount) AS feeTotal,
+        k.fee_discount_coin_unit AS coinUnit,
+        k.type AS transactionType
+        FROM
+        member_transaction k
+        WHERE
+        k.type = 1
+        AND k.create_time  <![CDATA[>=]]> #{startTime} AND k.create_time <![CDATA[<=]]> #{endTime}
+        AND k.fee_discount_coin_unit IS NOT NULL
+        GROUP BY
+        k.fee_discount_coin_unit,
+        k.type
+        HAVING
+        feeTotal > 0
+        ) a GROUP BY a.coinUnit,a.transactionType
+    </select>
+    <select id="findMemberRechargeRecord" resultType="com.spark.bitrade.dto.MemberDepositDTO">
+
+            SELECT
+                m.amount,
+              m.unit,
+                m.create_time as createTime,
+              m.txid,
+              m.address,
+              c.explore_url as link
+            FROM
+                member_deposit m
+            LEFT JOIN coin c ON m.unit = c.unit
+            WHERE m.member_id=#{memberId}
+             <if test="unit!=null and unit!=''">
+                AND m.unit=#{unit}
+             </if>
+
+    </select>
+</mapper>

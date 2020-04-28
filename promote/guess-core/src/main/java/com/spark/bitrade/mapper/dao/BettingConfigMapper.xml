@@ -1,0 +1,564 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.spark.bitrade.mapper.dao.BettingConfigMapper" >
+  <!--<resultMap id="BaseResultMap" type="com.spark.bitrade.entity.BettingConfig" >-->
+    <!--<id column="id" property="id" jdbcType="BIGINT" />-->
+    <!--<result column="period" property="period" jdbcType="VARCHAR" />-->
+    <!--<result column="name" property="name" jdbcType="VARCHAR" />-->
+    <!--<result column="begin_time" property="beginTime" jdbcType="TIMESTAMP" />-->
+    <!--<result column="end_time" property="endTime" jdbcType="TIMESTAMP" />-->
+    <!--<result column="open_time" property="openTime" jdbcType="TIMESTAMP" />-->
+    <!--<result column="prize_begin_time" property="prizeBeginTime" jdbcType="TIMESTAMP" />-->
+    <!--<result column="prize_end_time" property="prizeEndTime" jdbcType="TIMESTAMP" />-->
+    <!--<result column="redpacket_begin_time" property="redpacketBeginTime" jdbcType="TIMESTAMP" />-->
+    <!--<result column="redpacket_end_time" property="redpacketEndTime" jdbcType="TIMESTAMP" />-->
+    <!--<result column="status" property="status" jdbcType="BIT" />-->
+    <!--<result column="remark" property="remark" jdbcType="VARCHAR" />-->
+    <!--<result column="create_by" property="createBy" jdbcType="VARCHAR" />-->
+    <!--<result column="create_time" property="createTime" jdbcType="TIMESTAMP" />-->
+    <!--<result column="update_by" property="updateBy" jdbcType="VARCHAR" />-->
+    <!--<result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />-->
+    <!--<result column="deleted" property="deleted" jdbcType="BIT" />-->
+    <!--<result column="prize_price" property="prizePrice" jdbcType="DECIMAL" />-->
+    <!--<result column="bet_symbol" property="betSymbol" jdbcType="VARCHAR" />-->
+    <!--<result column="lower_limit" property="lowerLimit" jdbcType="INTEGER" />-->
+    <!--<result column="guess_symbol" property="guessSymbol" jdbcType="VARCHAR" />-->
+    <!--<result column="prize_symbol" property="prizeSymbol" jdbcType="VARCHAR" />-->
+    <!--<result column="redpacket_symbol" property="redpacketSymbol" jdbcType="VARCHAR" />-->
+    <!--<result column="redpacket_grade_ratio" property="redpacketGradeRatio" jdbcType="DECIMAL" />-->
+    <!--<result column="redpacket_use_num" property="redpacketUseNum" jdbcType="DECIMAL" />-->
+    <!--<result column="rebate_ratio" property="rebateRatio" jdbcType="DECIMAL" />-->
+    <!--<result column="prize_ratio" property="prizeRatio" jdbcType="DECIMAL" />-->
+    <!--<result column="back_ratio" property="backRatio" jdbcType="DECIMAL" />-->
+    <!--<result column="redpacket_ratio" property="redpacketRatio" jdbcType="DECIMAL" />-->
+    <!--<result column="next_period_ratio" property="nextPeriodRatio" jdbcType="DECIMAL" />-->
+  <!--</resultMap>-->
+  <sql id="Base_Column_List" >
+    id, period, name, begin_time, end_time, open_time, prize_begin_time, prize_end_time, 
+    redpacket_begin_time, redpacket_end_time, status, remark, create_by, create_time, 
+    update_by, update_time, deleted, prize_price, bet_symbol, lower_limit, guess_symbol, 
+    prize_symbol, redpacket_symbol, redpacket_grade_ratio, redpacket_use_num, rebate_ratio, 
+    prize_ratio, back_ratio, redpacket_ratio, next_period_ratio
+  </sql>
+  <!--<select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >-->
+    <!--select -->
+    <!--<include refid="Base_Column_List" />-->
+    <!--from pg_betting_config-->
+    <!--where id = #{id,jdbcType=BIGINT}-->
+  <!--</select>-->
+
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from pg_betting_config
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.spark.bitrade.entity.BettingConfig" >
+    insert into pg_betting_config (id, period, name, 
+      begin_time, end_time, open_time, 
+      prize_begin_time, prize_end_time, redpacket_begin_time, 
+      redpacket_end_time, status, remark, 
+      create_by, create_time, update_by, 
+      update_time, deleted, prize_price, 
+      bet_symbol, lower_limit, guess_symbol, 
+      prize_symbol, redpacket_symbol, redpacket_grade_ratio, 
+      redpacket_use_num, rebate_ratio, prize_ratio, 
+      back_ratio, redpacket_ratio, next_period_ratio
+      )
+    values (#{id,jdbcType=BIGINT}, #{period,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
+      #{beginTime,jdbcType=TIMESTAMP}, #{endTime,jdbcType=TIMESTAMP}, #{openTime,jdbcType=TIMESTAMP}, 
+      #{prizeBeginTime,jdbcType=TIMESTAMP}, #{prizeEndTime,jdbcType=TIMESTAMP}, #{redpacketBeginTime,jdbcType=TIMESTAMP}, 
+      #{redpacketEndTime,jdbcType=TIMESTAMP}, #{status,jdbcType=BIT}, #{remark,jdbcType=VARCHAR}, 
+      #{createBy,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, #{updateBy,jdbcType=VARCHAR}, 
+      #{updateTime,jdbcType=TIMESTAMP}, #{deleted,jdbcType=BIT}, #{prizePrice,jdbcType=DECIMAL}, 
+      #{betSymbol,jdbcType=VARCHAR}, #{lowerLimit,jdbcType=INTEGER}, #{guessSymbol,jdbcType=VARCHAR}, 
+      #{prizeSymbol,jdbcType=VARCHAR}, #{redpacketSymbol,jdbcType=VARCHAR}, #{redpacketGradeRatio,jdbcType=DECIMAL}, 
+      #{redpacketUseNum,jdbcType=DECIMAL}, #{rebateRatio,jdbcType=DECIMAL}, #{prizeRatio,jdbcType=DECIMAL}, 
+      #{backRatio,jdbcType=DECIMAL}, #{redpacketRatio,jdbcType=DECIMAL}, #{nextPeriodRatio,jdbcType=DECIMAL}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.spark.bitrade.entity.BettingConfig" >
+    insert into pg_betting_config
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="period != null" >
+        period,
+      </if>
+      <if test="name != null" >
+        name,
+      </if>
+      <if test="beginTime != null" >
+        begin_time,
+      </if>
+      <if test="endTime != null" >
+        end_time,
+      </if>
+      <if test="openTime != null" >
+        open_time,
+      </if>
+      <if test="prizeBeginTime != null" >
+        prize_begin_time,
+      </if>
+      <if test="prizeEndTime != null" >
+        prize_end_time,
+      </if>
+      <if test="redpacketBeginTime != null" >
+        redpacket_begin_time,
+      </if>
+      <if test="redpacketEndTime != null" >
+        redpacket_end_time,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+      <if test="remark != null" >
+        remark,
+      </if>
+      <if test="createBy != null" >
+        create_by,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="updateBy != null" >
+        update_by,
+      </if>
+      <if test="updateTime != null" >
+        update_time,
+      </if>
+      <if test="deleted != null" >
+        deleted,
+      </if>
+      <if test="prizePrice != null" >
+        prize_price,
+      </if>
+      <if test="betSymbol != null" >
+        bet_symbol,
+      </if>
+      <if test="lowerLimit != null" >
+        lower_limit,
+      </if>
+      <if test="guessSymbol != null" >
+        guess_symbol,
+      </if>
+      <if test="prizeSymbol != null" >
+        prize_symbol,
+      </if>
+      <if test="redpacketSymbol != null" >
+        redpacket_symbol,
+      </if>
+      <if test="redpacketGradeRatio != null" >
+        redpacket_grade_ratio,
+      </if>
+      <if test="redpacketUseNum != null" >
+        redpacket_use_num,
+      </if>
+      <if test="rebateRatio != null" >
+        rebate_ratio,
+      </if>
+      <if test="prizeRatio != null" >
+        prize_ratio,
+      </if>
+      <if test="backRatio != null" >
+        back_ratio,
+      </if>
+      <if test="redpacketRatio != null" >
+        redpacket_ratio,
+      </if>
+      <if test="nextPeriodRatio != null" >
+        next_period_ratio,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="period != null" >
+        #{period,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null" >
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="beginTime != null" >
+        #{beginTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="endTime != null" >
+        #{endTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="openTime != null" >
+        #{openTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="prizeBeginTime != null" >
+        #{prizeBeginTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="prizeEndTime != null" >
+        #{prizeEndTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="redpacketBeginTime != null" >
+        #{redpacketBeginTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="redpacketEndTime != null" >
+        #{redpacketEndTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=BIT},
+      </if>
+      <if test="remark != null" >
+        #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="createBy != null" >
+        #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateBy != null" >
+        #{updateBy,jdbcType=VARCHAR},
+      </if>
+      <if test="updateTime != null" >
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="deleted != null" >
+        #{deleted,jdbcType=BIT},
+      </if>
+      <if test="prizePrice != null" >
+        #{prizePrice,jdbcType=DECIMAL},
+      </if>
+      <if test="betSymbol != null" >
+        #{betSymbol,jdbcType=VARCHAR},
+      </if>
+      <if test="lowerLimit != null" >
+        #{lowerLimit,jdbcType=INTEGER},
+      </if>
+      <if test="guessSymbol != null" >
+        #{guessSymbol,jdbcType=VARCHAR},
+      </if>
+      <if test="prizeSymbol != null" >
+        #{prizeSymbol,jdbcType=VARCHAR},
+      </if>
+      <if test="redpacketSymbol != null" >
+        #{redpacketSymbol,jdbcType=VARCHAR},
+      </if>
+      <if test="redpacketGradeRatio != null" >
+        #{redpacketGradeRatio,jdbcType=DECIMAL},
+      </if>
+      <if test="redpacketUseNum != null" >
+        #{redpacketUseNum,jdbcType=DECIMAL},
+      </if>
+      <if test="rebateRatio != null" >
+        #{rebateRatio,jdbcType=DECIMAL},
+      </if>
+      <if test="prizeRatio != null" >
+        #{prizeRatio,jdbcType=DECIMAL},
+      </if>
+      <if test="backRatio != null" >
+        #{backRatio,jdbcType=DECIMAL},
+      </if>
+      <if test="redpacketRatio != null" >
+        #{redpacketRatio,jdbcType=DECIMAL},
+      </if>
+      <if test="nextPeriodRatio != null" >
+        #{nextPeriodRatio,jdbcType=DECIMAL},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.spark.bitrade.entity.BettingConfig" >
+    update pg_betting_config
+    <set >
+      <if test="period != null" >
+        period = #{period,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null" >
+        name = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="beginTime != null" >
+        begin_time = #{beginTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="endTime != null" >
+        end_time = #{endTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="openTime != null" >
+        open_time = #{openTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="prizeBeginTime != null" >
+        prize_begin_time = #{prizeBeginTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="prizeEndTime != null" >
+        prize_end_time = #{prizeEndTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="redpacketBeginTime != null" >
+        redpacket_begin_time = #{redpacketBeginTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="redpacketEndTime != null" >
+        redpacket_end_time = #{redpacketEndTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=BIT},
+      </if>
+      <if test="remark != null" >
+        remark = #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="createBy != null" >
+        create_by = #{createBy,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateBy != null" >
+        update_by = #{updateBy,jdbcType=VARCHAR},
+      </if>
+      <if test="updateTime != null" >
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="deleted != null" >
+        deleted = #{deleted,jdbcType=BIT},
+      </if>
+      <if test="prizePrice != null" >
+        prize_price = #{prizePrice,jdbcType=DECIMAL},
+      </if>
+      <if test="betSymbol != null" >
+        bet_symbol = #{betSymbol,jdbcType=VARCHAR},
+      </if>
+      <if test="lowerLimit != null" >
+        lower_limit = #{lowerLimit,jdbcType=INTEGER},
+      </if>
+      <if test="guessSymbol != null" >
+        guess_symbol = #{guessSymbol,jdbcType=VARCHAR},
+      </if>
+      <if test="prizeSymbol != null" >
+        prize_symbol = #{prizeSymbol,jdbcType=VARCHAR},
+      </if>
+      <if test="redpacketSymbol != null" >
+        redpacket_symbol = #{redpacketSymbol,jdbcType=VARCHAR},
+      </if>
+      <if test="redpacketGradeRatio != null" >
+        redpacket_grade_ratio = #{redpacketGradeRatio,jdbcType=DECIMAL},
+      </if>
+      <if test="redpacketUseNum != null" >
+        redpacket_use_num = #{redpacketUseNum,jdbcType=DECIMAL},
+      </if>
+      <if test="rebateRatio != null" >
+        rebate_ratio = #{rebateRatio,jdbcType=DECIMAL},
+      </if>
+      <if test="prizeRatio != null" >
+        prize_ratio = #{prizeRatio,jdbcType=DECIMAL},
+      </if>
+      <if test="backRatio != null" >
+        back_ratio = #{backRatio,jdbcType=DECIMAL},
+      </if>
+      <if test="redpacketRatio != null" >
+        redpacket_ratio = #{redpacketRatio,jdbcType=DECIMAL},
+      </if>
+      <if test="nextPeriodRatio != null" >
+        next_period_ratio = #{nextPeriodRatio,jdbcType=DECIMAL},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.spark.bitrade.entity.BettingConfig" >
+    update pg_betting_config
+    set period = #{period,jdbcType=VARCHAR},
+      name = #{name,jdbcType=VARCHAR},
+      begin_time = #{beginTime,jdbcType=TIMESTAMP},
+      end_time = #{endTime,jdbcType=TIMESTAMP},
+      open_time = #{openTime,jdbcType=TIMESTAMP},
+      prize_begin_time = #{prizeBeginTime,jdbcType=TIMESTAMP},
+      prize_end_time = #{prizeEndTime,jdbcType=TIMESTAMP},
+      redpacket_begin_time = #{redpacketBeginTime,jdbcType=TIMESTAMP},
+      redpacket_end_time = #{redpacketEndTime,jdbcType=TIMESTAMP},
+      status = #{status,jdbcType=BIT},
+      remark = #{remark,jdbcType=VARCHAR},
+      create_by = #{createBy,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      update_by = #{updateBy,jdbcType=VARCHAR},
+      update_time = #{updateTime,jdbcType=TIMESTAMP},
+      deleted = #{deleted,jdbcType=BIT},
+      prize_price = #{prizePrice,jdbcType=DECIMAL},
+      bet_symbol = #{betSymbol,jdbcType=VARCHAR},
+      lower_limit = #{lowerLimit,jdbcType=INTEGER},
+      guess_symbol = #{guessSymbol,jdbcType=VARCHAR},
+      prize_symbol = #{prizeSymbol,jdbcType=VARCHAR},
+      redpacket_symbol = #{redpacketSymbol,jdbcType=VARCHAR},
+      redpacket_grade_ratio = #{redpacketGradeRatio,jdbcType=DECIMAL},
+      redpacket_use_num = #{redpacketUseNum,jdbcType=DECIMAL},
+      rebate_ratio = #{rebateRatio,jdbcType=DECIMAL},
+      prize_ratio = #{prizeRatio,jdbcType=DECIMAL},
+      back_ratio = #{backRatio,jdbcType=DECIMAL},
+      redpacket_ratio = #{redpacketRatio,jdbcType=DECIMAL},
+      next_period_ratio = #{nextPeriodRatio,jdbcType=DECIMAL}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+
+
+
+  <select id="findByGuessSymbolLately" resultType="com.spark.bitrade.entity.BettingConfig" >
+    select
+    *
+    from pg_betting_config
+    where status != 0 and guess_symbol=#{guessSymbol} order by open_time DESC limit 1
+  </select>
+
+  <!-- 查询有效的活动 -->
+  <select id="findAllOfLately" resultType="com.spark.bitrade.entity.BettingConfig" >
+    select
+    *
+    from pg_betting_config
+    where
+      status != 0 and status != 5
+      and deleted = 0
+  </select>
+
+  <select id="findAllRecord" resultType="com.spark.bitrade.dto.RecordDTO" >
+    SELECT
+        periodId,
+        prize_symbol,
+        prize_price,
+        open_time,
+        a.`status`,
+        period,
+        rangeId,
+        beginRange,
+        endRange,
+        peopleNum,
+        (
+            CASE
+            WHEN rewardNum IS NULL THEN
+                a.jackpot_balance
+            ELSE
+                rewardNum
+            END
+        ) rewardNum
+    FROM
+        (
+            SELECT
+                pbc.id periodId,
+                pbc.prize_symbol,
+                pbc.prize_price,
+                pbc.open_time,
+                pbc.`status`,
+                pbc.period,
+                pj.range_id rangeId,
+                pj.jackpot_balance,
+                bpr.begin_range beginRange,
+                bpr.end_range endRange
+            FROM
+                pg_betting_config pbc
+            LEFT JOIN pg_jackpot pj ON pbc.id = pj.period_id
+            LEFT JOIN pg_betting_price_range bpr ON pj.range_id = bpr.id
+            where
+                pbc.`status` = 4
+                OR pbc.`status` = 5
+            GROUP BY
+                periodId
+        ) a
+    LEFT JOIN (
+        SELECT
+            COUNT(DISTINCT member_id) peopleNum,
+            SUM(pr.reward_num) rewardNum,
+            pr.member_id,
+            pr.period_id
+        FROM
+            pg_reward pr
+        where
+            pr.business_type = 0
+        GROUP BY
+            pr.period_id
+    ) b ON a.periodId = b.period_id
+    ORDER BY
+        a.open_time DESC
+  </select>
+
+  <select id="findOneRecord" resultType="com.spark.bitrade.dto.RecordDTO" >
+   SELECT
+        periodId,
+        prize_symbol,
+        prize_price,
+        open_time,
+        a.`status`,
+        period,
+        rangeId,
+		groupName,
+        beginRange,
+        endRange,
+        peopleNum,
+        rewardNum
+    FROM
+        (
+            SELECT
+                pbc.id periodId,
+                pbc.prize_symbol,
+                pbc.prize_price,
+                pbc.open_time,
+                pbc.`status`,
+                pbc.period,
+                pj.range_id rangeId,
+                bpr.begin_range beginRange,
+                bpr.end_range endRange,
+				bpr.group_name groupName
+            FROM
+                pg_betting_config pbc
+            LEFT JOIN pg_jackpot pj ON pbc.id = pj.period_id
+            LEFT JOIN pg_betting_price_range bpr ON pj.range_id = bpr.id
+            WHERE
+                pbc.id = #{periodId}
+            AND (
+                pbc.`status` = 4
+                OR pbc.`status` = 5
+            )
+            GROUP BY
+                periodId
+        ) a
+    LEFT JOIN (
+        SELECT
+            COUNT(DISTINCT member_id) peopleNum,
+            SUM(pr.reward_num) rewardNum,
+            pr.member_id,
+            pr.period_id
+        FROM
+            pg_reward pr
+        WHERE
+            pr.period_id = #{periodId}
+            and pr.business_type = 0
+    ) b ON a.periodId = b.period_id
+    ORDER BY
+        a.open_time DESC
+  </select>
+
+  <select id="findAllByPeriodAndStatus" resultType="com.spark.bitrade.vo.BettingConfigVo">
+      SELECT id,period,name,bet_symbol,guess_symbol,prize_symbol,begin_time,end_time,open_time,prize_begin_time,prize_end_time,redpacket_begin_time,redpacket_end_time,status
+      FROM pg_betting_config
+      <where>
+          deleted=0
+          <if test="period!=null and period!=''">
+              AND period=#{period}
+          </if>
+          <if test="status!=null and status>-1">
+              AND status=#{status}
+          </if>
+      </where>
+      order by id desc
+  </select>
+
+  <!-- 根据id查询竞猜投注配置 -->
+  <select id="queryConfigById" resultType="com.spark.bitrade.entity.BettingConfig" parameterType="java.lang.Long">
+    SELECT * from pg_betting_config bc where bc.id = #{id}
+  </select>
+
+  <!-- 根据投注配置id查询价格区间列表 -->
+  <select id="queryPriceRangeByConfigId" resultType="com.spark.bitrade.entity.BettingPriceRange" parameterType="java.lang.Long">
+      select * from pg_betting_price_range where period_id =#{id}
+  </select>
+
+  <!-- 查询是否有正在进行中的投注活动(不包括0未生效，1未开始，5已完成状态) -->
+  <select id="queryIsRunningConfig" resultType="java.lang.Integer">
+    select count(id) row from pg_betting_config bc where bc.status not in (0,1,5)
+  </select>
+
+  <!-- 查询上期活动配置 -->
+  <select id="findForwardBetConfig" parameterType="map" resultType="com.spark.bitrade.entity.BettingConfig">
+    <![CDATA[
+      SELECT * from pg_betting_config a where open_time < (SELECT open_time from pg_betting_config where id=#{id}) and status = #{status} ORDER BY create_time desc LIMIT 1
+     ]]>
+  </select>
+
+</mapper>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.spark.bitrade.mapper.dao.AlarmMonitorMapper">
+
+    <select id="findAllBy" parameterType="java.lang.Long" resultType="com.spark.bitrade.entity.AlarmMonitor">
+        SELECT a.*,admin.real_name maintenanceRealName FROM alarm_monitor a LEFT JOIN admin ON admin.id=a.maintenance_id
+        <where>
+            <if test="alarmType!=null and alarmType>-1">
+                AND alarm_type=#{alarmType}
+            </if>
+            <if test="memberId!=null and memberId>-1">
+                AND member_id=#{memberId}
+            </if>
+        </where>
+    </select>
+
+
+</mapper>

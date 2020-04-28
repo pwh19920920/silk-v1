@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.spark.bitrade.mapper.dao.LockMarketRewardIncomePlanMapper">
+
+
+    <select id="findAllByBack" resultType="com.spark.bitrade.entity.LockMarketRewardIncomePlan">
+        SELECT * FROM lock_market_reward_income_plan WHERE status=0
+    </select>
+
+    <select id="findOneById" parameterType="java.lang.Long" resultType="com.spark.bitrade.entity.LockMarketRewardIncomePlan">
+        SELECT * FROM lock_market_reward_income_plan WHERE id=#{id}
+    </select>
+
+    <!-- 用户到账奖励 -->
+    <select id="findAllByBacked" parameterType="java.lang.Object" resultType="java.util.Map">
+        SELECT IFNULL(sum(reward_amount),0)backAmount,reward_type rewardType
+        FROM lock_market_reward_income_plan
+        <where>
+            status=2 AND member_id=#{memberId} and symbol = #{symbol}
+            <if test="startTime!=null and startTime!=''">
+                and create_time <![CDATA[ >= ]]> #{startTime}
+            </if>
+            <if test="endTime!=null and endTime!=''">
+                and create_time <![CDATA[ <= ]]> #{endTime}
+            </if>
+        </where>
+        GROUP BY reward_type
+    </select>
+
+    <!-- 用户总奖励 -->
+    <select id="findAllReward" parameterType="java.lang.Long" resultType="java.util.Map">
+        SELECT IFNULL(sum(reward_amount),0)amountTotal,reward_type rewardType
+        FROM lock_market_reward_income_plan
+        <where>
+            member_id=#{memberId} and symbol = #{symbol}
+            <if test="startTime!=null and startTime!=''">
+                and create_time <![CDATA[ >= ]]> #{startTime}
+            </if>
+            <if test="endTime!=null and endTime!=''">
+                and create_time <![CDATA[ <= ]]> #{endTime}
+            </if>
+        </where>
+        GROUP BY reward_type
+    </select>
+
+    <select id="findOneByDetailIdAndMemberId" resultType="com.spark.bitrade.entity.LockMarketRewardIncomePlan">
+        SELECT * FROM lock_market_reward_income_plan WHERE market_reward_detail_id = #{marketRewardDetailId} and member_id = #{memberId} and status = #{status} and reward_time <![CDATA[ <= ]]> #{rewardTime} limit 1
+    </select>
+
+    <select id="findCanUnLockList" resultType="com.spark.bitrade.entity.LockMarketRewardIncomePlan">
+        SELECT * FROM lock_market_reward_income_plan WHERE status = #{status} and reward_time <![CDATA[ <= ]]> #{rewardTime} limit #{lockNum}
+    </select>
+</mapper>

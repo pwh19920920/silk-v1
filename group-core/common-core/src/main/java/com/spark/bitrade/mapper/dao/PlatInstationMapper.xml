@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.spark.bitrade.mapper.dao.PlatInstationMapper">
+
+    <select id="findById" parameterType="java.lang.Long" resultType="com.spark.bitrade.entity.PlatInstation">
+        SELECT * FROM plat_instation where id = #{id }
+    </select>
+
+    <update id="updatePlatInstation">
+        update plat_instation set status=3 where id= #{id}
+    </update>
+</mapper>

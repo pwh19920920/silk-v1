@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.spark.bitrade.mapper.dao.SilkTraderPayMapper">
+
+    <select id="findContractById" resultType="com.spark.bitrade.dto.SilkTraderContractDTO" parameterType="java.lang.Long">
+        select cd.id,tc.contract_no,tc.busi_account,tc.message_key,tc.discount,tc.`status`,tc.async_notify_url,tc.expire_time,tc.busi_url,
+            tc.contract_start,tc.period,tc.expire_time,cd.currency,cd.contract_coin,cd.busi_coin,cd.busi_coin_fee_rate from silk_trader_contract_detail cd
+                 LEFT JOIN silk_trader_contract tc ON tc.id = cd.contract_no
+                 where cd.id = #{id}
+    </select>
+
+    <select id="findBalanceByPhone" resultType="java.util.Map" parameterType="java.lang.String">
+        SELECT mw.member_id,mw.balance,mw.coin_id,m.mobile_phone phone,m.jy_password,m.salt FROM member m LEFT JOIN member_wallet mw on mw.member_id = m.id where m.mobile_phone=#{phone} and mw.coin_id=( SELECT c.`name` from coin c where c.unit = #{coinUnit} );
+    </select>
+
+    <insert id="insertNewPayOrder" parameterType="com.spark.bitrade.entity.SilkTraderTransaction">
+        insert into silk_trader_transaction(actual_amount,amount,back_status,busi_account,busi_amount,
+            busi_currency_price,`comment`,contract_amount,contract_busi_price,contract_detail_id,
+            create_time,member_id,order_time,pay_id,silk_order_no,`status`,user_account,user_id,fee)
+             values(#{actualAmount},#{amount},#{backStatus,typeHandler=org.apache.ibatis.type.EnumOrdinalTypeHandler},#{busiAccount},#{busiAmount},
+              #{busiCurrencyPrice},#{comment},#{contractAmount},#{contractBusiPrice},#{contractDetailId},
+              now(),#{memberId},#{orderTime},#{payId},#{silkOrderNo},#{status,typeHandler=org.apache.ibatis.type.EnumOrdinalTypeHandler},#{userAccount},#{userId},#{fee})
+    </insert>
+
+    <select id="findOrderByPayId" parameterType="java.lang.String" resultType="com.spark.bitrade.entity.SilkTraderTransaction">
+        select * from silk_trader_transaction where silk_order_no = #{silkOrderNo}
+    </select>
+
+    <insert id="insertFeeTransaction" parameterType="com.spark.bitrade.entity.MemberTransaction">
+        insert into member_transaction(amount,create_time,member_id,symbol,type,fee,flag,ref_id,`comment`,fee_discount)
+         values(#{amount},now(),#{memberId},#{symbol},#{type,typeHandler=org.apache.ibatis.type.EnumOrdinalTypeHandler},#{fee},#{flag},#{refId},#{comment},#{feeDiscount})
+    </insert>
+
+    <update id="updatePayOrderStatus" parameterType="com.spark.bitrade.entity.SilkTraderTransaction">
+        update silk_trader_transaction set status = #{status,typeHandler=org.apache.ibatis.type.EnumOrdinalTypeHandler},update_time = now() where silk_order_no =#{silkOrderNo}
+    </update>
+
+    <select id="getWalletIdByMemberId" parameterType="java.lang.String" resultType="java.lang.Long">
+        SELECT mw.id from member_wallet mw where mw.member_id=#{memberId} and mw.coin_id = ( SELECT c.`name` from coin c where c.unit = #{coinUnit}  )
+    </select>
+
+    <select id="exsitsPayOrder" parameterType="java.lang.String" resultType="java.util.Map">
+        select contract_detail_id,pay_id,status from silk_trader_transaction where contract_detail_id = #{detailId} and pay_id = #{orderId}
+    </select>
+</mapper>

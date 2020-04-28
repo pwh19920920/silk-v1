@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.spark.bitrade.mapper.dao.AppealMapper">
+
+    <select id="findAllBy" parameterType="java.util.Map" resultType="com.spark.bitrade.dto.AppealDTO">
+        select a.id appealId,
+        CONCAT(b.member_name,'(',b.member_real_name,')') advertiseName,
+        b.price,
+        CONCAT( b.customer_name,'(',b.customer_real_name,')') customerName,
+        c.username initiatorUsername,c.real_name initiatorName,d.username associateUsername,d.real_name associateName,b.commission fee,b.number,b.money,CONCAT(b.order_sn,'') orderSn,b.create_time transactionTime,a.create_time createTime,
+        a.deal_with_time dealWithTime,b.pay_mode payMode, e.name coinName,b.status orderStatus,a.is_success isSuccess,b.advertise_type advertiseType,a.status,a.remark
+        from appeal a,otc_order b,member c,member d,otc_coin e
+        <where>
+            a.order_id = b.id and a.initiator_id = c.id and a.associate_id = d.id  and b.coin_id = e.id
+            <if test="negotiant!=null and negotiant!=''">
+                and (b.customer_name like CONCAT('%',#{negotiant},'%') or b.customer_real_name like CONCAT('%',#{negotiant},'%'))
+            </if>
+            <if test="complainant!=null and complainant!=''">
+                and (b.member_name like CONCAT('%',#{complainant},'%') or b.member_real_name like CONCAT('%',#{complainant},'%'))
+            </if>
+            <if test="advertiseType!=null">
+                and b.advertise_type =#{advertiseType}
+            </if>
+        <if test="success!=null">
+                and (a.is_success =#{success} and a.deal_with_time is not null)
+            </if>
+            <if test="status!=null">
+                and b.status =#{status}
+            </if>
+            <if test="unit!=null and unit!=''">
+                and lower(e.unit) = #{unit}
+            </if>
+            <if test="orderCreateStartTime!=null and orderCreateStartTime!=''">
+                and b.create_time  <![CDATA[>=]]> #{orderCreateStartTime}
+            </if>
+            <if test="orderCreateEndTime!=null and orderCreateEndTime!=''">
+                and b.create_time  <![CDATA[<=]]> #{orderCreateEndTime}
+            </if>
+            <if test="appealCreateStartTime!=null and appealCreateStartTime!=''">
+                and a.create_time  <![CDATA[>=]]> #{appealCreateStartTime}
+            </if>
+            <if test="appealCreateEndTime!=null and appealCreateEndTime!=''">
+                and a.create_time  <![CDATA[<=]]> #{appealCreateEndTime}
+            </if>
+        </where>
+        order by createTime DESC
+    </select>
+
+    <select id="findOne" parameterType="java.lang.Long" resultType="com.spark.bitrade.vo.AppealDetailVO">
+        select a.id appealId,CONCAT(b.order_sn,'') orderSn,b.create_time orderCreateTime,
+        b.member_id advertiseCreaterId,b.member_name advertiseCreaterUserName,b.member_real_name advertiseCreaterName,c.mobile_phone advertiseCreaterPhone,c.email advertiseCreaterEmail,
+        b.customer_id customerId,b.customer_name customerUserName,b.customer_real_name customerRealName,d.mobile_phone customerPhone,d.email customerEmail,
+        a.initiator_id initiatorId,a.is_success isSuccess,b.advertise_type advertiseType,
+        b.pay_mode payMode,b.price price,b.money money,b.number number,e.unit,
+        b.pay_time,a.create_time appealCreateTime,a.deal_with_time dealWithTime,
+        a.cancel_time appealCancelTime,a.cancel_reason cancelReason,a.cancel_description cancelReasonDescription,a.cancel_id,
+        b.cancel_time orderCancelTime,b.status orderStatus,a.status,a.appeal_type,a.remark,b.close_time
+        from appeal a,otc_order b,
+        <!-- 广告方 -->
+        member c,
+        <!-- 交易方 -->
+        member d,
+        otc_coin e
+        where a.order_id = b.id and b.member_id = c.id and b.customer_id = d.id  and b.coin_id = e.id
+        and a.id=#{id};
+    </select>
+
+    <!--获取申诉的图片 -->
+    <select id="getAppealImg" parameterType="java.lang.Long" resultType="com.spark.bitrade.entity.OrderAppealAccessory">
+        select * from otc_order_appeal_accessory where appeal_id = #{appealId};
+    </select>
+
+    <select id="findAppealHistoty" parameterType="java.lang.String" resultType="com.spark.bitrade.vo.AppealDetailVO">
+        SELECT id appealId, initiator_id initiatorId, is_success isSuccess,
+        cancel_time appealCancelTime, cancel_reason cancelReason, cancel_description cancelReasonDescription, cancel_id,
+        status, appeal_type, remark, create_time appealCreateTime
+        FROM appeal WHERE order_id=(select id from otc_order where order_sn=#{orderSn})
+    </select>
+    
+</mapper>

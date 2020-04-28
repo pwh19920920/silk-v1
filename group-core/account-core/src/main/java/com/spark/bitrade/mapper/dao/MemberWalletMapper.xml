@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.spark.bitrade.mapper.dao.MemberWalletMapper">
+
+    <select id="findByCoinAndMemberId"  resultType="com.spark.bitrade.entity.MemberWallet">
+        SELECT * from member_wallet m where m.coin_id = #{coinName} and member_id = #{memberId}
+    </select>
+
+    <select id="findByCoinUnitAndMemberId"  resultType="com.spark.bitrade.entity.MemberWallet">
+        SELECT m.* from member_wallet m,coin c where  m.member_id = #{memberId} and m.coin_id=c.name and c.unit= #{coinUnit}
+    </select>
+
+
+    <select id="hasExistByAddr"  resultType="java.lang.String">
+        SELECT address from member_wallet m where m.address = #{address} limit 1
+    </select>
+
+    <select id="findAllBy" parameterType="java.util.Map" resultType="com.spark.bitrade.vo.MemberWalletBalanceVO">
+        select memberwall1_.id id, memberwall1_.member_id memberId, member0_.username username, member0_.real_name realName, member0_.email email, member0_.mobile_phone mobilePhone, memberwall1_.balance balance, memberwall1_.address address, coin2_.unit unit, memberwall1_.frozen_balance frozenBalance, memberwall1_.balance+memberwall1_.frozen_balance allBalance
+        from member member0_ cross join member_wallet memberwall1_, coin coin2_
+        <where>
+            memberwall1_.coin_id=coin2_.name and member0_.id=memberwall1_.member_id
+            <if test="account!=null and account!=''">
+                and (member0_.username like CONCAT('%',#{account},'%')
+                    or member0_.mobile_phone like CONCAT(#{account},'%')
+                    or member0_.email like CONCAT(#{account},'%')
+                    or member0_.real_name like CONCAT('%',#{account},'%'))
+            </if>
+            <if test="walletAddress!=null and walletAddress!=''">
+                and memberwall1_.address=#{walletAddress}
+            </if>
+            <if test="unit!=null and unit!=''">
+                and coin2_.unit=#{unit}
+            </if>
+            <if test="minAllBalance!=null and minAllBalance!=''">
+            and memberwall1_.balance+memberwall1_.frozen_balance &gt;= #{minAllBalance}
+            </if>
+            <if test="maxAllBalance!=null and maxAllBalance!=''">
+                and memberwall1_.balance+memberwall1_.frozen_balance &lt;= #{maxAllBalance}
+            </if>
+            <if test="minBalance!=null and minBalance!=''">
+                and memberwall1_.balance &gt;= #{minBalance}
+            </if>
+            <if test="maxBalance!=null and maxBalance!=''">
+                and memberwall1_.balance &lt;= #{maxBalance}
+            </if>
+            <if test="minFrozenBalance!=null and minFrozenBalance!=''">
+                and memberwall1_.frozen_balance &gt;= #{minFrozenBalance}
+            </if>
+            <if test="maxFrozenBalance!=null and maxFrozenBalance!=''">
+                and memberwall1_.frozen_balance &lt;= #{maxFrozenBalance}
+            </if>
+        </where>
+        order by id desc
+    </select>
+
+    <select id="selectWallerListByMemberId" parameterType="java.lang.Long">
+        select * from member_wallet where member_id = #{memberId} and balance != 0 and frozen_balance != 0
+    </select>
+
+
+</mapper>

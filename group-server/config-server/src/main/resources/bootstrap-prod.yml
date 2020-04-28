@@ -1,0 +1,33 @@
+#日志
+logging:
+  config: classpath:log/logback.xml
+
+spring:
+  cloud:
+    config:
+      server:
+#native方式配置（方案1）
+#         native:
+#          searchLocations: file:G:/tmp/git/font-web/trade-platform-config/config-center/
+#git方式配置（方案2）
+        git:
+          uri: http://172.31.48.148/SilkTraderManager/config-center.git
+          search-paths: config/{application}
+          username: configServer
+          password: csdeakingP@ssw0rd
+
+# 配置 spring cloud bus
+#    stream:
+#      kafka:
+#       binder:
+#        brokers: 127.0.0.1:9092
+#        zkNodes: 127.0.0.1:2181
+##native方式配置（方案1）
+#  profiles:
+#    active: native
+
+#加入注册中心，实现高可用
+eureka:
+  client:
+    service-url:
+       defaultZone: http://172.31.48.134:7000/eureka/,http://172.31.48.120:7000/eureka/

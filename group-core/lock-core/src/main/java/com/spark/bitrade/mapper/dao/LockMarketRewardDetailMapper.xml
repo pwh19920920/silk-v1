@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.spark.bitrade.mapper.dao.LockMarketRewardDetailMapper">
+
+    <select id="findOneById" parameterType="java.lang.Long" resultType="com.spark.bitrade.entity.LockMarketRewardDetail">
+        SELECT * FROM lock_market_reward_detail WHERE id=#{id}
+    </select>
+
+    <select id="findDepByInviter" parameterType="java.lang.Object" resultType="com.spark.bitrade.vo.StoLockDepDetailVo">
+        select member_id memberId, ref_invitee_id id,reward_type lockType, lock_days period,lock_time lockTime, total_amount amount,current_per_factor flag
+        from lock_market_reward_detail
+        <where>
+            member_id = #{memberId} and symbol = #{symbol}
+            <if test="startTime!=null and startTime!=''">
+                and create_time <![CDATA[ >= ]]> #{startTime}
+            </if>
+            <if test="endTime!=null and endTime!=''">
+                and create_time <![CDATA[ <= ]]> DATE_ADD(#{endTime} , INTERVAL 1 DAY)
+            </if>
+        </where>
+        order by lock_time desc
+    </select>
+
+    <sql id="totalChild">
+        SELECT member_id, ref_invitee_id,symbol,
+            SUM(IF(reward_type = 0, total_amount, 0)) amount,
+            SUM(IF(reward_type = 1 OR reward_type = 2, total_amount, 0)) teamAmount,
+            SUM(IF(reward_type = 0, performance_turnover, 0)) turnover,
+            SUM(IF(reward_type = 1 OR reward_type = 2, performance_turnover, 0)) teamTurnover
+        FROM lock_market_reward_detail
+        <where>
+            member_id = #{memberId} and symbol = #{symbol}
+            <if test="startTime!=null and startTime!=''">
+                and create_time <![CDATA[ >= ]]> #{startTime}
+            </if>
+            <if test="endTime!=null and endTime!=''">
+                and create_time <![CDATA[ <= ]]> DATE_ADD(#{endTime} , INTERVAL 1 DAY)
+            </if>
+        </where>
+        GROUP BY ref_invitee_id
+    </sql>
+    <select id="findDepByInviterAsTotal" parameterType="java.lang.Object" resultType="com.spark.bitrade.vo.StoLockDepVo">
+        SELECT l.symbol,l.member_id memberId, l.ref_invitee_id id,
+              lm.LEVEL position, m.email, m.mobile_phone phone,
+              l.amount, l.teamAmount,l.turnover,l.teamTurnover,
+              lm.create_time joinTime, lm.create_time
+        FROM (<include refid="totalChild"/>) l
+        LEFT JOIN lock_market_level lm ON lm.member_id = l.ref_invitee_id and lm.symbol = l.symbol
+        LEFT JOIN member m ON m.id = l.ref_invitee_id
+        ORDER BY lm.create_time DESC
+    </select>
+
+    <select id="findLevelByMemberId" parameterType="java.lang.Long" resultType="java.lang.String">
+        select le.level
+        from lock_market_reward_detail l
+        left join lock_reward_level_config le on le.level_id=l.current_level_id
+        where l.member_id=#{memberId}
+        order by l.create_time desc limit 1
+    </select>
+
+    <!-- 查询用户的奖励收益记录 -->
+    <select id="queryMemberRewardIncome" resultType="com.spark.bitrade.vo.StoLockIncomeVo" parameterType="java.lang.Object">
+        select rd.reward_type rewardType,ip2.rewardAmount rewardAmount,ip.reward_amount singlePeriodAmount,CONVERT(rd.lock_days/30,SIGNED) incomePeriod,max(ip.period) currentPeriod,rd.ref_invitee_id depId,rd.lock_time lockTime, ip.update_time backTime
+        from lock_market_reward_detail rd
+        LEFT JOIN lock_market_reward_income_plan ip ON ip.lock_detail_id = rd.lock_detail_id and ip.member_id = rd.member_id
+        LEFT JOIN (SELECT sum(reward_amount)rewardAmount,lock_detail_id,member_id FROM lock_market_reward_income_plan WHERE member_id = #{memberId} GROUP BY lock_detail_id) ip2 ON ip2.lock_detail_id = rd.lock_detail_id
+         <where>
+             rd.member_id = #{memberId} and ip.`status` = 2
+             and rd.symbol = #{symbol}
+             <if test="startTime!=null and startTime!=''">
+                 and ip.update_time <![CDATA[ >= ]]> #{startTime}
+             </if>
+             <if test="endTime!=null and endTime!=''">
+                 and ip.update_time <![CDATA[ <= ]]> DATE_ADD(#{endTime} , INTERVAL 1 DAY)
+             </if>
+
+         </where>
+        GROUP BY ip.id ORDER BY ip.update_time desc
+    </select>
+
+    <select id="findOneByLockDetailAndMemberId" resultType="com.spark.bitrade.entity.LockMarketRewardDetail">
+        SELECT * FROM lock_market_reward_detail WHERE lock_detail_id=#{lockDetailId} and member_id = #{memberId}
+    </select>
+
+    <select id="findSubPerformanceAmountById" resultType="java.math.BigDecimal">
+        SELECT SUM(performance_turnover) from lock_market_reward_detail
+        <where>
+            member_id = #{memberId}
+            and symbol = #{symbol}
+            <if test="startTime != null and startTime !=''">
+                and lock_time &gt;=#{startTime}
+            </if>
+            <if test="endTime != null and endTime !=''">
+                and lock_time &lt; #{endTime}
+            </if>
+        </where>
+    </select>
+
+</mapper>

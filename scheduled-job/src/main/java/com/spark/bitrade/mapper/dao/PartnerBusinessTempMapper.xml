@@ -1,0 +1,554 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.spark.bitrade.mapper.dao.PartnerBusinessTempMapper">
+
+    <insert id="saveListPartnerBusinessTemp" parameterType="com.spark.bitrade.dto.PartnerBusinessDto">
+        insert into partner_business_temp (
+        statistical_cycle,
+        area_id,
+        day_add_user_num,
+        month_add_user_num,
+        all_add_user_num,
+        day_trade_amount,
+        month_trade_amount,
+        all_trade_amount,
+        day_income_amount,
+        month_income_amount,
+        all_income_amount
+        )
+        SELECT
+        /**
+        * 统计周期 yyyy-MM-dd
+        */
+        pbtv.statisticalCycle statistical_cycle,
+        /**
+        * 区域信息
+        */
+        pbtv.area_id,
+        /**
+        * 当天新增用户数 yyyy-MM-dd hh:mm:ss
+        */
+        ifnull(pbtv.dayAddUserNum, 0) day_add_user_num,
+        /**
+        * 本月累计新增用户数
+        */
+        ifnull(
+        ifnull(pbtv.monthAddUserNum,0) + ifnull(pbtv.dayAddUserNum,0),
+        0
+        ) month_add_user_num,
+        /**
+        * 总累计新增用户数
+        */
+        ifnull(
+        ifnull(pbtv.allAddUserNum,0) + ifnull(pbtv.dayAddUserNum,0),
+        0
+        ) all_add_user_num,
+        /**
+        * 当天累计交易量（USDT）
+        */
+        ifnull(pbtv.dayTradeAmount, 0) day_trade_amount,
+        /**
+        * 当月累计交易量（USDT）
+        */
+        ifnull(
+        ifnull(pbtv.monthTradeAmount,0) + ifnull(pbtv.dayTradeAmount,0),
+        0
+        ) month_trade_amount,
+        /**
+        * 总累计交易量（USDT）
+        */
+        ifnull(
+        ifnull(pbtv.allTradeAmount,0) + ifnull(pbtv.dayTradeAmount,0),
+        0
+        ) all_trade_amount,
+        /**
+        * 当天累计收益（USDT）
+        */
+        ifnull(dayIncomeAmount, 0) day_income_amount,
+        /**
+        * 当月累计收益（USDT）
+        */
+        ifnull(
+        ifnull(pbtv.monthIncomeAmount,0) + ifnull(pbtv.dayIncomeAmount,0),
+        0
+        ) month_income_amount,
+        /**
+        * 总累计收益（USDT）
+        */
+        ifnull(
+        ifnull(pbtv.allIncomeAmount,0) + ifnull(pbtv.dayIncomeAmount,0),
+        0
+        ) all_income_amount
+        FROM
+        (
+        SELECT
+        /**
+        * 统计周期 yyyy-MM-dd
+        */
+        #{date} statisticalCycle,
+        /**
+        * 区域信息
+        */
+        da.area_id,
+        /**
+        * 当天新增用户数 yyyy-MM-dd hh:mm:ss
+        */
+        (
+        SELECT
+        count(1)
+        FROM
+        temp_member tm
+        where tm.area_id = da.area_id
+        ) dayAddUserNum,
+        /**
+        * 本月累计新增用户数
+        */
+
+        <choose>
+            <when test="isFirstDayofMonth == false">
+                (
+                SELECT
+                IFNULL(
+                pb.month_add_user_num,
+                0
+                ) month_add_user_num
+                FROM
+                yestody_partner_business pb
+                WHERE
+                pb.area_id = da.area_id
+                AND pb.statistical_cycle = #{preDate}
+                ) monthAddUserNum,
+            </when>
+            <otherwise>
+                0 monthAddUserNum,
+            </otherwise>
+        </choose>
+        /**
+        * 总累计新增用户数
+        */
+        (
+        SELECT
+
+        IFNULL(
+        pb.all_add_user_num,
+        0
+        ) all_add_user_num
+        FROM
+        yestody_partner_business pb
+        WHERE
+        pb.area_id = da.area_id
+        AND pb.statistical_cycle = #{preDate}
+        ) allAddUserNum,
+        /**
+        * 当天累计交易量（USDT）
+        */
+        (
+        SELECT
+        sum(eo.turnover) turnover
+        FROM
+        temp_exchange_order eo
+        where eo.member_id in (SELECT
+        tm.id
+        FROM
+        member tm
+        where tm.area_id = da.area_id)
+        ) dayTradeAmount,
+        /**
+        * 当月累计交易量（USDT）
+        */
+        <choose>
+            <when test="isFirstDayofMonth == false">
+                (
+                SELECT
+
+                IFNULL(
+                pb.month_trade_amount,
+                0
+                ) month_trade_amount
+                FROM
+                yestody_partner_business pb
+                WHERE
+                pb.area_id = da.area_id
+                AND pb.statistical_cycle = #{preDate}
+                ) monthTradeAmount,
+            </when>
+            <otherwise>
+                0 monthTradeAmount,
+            </otherwise>
+        </choose>
+        /**
+        * 总累计交易量（USDT）
+        */
+        (
+        SELECT
+
+        IFNULL(
+        pb.all_trade_amount,
+        0
+        ) all_trade_amount
+        FROM
+        yestody_partner_business pb
+        WHERE
+        pb.area_id = da.area_id
+        AND pb.statistical_cycle = #{preDate}
+        ) allTradeAmount,
+        /**
+        * 当天累计收益（USDT）
+        */
+        (
+        SELECT
+        sum(rr.amount) amount
+        FROM
+        temp_reward_record rr
+        where rr.member_id in (SELECT
+        tm.id
+        FROM
+        member tm
+        where tm.area_id = da.area_id)
+        ) dayIncomeAmount,
+        /**
+        * 当月累计收益（USDT）
+        */
+        <choose>
+            <when test="isFirstDayofMonth == false">
+                (
+                SELECT
+
+                IFNULL(
+                pb.month_income_amount,
+                0
+                ) month_income_amount
+                FROM
+                yestody_partner_business pb
+                WHERE
+                pb.area_id = da.area_id
+                AND pb.statistical_cycle = #{preDate}
+                ) monthIncomeAmount,
+            </when>
+            <otherwise>
+                0 monthIncomeAmount,
+            </otherwise>
+        </choose>
+        /**
+        * 总累计收益（USDT）
+        */
+        (
+        SELECT
+
+        IFNULL(
+        pb.all_income_amount,
+        0
+        ) all_income_amount
+        FROM
+        yestody_partner_business pb
+        WHERE
+        pb.area_id = da.area_id
+        AND pb.statistical_cycle = #{preDate}
+        ) allIncomeAmount
+        FROM
+        dim_area da
+        where da.level = #{level}
+        ) pbtv
+
+    </insert>
+
+    <update id="createTable" parameterType="com.spark.bitrade.dto.TempTable">
+      create table ${newTable} like ${baseTable}
+    </update>
+
+    <select id="isExistTable" parameterType="java.lang.String" resultType="java.lang.Integer">
+        select count(1) from information_schema.TABLES where table_name = #{_parameter}
+    </select>
+
+    <delete id="deleteData" parameterType="java.lang.String">
+        delete from ${_parameter}
+    </delete>
+
+    <insert id="saveMemberofStatisticalCycle" parameterType="java.util.Map">
+        insert into ${tempTable.newTable}
+        <choose>
+            <when test="tempTable.newTable == 'temp_member'">
+                SELECT
+                m.*
+                FROM
+                ${tempTable.baseTable} m
+                WHERE
+                m.registration_time <![CDATA[>=]]> #{partnerBusinessDto.startDate}
+                AND m.registration_time <![CDATA[<]]> #{partnerBusinessDto.endDate}
+                and m.area_id is not null and m.area_id <![CDATA[!=]]> ''
+            </when>
+            <when test="tempTable.newTable == 'temp_exchange_order'">
+                SELECT
+                eo.*
+                FROM
+                ${tempTable.baseTable} eo
+                WHERE
+                eo.member_id IN (
+                SELECT
+                m.id
+                FROM
+                member m
+                where m.area_id is not null and m.area_id <![CDATA[!=]]> ''
+                )
+                AND eo.time <![CDATA[>=]]> #{partnerBusinessDto.startTime}
+                AND eo.time <![CDATA[<]]> #{partnerBusinessDto.endTime}
+            </when>
+            <when test="tempTable.newTable == 'temp_reward_record'">
+                SELECT
+                rr.*
+                FROM
+                ${tempTable.baseTable} rr
+                WHERE
+                rr.type = 3
+                AND rr.member_id IN (
+                SELECT
+                m.id
+                FROM
+                member m
+                where m.area_id is not null and m.area_id <![CDATA[!=]]> ''
+                )
+                AND rr.create_time <![CDATA[>=]]> #{partnerBusinessDto.startDate}
+                AND rr.create_time <![CDATA[<]]> #{partnerBusinessDto.endDate}
+            </when>
+            <when test="tempTable.newTable == 'yestody_partner_business'">
+                select * from ${tempTable.baseTable} where statistical_cycle = #{partnerBusinessDto.preDate}
+            </when>
+            <when test="tempTable.newTable == 'partner_business_month_temp'">
+                select
+                id,
+                area_id,
+                month_add_user_num,
+                month_income_amount,
+                month_trade_amount,
+                statistical_cycle
+                from ${tempTable.baseTable} where statistical_cycle = #{partnerBusinessDto.date}
+            </when>
+            <otherwise>
+                SELECT
+                eo.*
+                FROM
+                ${tempTable.newTable} eo
+            </otherwise>
+        </choose>
+    </insert>
+
+    <delete id="deleteDataByStatisticalCycleAndLevel" parameterType="com.spark.bitrade.dto.PartnerBusinessDto">
+        delete from partner_business where
+        <choose>
+            <when test="level == 1">
+                LENGTH(area_id) = 2 and statistical_cycle = #{date}
+            </when>
+            <when test="level == 2">
+                LENGTH(area_id) = 4 and statistical_cycle = #{date}
+            </when>
+            <when test="level == 3">
+                LENGTH(area_id) = 6 and statistical_cycle = #{date}
+            </when>
+            <otherwise>
+                1 <![CDATA[!=]]> 1
+            </otherwise>
+        </choose>
+    </delete>
+
+    <insert id="saveListPartenerLevelData" parameterType="java.util.Map">
+        INSERT into ${tempTable.newTable} (
+        statistical_cycle,
+        area_id,
+        day_add_user_num,
+        month_add_user_num,
+        all_add_user_num,
+        day_trade_amount,
+        month_trade_amount,
+        all_trade_amount,
+        day_income_amount,
+        month_income_amount,
+        all_income_amount
+        )
+        <choose>
+            <when test="partnerBusinessDto.level == 1">
+                select h.statistical_cycle,
+                h.area_id,
+                sum(h.day_add_user_num) day_add_user_num,
+                sum(h.month_add_user_num) month_add_user_num,
+                sum(h.all_add_user_num) all_add_user_num,
+                sum(h.day_trade_amount) day_trade_amount,
+                sum(h.month_trade_amount) month_trade_amount,
+                sum(h.all_trade_amount) all_trade_amount,
+                sum(h.day_income_amount) day_income_amount,
+                sum(h.month_income_amount) month_income_amount,
+                sum(h.all_income_amount) all_income_amount from (select t1.statistical_cycle,
+                t1.area_id,
+                IFNULL(t.day_add_user_num,0)+IFNULL(t1.day_add_user_num,0) day_add_user_num,
+                IFNULL(t.month_add_user_num,0)+IFNULL(t1.day_add_user_num,0) month_add_user_num,
+                IFNULL(t.all_add_user_num,0)+IFNULL(t1.day_add_user_num,0) all_add_user_num,
+                IFNULL(t.day_trade_amount,0)+IFNULL(t1.day_trade_amount,0) day_trade_amount,
+                IFNULL(t.month_trade_amount,0)+IFNULL(t1.day_trade_amount,0) month_trade_amount,
+                IFNULL(t.all_trade_amount,0)+IFNULL(t1.day_trade_amount,0) all_trade_amount,
+                IFNULL(t.day_income_amount,0)+IFNULL(t1.day_income_amount,0) day_income_amount,
+                IFNULL(t.month_income_amount,0)+IFNULL(t1.day_income_amount,0) month_income_amount,
+                IFNULL(t.all_income_amount,0)+IFNULL(t1.day_income_amount,0) all_income_amount from (select * from partner_business_temp pb where LENGTH(area_id) = 2  and pb.statistical_cycle = #{partnerBusinessDto.date}) t
+                right join
+                (select statistical_cycle,
+                left(pb.area_id,2) area_id,
+                sum(day_add_user_num) day_add_user_num,
+                sum(month_add_user_num) month_add_user_num,
+                sum(all_add_user_num) all_add_user_num,
+                sum(day_trade_amount) day_trade_amount,
+                sum(month_trade_amount) month_trade_amount,
+                sum(all_trade_amount) all_trade_amount,
+                sum(day_income_amount) day_income_amount,
+                sum(month_income_amount) month_income_amount,
+                sum(all_income_amount) all_income_amount from ${tempTable.baseTable} pb where LENGTH(area_id) = 4  and pb.statistical_cycle = #{partnerBusinessDto.date}
+                group by left(pb.area_id,2)
+                ) t1 on t.area_id = t1.area_id) h
+                group by h.statistical_cycle,h.area_id
+            </when>
+            <when test="partnerBusinessDto.level == 2">
+                select h.statistical_cycle,
+                h.area_id,
+                sum(h.day_add_user_num) day_add_user_num,
+                sum(h.month_add_user_num) month_add_user_num,
+                sum(h.all_add_user_num) all_add_user_num,
+                sum(h.day_trade_amount) day_trade_amount,
+                sum(h.month_trade_amount) month_trade_amount,
+                sum(h.all_trade_amount) all_trade_amount,
+                sum(h.day_income_amount) day_income_amount,
+                sum(h.month_income_amount) month_income_amount,
+                sum(h.all_income_amount) all_income_amount from (select t1.statistical_cycle,
+                t1.area_id,
+                IFNULL(t.day_add_user_num,0)+IFNULL(t1.day_add_user_num,0) day_add_user_num,
+                IFNULL(t.month_add_user_num,0)+IFNULL(t1.day_add_user_num,0) month_add_user_num,
+                IFNULL(t.all_add_user_num,0)+IFNULL(t1.day_add_user_num,0) all_add_user_num,
+                IFNULL(t.day_trade_amount,0)+IFNULL(t1.day_trade_amount,0) day_trade_amount,
+                IFNULL(t.month_trade_amount,0)+IFNULL(t1.day_trade_amount,0) month_trade_amount,
+                IFNULL(t.all_trade_amount,0)+IFNULL(t1.day_trade_amount,0) all_trade_amount,
+                IFNULL(t.day_income_amount,0)+IFNULL(t1.day_income_amount,0) day_income_amount,
+                IFNULL(t.month_income_amount,0)+IFNULL(t1.day_income_amount,0) month_income_amount,
+                IFNULL(t.all_income_amount,0)+IFNULL(t1.day_income_amount,0) all_income_amount from (select * from partner_business_temp pb where LENGTH(area_id) = 4  and pb.statistical_cycle = #{partnerBusinessDto.date}) t
+                right join
+                (select statistical_cycle,
+                left(pb.area_id,4) area_id,
+                sum(day_add_user_num) day_add_user_num,
+                sum(month_add_user_num) month_add_user_num,
+                sum(all_add_user_num) all_add_user_num,
+                sum(day_trade_amount) day_trade_amount,
+                sum(month_trade_amount) month_trade_amount,
+                sum(all_trade_amount) all_trade_amount,
+                sum(day_income_amount) day_income_amount,
+                sum(month_income_amount) month_income_amount,
+                sum(all_income_amount) all_income_amount from ${tempTable.baseTable} pb where LENGTH(area_id) = 6  and pb.statistical_cycle = #{partnerBusinessDto.date}
+                group by left(pb.area_id,4)
+                ) t1 on t.area_id = t1.area_id
+                ) h
+                group by h.statistical_cycle,h.area_id
+            </when>
+            <when test="partnerBusinessDto.level == 3">
+                select  statistical_cycle,
+                area_id,
+                day_add_user_num,
+                month_add_user_num,
+                all_add_user_num,
+                day_trade_amount,
+                month_trade_amount,
+                all_trade_amount,
+                day_income_amount,
+                month_income_amount,
+                all_income_amount from ${tempTable.baseTable} where LENGTH(area_id) = 6 and statistical_cycle = #{partnerBusinessDto.date}
+                group by statistical_cycle,area_id
+            </when>
+            <otherwise>
+                1 <![CDATA[!=]]> 1
+            </otherwise>
+        </choose>
+    </insert>
+
+
+    <insert id="savePartnerBusiness" parameterType="java.util.Map">
+        INSERT into ${tempTable.baseTable} (
+        statistical_cycle,
+        area_id,
+        day_add_user_num,
+        month_add_user_num,
+        all_add_user_num,
+        day_trade_amount,
+        month_trade_amount,
+        all_trade_amount,
+        day_income_amount,
+        month_income_amount,
+        all_income_amount
+        )
+        <choose>
+            <when test="partnerBusinessDto.level == 1">
+                select  statistical_cycle,
+                area_id,
+                day_add_user_num,
+                month_add_user_num,
+                all_add_user_num,
+                day_trade_amount,
+                month_trade_amount,
+                all_trade_amount,
+                day_income_amount,
+                month_income_amount,
+                all_income_amount from ${tempTable.newTable} where LENGTH(area_id) = 2 and statistical_cycle = #{partnerBusinessDto.date}
+                union
+                select  statistical_cycle,
+                '86',
+                sum(day_add_user_num),
+                sum(month_add_user_num),
+                sum(all_add_user_num),
+                sum(day_trade_amount),
+                sum(month_trade_amount),
+                sum(all_trade_amount),
+                sum(day_income_amount),
+                sum(month_income_amount),
+                sum(all_income_amount) from ${tempTable.newTable} where LENGTH(area_id) = 2 and statistical_cycle = #{partnerBusinessDto.date}
+            </when>
+            <when test="partnerBusinessDto.level == 2">
+                select  statistical_cycle,
+                area_id,
+                day_add_user_num,
+                month_add_user_num,
+                all_add_user_num,
+                day_trade_amount,
+                month_trade_amount,
+                all_trade_amount,
+                day_income_amount,
+                month_income_amount,
+                all_income_amount from ${tempTable.newTable} where LENGTH(area_id) = 4 and statistical_cycle = #{partnerBusinessDto.date}
+            </when>
+            <when test="partnerBusinessDto.level == 3">
+                select  statistical_cycle,
+                area_id,
+                day_add_user_num,
+                month_add_user_num,
+                all_add_user_num,
+                day_trade_amount,
+                month_trade_amount,
+                all_trade_amount,
+                day_income_amount,
+                month_income_amount,
+                all_income_amount from ${tempTable.newTable} where LENGTH(area_id) = 6 and statistical_cycle = #{partnerBusinessDto.date}
+            </when>
+            <otherwise>
+                1 <![CDATA[!=]]> 1
+            </otherwise>
+        </choose>
+    </insert>
+
+    <select id="getLastOfTable" resultType="com.spark.bitrade.entity.PartnerBusinessTemp">
+        select
+        id,
+        statistical_cycle statisticalCycle,
+        area_id areaId,
+        day_add_user_num dayAddUserNum,
+        month_add_user_num monthAddUserNum,
+        all_add_user_num allAddUserNum,
+        day_trade_amount dayTradeAmount,
+        month_trade_amount monthTradeAmount,
+        all_trade_amount allTradeAmount,
+        day_income_amount dayIncomeAmount,
+        month_income_amount monthIncomeAmount,
+        all_income_amount allIncomeAmount from partner_business order by statistical_cycle desc limit 1
+    </select>
+
+</mapper>

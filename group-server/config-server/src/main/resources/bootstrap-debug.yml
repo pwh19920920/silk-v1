@@ -1,0 +1,32 @@
+#日志
+logging:
+  config: classpath:log/logback.xml
+
+spring:
+  cloud:
+    config:
+      server:
+#native方式配置（方案1）
+#         native:
+#          searchLocations: file:G:/tmp/git/font-web/trade-platform-config/config-center/
+#git方式配置（方案2）
+        git:
+          uri: http://172.16.0.99/spring-cloud-config/trade-platform-config.git
+          search-paths: config-center/{application}
+          username: configServer
+          password: configServer123
+
+# 配置 spring cloud bus
+#    stream:
+#      kafka:
+#       binder:
+#        brokers: 127.0.0.1:9092
+#        zkNodes: 127.0.0.1:2181
+##native方式配置（方案1）
+#  profiles:
+#    active: native
+#加入注册中心，实现高可用
+eureka:
+  client:
+    service-url:
+       defaultZone: http://172.16.0.100:8761/eureka/

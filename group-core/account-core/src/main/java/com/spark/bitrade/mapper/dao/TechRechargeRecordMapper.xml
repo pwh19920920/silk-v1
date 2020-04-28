@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.spark.bitrade.mapper.dao.TechRechargeRecordMapper">
+<!-- 业务场景
+            多条件查询技术充币
+-->
+    <select id="findByTechRechargeRecord" parameterType="com.spark.bitrade.dto.TechRechargeRecordDto"  resultType="com.spark.bitrade.entity.TechRechargeRecord">
+        SELECT * FROM tech_recharge_record
+        <where>
+            <if test="techRechargeRecord.coinUnit!=null and techRechargeRecord.coinUnit!=''">
+                AND coin_unit=#{techRechargeRecord.coinUnit}
+            </if>
+            <if test="techRechargeRecord.memberAccount!=null and techRechargeRecord.memberAccount!=''">
+                AND member_account like CONCAT('%',#{techRechargeRecord.memberAccount},'%')
+            </if>
+            <if test="techRechargeRecord.startTime!=null and techRechargeRecord.startTime!=''">
+                <![CDATA[
+              AND create_time >=
+                       #{techRechargeRecord.startTime}]]>
+            </if>
+            <if test="techRechargeRecord.endTime!=null and techRechargeRecord.endTime!=''">
+                <![CDATA[  AND create_time <=
+                        #{techRechargeRecord.endTime}]]>
+            </if>
+            <if test="techRechargeRecord.startTime!=null">
+            </if>
+            <choose>
+                <when  test="techRechargeRecord.startRechargeNumber!=null and techRechargeRecord.startRechargeNumber!='' and techRechargeRecord.endRechargeNumber!=null and techRechargeRecord.endRechargeNumber!=''">
+                    AND recharge_number BETWEEN #{techRechargeRecord.startRechargeNumber} AND #{techRechargeRecord.endRechargeNumber}
+                </when>
+                <otherwise>
+                        <if test="techRechargeRecord.startRechargeNumber!=null and techRechargeRecord.startRechargeNumber!=''">
+                            AND recharge_number=#{techRechargeRecord.startRechargeNumber}
+                        </if>
+                        <if test="techRechargeRecord.endRechargeNumber!=null and techRechargeRecord.endRechargeNumber!=''">
+                            AND recharge_number=#{techRechargeRecord.endRechargeNumber}
+                        </if>
+                </otherwise>
+            </choose>
+        </where>
+        ORDER BY  create_time DESC
+    </select>
+</mapper>

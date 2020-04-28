@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.spark.bitrade.mapper.dao.LockCoinMapper">
+
+
+
+    <select id="findByIdAndTime"  resultType="com.spark.bitrade.entity.LockCoinActivitieSetting">
+        SELECT
+        *
+        FROM
+        lock_coin_activitie_setting
+        WHERE
+        id = #{id}
+        <![CDATA[
+        AND NOW() >= start_time
+        AND NOW() <= end_time
+         ]]>
+        AND `status` = 1
+    </select>
+
+    <select id="findAllEnableProject"  resultType="com.spark.bitrade.entity.LockCoinActivitieProject">
+        SELECT
+        *
+        FROM
+        lock_coin_activitie_project
+        WHERE
+        `status` = 1
+        <if test="type!=null and type!=''">
+        AND type = #{type}
+        </if>
+        <![CDATA[
+        AND NOW() >= start_time
+        AND NOW() <= end_time
+        ]]>
+    </select>
+
+    <!--查询热门推荐活动-->
+    <select id="findAllHotProject"  resultType="com.spark.bitrade.dto.LockCoinActivitieProjectDto">
+        SELECT
+        p.*,case when now() &lt; p.start_time then 2 when now() &gt; p.end_time then 3 else 1 end as isOverdue
+        FROM
+        lock_coin_activitie_project p join
+        (select activitie_id,count(id) count from lock_coin_activitie_setting where status = 1 group by activitie_id) a on a.activitie_id = p.id
+        WHERE
+        p.enable_show = 1 and p.status = 1
+        <if test="type!=null and type!=''">
+            AND p.type = #{type}
+        </if>
+        order by isOverdue ASC,p.sort DESC
+    </select>
+
+    <!--查询精品推荐活动-->
+    <select id="findAllTopProject"  resultType="com.spark.bitrade.dto.LockCoinActivitieProjectDto">
+        SELECT
+        p.*
+        FROM
+        lock_coin_activitie_project p join
+        (select activitie_id,count(id) count from lock_coin_activitie_setting where status = 1 group by activitie_id) a on a.activitie_id = p.id
+        WHERE
+        p.enable_show = 1 and p.top = 1 and p.status = 1
+        <if test="type!=null and type!=''">
+            AND p.type = #{type}
+        </if>
+        <![CDATA[
+        AND NOW() >= start_time
+        AND NOW() <= end_time
+        ]]>
+        order by p.sort DESC
+    </select>
+
+    <select id="findAllEnableProjectByUnit"  resultType="com.spark.bitrade.entity.LockCoinActivitieProject">
+        SELECT
+        *
+        FROM
+        lock_coin_activitie_project
+        WHERE
+        `status` = 1
+        AND coin_symbol = #{unit}
+        <![CDATA[
+        AND NOW() >= start_time
+        AND NOW() <= end_time
+        ]]>
+    </select>
+
+</mapper>

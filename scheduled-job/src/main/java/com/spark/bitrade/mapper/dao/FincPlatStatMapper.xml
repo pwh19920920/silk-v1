@@ -1,0 +1,564 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.spark.bitrade.mapper.dao.FincPlatStatMapper">
+
+
+    <select id="listPlatStat" parameterType="java.lang.Object" resultType="com.spark.bitrade.entity.FincPlatStat">
+        select
+        CURDATE() time,
+        /*日期（YYYY-MM-DD）*/
+        DATE(#{endTime}) date,
+        /*币种*/
+        cn.unit,
+        /*操盘手人工充值*/
+        IFNULL(trader.trader_amount,0) traderTotal,
+        /*内部商户人工充值*/
+        IFNULL(inner_business.inner_business_amount,0) innerBusinessTotal,
+        /*员工商户人工充值*/
+        IFNULL(employee_business.employee_business_amount,0) employeeBusinessTotal,
+        /*活动赠送*/
+        IFNULL(activity.activity_amount,0) activityTotal,
+        /*推广赠送*/
+        IFNULL(promotion.promotion_amount,0) promotionTotal,
+        /*技术提币数*/
+        IFNULL(skill.skill_amount,0) skillTotal,
+        /*内部互转数*/
+        IFNULL(inner_trans.inner_trans_amount,0) innerTransTotal,
+        /*内部互转手续费数*/
+        IFNULL(inner_trans.inner_trans_fee,0) innerTransFeeTotal,
+        /*客户带币进入数*/
+        IFNULL(cust_deposit.cust_deposit_amount,0) custDepositTotal,
+        /*客户提币数*/
+        IFNULL(cust_withdraw.cust_withdraw_amount,0) custWithdrawTotal,
+        /*客户提币手续费数*/
+        IFNULL(cust_withdraw.cust_withdraw_fee,0) custWithdrawFeeTotal,
+--         /*平台买利润数*/
+--         IFNULL(plat_fee.buyProfit,0) buyProfit,
+--         /*平台买总利润数*/
+--         IFNULL(plat_totalFee.buyTotalProfit,0) buyTotalProfit,
+--          /*平台卖利润数*/
+--         IFNULL(plat_sellFee.sellProfit,0) sellProfit,
+--         /*平台卖总利润数*/
+--         IFNULL(plat_sellTotalFee.sellTotalProfit,0) sellTotalProfit,
+        /*平台总币数*/
+        IFNULL(plat_all.plat_all_amount,0) platAllTotal,
+        /*平台操盘总币数*/
+        IFNULL(plat_trader.plat_trader_amount,0) platTraderTotal,
+        /*平台内部商户总币数*/
+        IFNULL(plat_inner.plat_inner_amount,0) platInnerTotal,
+        /*平台员工总币数*/
+        IFNULL(plat_employee.plat_employee_amount,0) platEmployeeTotal
+        from coin cn
+        /*操盘手人工充值表*/
+        LEFT JOIN (
+        select mt.symbol,
+        Date(mt.create_time) finish_time,
+        sum(mt.amount) trader_amount
+        from member_transaction mt where mt.member_id in
+        -- 参数传入id
+        ( ${traderMemberId} ) and mt.type = 10 and mt.create_time BETWEEN #{startTime} and #{endTime}
+        group by mt.symbol
+        ) trader on cn.unit = trader.symbol
+        /*内部商户人工充值表*/
+        LEFT JOIN (
+        select mt.symbol,
+        Date(mt.create_time) finish_time,
+        sum(mt.amount) inner_business_amount
+        from member_transaction mt where mt.member_id in
+        -- 参数传入id
+        ( ${innerMemberId} ) and mt.type = 10 and mt.create_time BETWEEN #{startTime} and #{endTime}
+        group by mt.symbol
+        ) inner_business on cn.unit = inner_business.symbol
+        /*员工商户人工充值表*/
+        LEFT JOIN (
+        select mt.symbol,
+        Date(mt.create_time) finish_time,
+        sum(mt.amount) employee_business_amount
+        from member_transaction mt where mt.member_id in
+        -- 参数传入id
+        ( ${employeeMemberId} ) and mt.type = 10 and mt.create_time BETWEEN #{startTime} and #{endTime}
+        group by mt.symbol
+        ) employee_business on cn.unit = employee_business.symbol
+        /*活动赠送币数表*/
+        LEFT JOIN (
+        select mt.symbol,
+        Date(mt.create_time) finish_time,
+        sum(mt.amount) activity_amount
+        from member_transaction mt where
+        mt.type = 6 and mt.create_time BETWEEN #{startTime} and #{endTime}
+        group by mt.symbol
+        ) activity on cn.unit = activity.symbol
+        /*推荐赠送币数表*/
+        LEFT JOIN (
+        select mt.symbol,
+        Date(mt.create_time) finish_time,
+        sum(mt.amount) promotion_amount
+        from member_transaction mt where
+        mt.type = 7 and mt.create_time BETWEEN #{startTime} and #{endTime}
+        group by mt.symbol
+        ) promotion on cn.unit = promotion.symbol
+        /*技术提币数表*/
+        LEFT JOIN (
+        select mt.symbol,
+        Date(mt.create_time) finish_time,
+        sum(mt.amount) skill_amount
+        from member_transaction mt where mt.member_id in
+        -- 待更新
+        ('') and mt.type = 1 and mt.create_time BETWEEN #{startTime} and #{endTime}
+        group by mt.symbol
+        ) skill on cn.unit = skill.symbol
+        /*内部互转币数表*/
+        LEFT JOIN (
+        select wr.coin_id,
+        Date(wr.create_time) finish_time,
+        sum(wr.total_amount) inner_trans_amount,
+        sum(wr.fee) inner_trans_fee
+        from withdraw_record wr where
+            wr.create_time BETWEEN #{startTime} and #{endTime}
+        and wr.status = 3
+        and char_length(wr.transaction_number) = 32
+        group by wr.coin_id
+        ) inner_trans on cn.name = inner_trans.coin_id
+        /*客户带币数表*/
+        LEFT JOIN (
+        select md.unit,
+        Date(md.create_time) finish_time,
+        sum(md.amount) cust_deposit_amount
+        from member_deposit md where
+            md.create_time BETWEEN #{startTime} and #{endTime}
+        group by md.unit
+        ) cust_deposit on cn.unit = cust_deposit.unit
+        /*客户提币数表*/
+        LEFT JOIN (
+        select c.`name` coin_id,
+            Date(mt.create_time) finish_time,
+            sum(mt.amount) cust_withdraw_amount,
+            sum(mt.fee) cust_withdraw_fee
+            from member_transaction mt LEFT JOIN coin c ON c.unit = mt.symbol where mt.type = 1
+             and mt.create_time BETWEEN #{startTime} and #{endTime}
+            group by mt.symbol
+        ) cust_withdraw on cn.name = cust_withdraw.coin_id
+--         /*平台买利润数*/
+--          LEFT JOIN (
+--                     select IFNULL(wf.withdrawfee,0)+IFNULL(ef.exchangefee,0) buyProfit,wf.unit from
+--             (
+--             -- 提笔手续费
+--
+--             select total.withdraw_fee-trader_total.withdraw_fee withdrawfee,total.unit from
+--             -- 提笔手续费
+--             (select efs.withdraw_fee_total withdraw_fee,efs.unit from withdraw_fee_stat efs where efs.date = date_sub(curdate(),interval 1 day) group by efs.unit) total LEFT JOIN
+--
+--             -- 操盘手提笔手续费
+--
+--             (select efs.withdraw_fee_total withdraw_fee,efs.unit from trader_withdraw_fee_stat efs where efs.date = date_sub(curdate(),interval 1 day) group by efs.unit) trader_total
+--
+--             on total.unit = trader_total.unit) wf
+--
+--             LEFT JOIN
+--
+--             (select total.exchange_fee-trader_total.exchange_fee exchangefee,total.coin_unit from
+--             -- 币币交易手续费
+--             (select sum(efs.buy_fee) exchange_fee,efs.coin_unit from exchange_fee_stat efs where efs.op_date = date_sub(curdate(),interval 1 day) group by efs.coin_unit) total LEFT JOIN
+--
+--             -- 操盘手叫手续费
+--
+--             (select sum(efs.buy_fee) exchange_fee,efs.coin_unit from trader_exchange_fee_stat efs where efs.op_date = date_sub(curdate(),interval 1 day) group by efs.coin_unit) trader_total
+--
+--             on total.coin_unit = trader_total.coin_unit
+--             ) ef on wf.unit = ef.coin_unit
+--
+--         ) plat_fee on cn.unit = plat_fee.unit
+--
+--         /*平台买总利润数*/
+--          LEFT JOIN (
+--                     select IFNULL(wf.withdrawfee,0)+IFNULL(ef.exchangefee,0) buyTotalProfit,wf.unit from
+--             (
+--
+--             select total.withdraw_fee withdrawfee,total.unit from
+--             -- 提笔手续费
+--             (select efs.withdraw_fee_total withdraw_fee,efs.unit from withdraw_fee_stat efs where efs.date = date_sub(curdate(),interval 1 day) group by efs.unit) total) wf
+--
+--             LEFT JOIN
+--
+--             (select total.exchange_fee exchangefee,total.coin_unit from
+--             -- 币币交易手续费
+--             (
+--             select sum(efs.buy_fee) exchangefee,efs.coin_unit from exchange_fee_stat efs where efs.op_date = date_sub(curdate(),interval 1 day) group by efs.coin_unit) total) ef
+--             on wf.unit = ef.coin_unit
+--         ) plat_totalFee on cn.unit = plat_totalFee.unit
+--
+--
+--         /*平台卖利润数*/
+--          LEFT JOIN (
+--                     IFNULL(ef.exchangefee,0)+IFNULL(cf.c2cfee,0) buyProfit,wf.unit from
+--
+--             (select total.exchange_fee-trader_total.exchange_fee exchangefee,total.base_unit from
+--             -- 币币交易手续费
+--             (select sum(efs.sell_fee) exchange_fee,efs.base_unit from exchange_fee_stat efs where efs.op_date = date_sub(curdate(),interval 1 day) group by efs.base_unit) total LEFT JOIN
+--
+--             -- 操盘手叫手续费
+--
+--             (select sum(efs.sell_fee) exchange_fee,efs.base_unit from trader_exchange_fee_stat efs where efs.op_date = date_sub(curdate(),interval 1 day) group by efs.base_unit) trader_total
+--
+--             on total.base_unit = trader_total.base_unit
+--
+--             ) ef on wf.unit = ef.base_unit
+--
+--             LEFT JOIN
+--             (
+--             -- c2c交易手续费
+--             select
+--             (select sum(cfs.fee) c2cfee from c2c_fee_stat cfs where cfs.op_date = date_sub(curdate(),interval 1 day))
+--             -
+--             (select sum(cfs.fee) c2cfee from c2c_inner_fee_stat cfs where cfs.op_date = date_sub(curdate(),interval 1 day)) c2cfee,'USDT' as unit
+--             from dual) cf on wf.unit = cf.unit
+--
+--         ) plat_sellFee on cn.unit = plat_sellFee.unit
+--
+--         /*平台卖总利润数*/
+--          LEFT JOIN (
+--                     select FNULL(ef.exchangefee,0)+IFNULL(cf.c2cfee ,0) buyTotalProfit,wf.unit from
+--             (
+--             (select total.exchange_fee exchangefee,total.base_unit from
+--             -- 币币交易手续费
+--             (
+--             select sum(efs.buy_fee) exchangefee,efs.base_unit from exchange_fee_stat efs where efs.op_date = date_sub(curdate(),interval 1 day) group by efs.base_unit) total) ef on wf.unit = ef.base_unit
+--
+--               LEFT JOIN
+--             (
+--             -- c2c交易手续费
+--             select
+--             (select sum(cfs.fee) c2cfee from c2c_fee_stat cfs where cfs.op_date = date_sub(curdate(),interval 1 day)) c2cfee,'USDT' as unit
+--             from dual) cf on wf.unit = cf.unit
+--
+--         ) plat_sellTotalFee on cn.unit = plat_sellTotalFee.unit
+
+        /*平台总币数表*/
+        LEFT JOIN (
+        SELECT SUM(a.plat_all_amount) plat_all_amount,a.coin_id  FROM (
+            SELECT
+                mw.coin_id,
+                sum(
+                    mw.balance + mw.frozen_balance
+                ) plat_all_amount
+            FROM
+                member_wallet mw
+            GROUP BY
+                mw.coin_id
+            UNION
+            SELECT
+                coint.name coin_id,
+                sum(
+                    ew.balance + ew.frozen_balance
+                ) plat_all_amount
+            FROM
+                exchange_wallet ew LEFT JOIN coin coint ON coint.unit=ew.coin_unit
+            GROUP BY
+                ew.coin_unit ) a GROUP BY a.coin_id
+        ) plat_all on cn.name = plat_all.coin_id
+        /*平台操盘账户总币数表*/
+--         LEFT JOIN (
+--         select mw.coin_id,
+--         sum(mw.balance+mw.frozen_balance) plat_trader_amount
+--         from member_wallet mw where
+--         mw.member_id in
+--         ( ${traderMemberId} )
+--         group by mw.coin_id
+--         ) plat_trader on cn.name = plat_trader.coin_id
+        LEFT JOIN (
+                SELECT
+            mw.coin_id,
+            sum( mw.balance + mw.frozen_balance + ew.balance + ew.frozen_balance ) plat_trader_amount
+        FROM
+            member_wallet mw,
+            exchange_wallet ew
+        WHERE
+            mw.member_id IN ( ${traderMemberId} )
+            AND ew.member_id = mw.member_id
+            AND ew.coin_unit = ( SELECT coin_id FROM coin WHERE coin.unit = mw.coin_id )
+        GROUP BY
+            mw.coin_id
+        ) plat_trader on cn.name = plat_trader.coin_id
+        /*平台内部账户总币数表*/
+        LEFT JOIN (
+                SELECT
+            mw.coin_id,
+            sum(
+                mw.balance + mw.frozen_balance + ew.balance + ew.frozen_balance
+            ) plat_inner_amount
+        FROM
+            member_wallet mw,
+            exchange_wallet ew
+        WHERE
+            mw.member_id IN ($ { innerMemberId })
+        AND ew.member_id = mw.member_id
+        AND ew.coin_unit = (
+            SELECT
+                coin_id
+            FROM
+                coin
+            WHERE
+                coin.unit = mw.coin_id
+        )
+        GROUP BY
+            mw.coin_id
+        ) plat_inner on cn.name = plat_inner.coin_id
+        /*平台员工账户总币数表*/
+        LEFT JOIN (
+        SELECT
+            mw.coin_id,
+            sum(
+                mw.balance + mw.frozen_balance + ew.balance + ew.frozen_balance
+            ) plat_employee_amount
+        FROM
+            member_wallet mw,
+            exchange_wallet ew
+        WHERE
+            mw.member_id IN (${employeeMemberId})
+        AND ew.member_id = mw.member_id
+        AND ew.coin_unit = (
+            SELECT
+                coin_id
+            FROM
+                coin
+            WHERE
+                coin.unit = mw.coin_id
+        )
+        GROUP BY
+            mw.coin_id
+        ) plat_employee on cn.name = plat_employee.coin_id
+
+        UNION
+
+        select
+        CURDATE() time,
+        /*日期（YYYY-MM-DD）*/
+        'total' date,
+        /*币种*/
+        cn.unit,
+        /*操盘手人工充值*/
+       /*操盘手人工充值*/
+        IFNULL(trader.trader_amount,0) traderTotal,
+        /*内部商户人工充值*/
+        IFNULL(inner_business.inner_business_amount,0) innerBusinessTotal,
+        /*员工商户人工充值*/
+        IFNULL(employee_business.employee_business_amount,0) employeeBusinessTotal,
+        /*活动赠送*/
+        IFNULL(activity.activity_amount,0) activityTotal,
+        /*推广赠送*/
+        IFNULL(promotion.promotion_amount,0) promotionTotal,
+        /*技术提币数*/
+        IFNULL(skill.skill_amount,0) skillTotal,
+        /*内部互转数*/
+        IFNULL(inner_trans.inner_trans_amount,0) innerTransTotal,
+        /*内部互转手续费数*/
+        IFNULL(inner_trans.inner_trans_fee,0) innerTransFeeTotal,
+        /*客户带币进入数*/
+        IFNULL(cust_deposit.cust_deposit_amount,0) custDepositTotal,
+        /*客户提币数*/
+        IFNULL(cust_withdraw.cust_withdraw_amount,0) custWithdrawTotal,
+        /*客户提币手续费数*/
+        IFNULL(cust_withdraw.cust_withdraw_fee,0) custWithdrawFeeTotal,
+--         /*平台买利润数*/
+--         IFNULL(plat_fee.buyProfit,0) buyProfit,
+--         /*平台买总利润数*/
+--         IFNULL(plat_totalFee.buyTotalProfit,0) buyTotalProfit,
+--          /*平台卖利润数*/
+--         IFNULL(plat_sellFee.sellProfit,0) sellProfit,
+--         /*平台卖总利润数*/
+--         IFNULL(plat_sellTotalFee.sellTotalProfit,0) sellTotalProfit,
+        /*平台总币数*/
+        IFNULL(plat_all.plat_all_amount,0) platAllTotal,
+        /*平台操盘总币数*/
+        IFNULL(plat_trader.plat_trader_amount,0) platTraderTotal,
+        /*平台内部商户总币数*/
+        IFNULL(plat_inner.plat_inner_amount,0) platInnerTotal,
+        /*平台员工总币数*/
+        IFNULL(plat_employee.plat_employee_amount,0) platEmployeeTotal
+        from coin cn
+        /*操盘手人工充值表*/
+        LEFT JOIN (
+        select mt.symbol,
+        Date(mt.create_time) finish_time,
+        sum(mt.amount) trader_amount
+        from member_transaction mt where mt.member_id in
+        ( ${traderMemberId} ) and mt.type = 10 and mt.create_time <![CDATA[<=]]> #{endTime}
+        group by mt.symbol
+        ) trader on cn.unit = trader.symbol
+        /*内部商户人工充值表*/
+        LEFT JOIN (
+        select mt.symbol,
+        Date(mt.create_time) finish_time,
+        sum(mt.amount) inner_business_amount
+        from member_transaction mt where mt.member_id in
+        ( ${innerMemberId} ) and mt.type = 10 and mt.create_time <![CDATA[<=]]> #{endTime}
+        group by mt.symbol
+        ) inner_business on cn.unit = inner_business.symbol
+        /*员工商户人工充值表*/
+        LEFT JOIN (
+        select mt.symbol,
+        Date(mt.create_time) finish_time,
+        sum(mt.amount) employee_business_amount
+        from member_transaction mt where mt.member_id in
+        -- 待更新
+        ( ${employeeMemberId} ) and mt.type = 10 and mt.create_time <![CDATA[<=]]> #{endTime}
+        group by mt.symbol
+        ) employee_business on cn.unit = employee_business.symbol
+        /*活动赠送币数表*/
+        LEFT JOIN (
+        select mt.symbol,
+        Date(mt.create_time) finish_time,
+        sum(mt.amount) activity_amount
+        from member_transaction mt where
+        mt.type = 6 and mt.create_time <![CDATA[<=]]> #{endTime}
+        group by mt.symbol
+        ) activity on cn.unit = activity.symbol
+        /*推荐赠送币数表*/
+        LEFT JOIN (
+        select mt.symbol,
+        Date(mt.create_time) finish_time,
+        sum(mt.amount) promotion_amount
+        from member_transaction mt where
+        mt.type = 7 and mt.create_time <![CDATA[<=]]> #{endTime}
+        group by mt.symbol
+        ) promotion on cn.unit = promotion.symbol
+        /*技术提币数表*/
+        LEFT JOIN (
+        select mt.symbol,
+        Date(mt.create_time) finish_time,
+        sum(mt.amount) skill_amount
+        from member_transaction mt where mt.member_id in
+        -- 待更新
+        ('') and mt.type = 1 and mt.create_time <![CDATA[<=]]> #{endTime}
+        group by mt.symbol
+        ) skill on cn.unit = skill.symbol
+        /*内部互转币数表*/
+        LEFT JOIN (
+        select wr.coin_id,
+        Date(wr.create_time) finish_time,
+        sum(wr.total_amount) inner_trans_amount,
+        sum(wr.fee) inner_trans_fee
+        from withdraw_record wr where
+            wr.create_time <![CDATA[<=]]> #{endTime}
+        and wr.status = 3
+        and char_length(wr.transaction_number) = 32
+        group by wr.coin_id
+        ) inner_trans on cn.unit = inner_trans.coin_id
+        /*客户带币数表*/
+        LEFT JOIN (
+        select md.unit,
+        Date(md.create_time) finish_time,
+        sum(md.amount) cust_deposit_amount
+        from member_deposit md where
+            md.create_time <![CDATA[<=]]> #{endTime}
+        group by md.unit
+        ) cust_deposit on cn.unit = cust_deposit.unit
+        /*客户提币数表*/
+        LEFT JOIN (
+        select c.`name` coin_id,
+            Date(mt.create_time) finish_time,
+            sum(mt.amount) cust_withdraw_amount,
+            sum(mt.fee) cust_withdraw_fee
+            from member_transaction mt LEFT JOIN coin c ON c.unit = mt.symbol where mt.type = 1
+             and mt.create_time <![CDATA[<=]]> #{endTime}
+            group by mt.symbol
+        ) cust_withdraw on cn.name = cust_withdraw.coin_id
+
+--
+        /*平台总币数表*/
+        LEFT JOIN (
+        SELECT SUM(a.plat_all_amount) plat_all_amount,a.coin_id  FROM (
+            SELECT
+                mw.coin_id,
+                sum(
+                    mw.balance + mw.frozen_balance
+                ) plat_all_amount
+            FROM
+                member_wallet mw
+            GROUP BY
+                mw.coin_id
+            UNION
+            SELECT
+                coint.name coin_id,
+                sum(
+                    ew.balance + ew.frozen_balance
+                ) plat_all_amount
+            FROM
+                exchange_wallet ew LEFT JOIN coin coint ON coint.unit=ew.coin_unit
+            GROUP BY
+                ew.coin_unit ) a GROUP BY a.coin_id
+        ) plat_all on cn.name = plat_all.coin_id
+        /*平台操盘账户总币数表*/
+--         LEFT JOIN (
+--         select mw.coin_id,
+--         sum(mw.balance+mw.frozen_balance) plat_trader_amount
+--         from member_wallet mw where
+--         mw.member_id in
+--         ( ${traderMemberId} )
+--         group by mw.coin_id
+--         ) plat_trader on cn.name = plat_trader.coin_id
+        LEFT JOIN (
+                SELECT
+            mw.coin_id,
+            sum( mw.balance + mw.frozen_balance + ew.balance + ew.frozen_balance ) plat_trader_amount
+        FROM
+            member_wallet mw,
+            exchange_wallet ew
+        WHERE
+            mw.member_id IN ( ${traderMemberId} )
+            AND ew.member_id = mw.member_id
+            AND ew.coin_unit = ( SELECT coin_id FROM coin WHERE coin.unit = mw.coin_id )
+        GROUP BY
+            mw.coin_id
+        ) plat_trader on cn.name = plat_trader.coin_id
+        /*平台内部账户总币数表*/
+        LEFT JOIN (
+        SELECT
+            mw.coin_id,
+            sum(
+                mw.balance + mw.frozen_balance + ew.balance + ew.frozen_balance
+            ) plat_inner_amount
+        FROM
+            member_wallet mw,
+            exchange_wallet ew
+        WHERE
+            mw.member_id IN ($ { innerMemberId })
+        AND ew.member_id = mw.member_id
+        AND ew.coin_unit = (
+            SELECT
+                coin_id
+            FROM
+                coin
+            WHERE
+                coin.unit = mw.coin_id
+        )
+        GROUP BY
+            mw.coin_id
+        ) plat_inner on cn.name = plat_inner.coin_id
+        /*平台员工账户总币数表*/
+        LEFT JOIN (
+        SELECT
+            mw.coin_id,
+            sum(
+                mw.balance + mw.frozen_balance + ew.balance + ew.frozen_balance
+            ) plat_employee_amount
+        FROM
+            member_wallet mw,
+            exchange_wallet ew
+        WHERE
+            mw.member_id IN (${employeeMemberId})
+        AND ew.member_id = mw.member_id
+        AND ew.coin_unit = (
+            SELECT
+                coin_id
+            FROM
+                coin
+            WHERE
+                coin.unit = mw.coin_id
+        )
+        GROUP BY
+            mw.coin_id
+        ) plat_employee on cn.name = plat_employee.coin_id
+    </select>
+
+</mapper>

@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.spark.bitrade.mapper.dao.LockTypeMapper">
+    <!-- 业务场景
+                此sql主要查询
+                              第一种:内部锁仓
+                              第二种:锁仓活动，理财锁仓
+                              排除商家保证金
+     -->
+    <select id="findAllLock"  resultType="com.spark.bitrade.dto.LockTypeDto">
+        SELECT
+        s2.username,
+        s1.id,s1.cancle_time,s1.coin_unit,s1.lock_price,s1.lock_time,s1.member_id,s1.plan_income,s1.plan_unlock_time,s1.ref_activitie_id,s1.remain_amount,s1.status,s1.total_amount,s1.type,
+        s3.name
+        FROM
+        lock_coin_detail s1
+        LEFT JOIN member s2 ON s1.member_id = s2.id
+        LEFT JOIN lock_coin_activitie_setting s3 ON  s1.ref_activitie_id=s3.id
+        <where>
+            s1.type!=0
+            <if test="lockAbstract.type!=null and lockAbstract.type!=''" >
+                AND s1.type = #{lockAbstract.type}
+            </if>
+            <!-- 业务场景
+            主要是解决 lockType等于null
+            lockInternalDetail：代表查询 内部锁仓
+            -->
+            <if test="lockAbstract.lockTypeStatus!=null and lockAbstract.lockTypeStatus!=''">
+                <choose>
+                    <when test="lockAbstract.lockTypeStatus=='internalDetail'">
+                        AND s1.type=1
+                    </when>
+                    <!-- 查询 锁仓活动，理财锁仓-->
+                    <otherwise>
+                        AND s1.type!=1
+                    </otherwise>
+                </choose>
+            </if>
+            <if test="lockAbstract.status!=null">
+                AND  s1.status = #{lockAbstract.status}
+            </if>
+            <if test="lockAbstract.coinUnit!=null and lockAbstract.coinUnit!=''">
+                AND  s1.coin_unit = #{lockAbstract.coinUnit}
+            </if>
+            <if test="lockAbstract.startTime!=null and lockAbstract.startTime!=''">
+                <![CDATA[
+              AND DATE_FORMAT(s1.plan_unlock_time, '%Y-%m-%d') >=
+                        #{lockAbstract.startTime} ]]>
+            </if>
+            <if test="lockAbstract.endTime!=null and lockAbstract.endTime!=''">
+                <![CDATA[  AND DATE_FORMAT(s1.plan_unlock_time, '%Y-%m-%d') <=
+                        #{lockAbstract.endTime} ]]>
+            </if>
+            <if test="lockAbstract.startLockTime!=null and lockAbstract.startLockTime!=''">
+                <![CDATA[
+              AND DATE_FORMAT(s1.lock_time, '%Y-%m-%d') >=
+                        #{lockAbstract.startLockTime} ]]>
+            </if>
+            <if test="lockAbstract.endLockTime!=null and lockAbstract.endLockTime!=''">
+                <![CDATA[  AND DATE_FORMAT(s1.lock_time, '%Y-%m-%d') <=
+                        #{lockAbstract.endLockTime} ]]>
+            </if>
+            <if test="lockAbstract.userName!=null and lockAbstract.userName!=''">
+                AND
+                (s2.username LIKE CONCAT('%',#{lockAbstract.userName},'%')
+                    OR s2.mobile_phone LIKE CONCAT('%',#{lockAbstract.userName},'%')
+                    OR s2.id LIKE CONCAT('%',#{lockAbstract.userName},'%')
+                    OR s2.email LIKE CONCAT('%',#{lockAbstract.userName},'%')
+                )
+            </if>
+            <!--此处可扩展条件 -->
+            order by s1.lock_time desc
+        </where>
+    </select>
+    <!-- 内部锁仓 -->
+    <select id="findByLockInternalDetail"   resultType="com.spark.bitrade.dto.LockInternalDetailDto">
+         SELECT s1.id,s1.cancle_time,s1.coin_unit,s1.lock_price,s1.lock_time,s1.member_id,s1.plan_income,s1.plan_unlock_time,s1.ref_activitie_id,s1.remain_amount,s1.status,s1.total_amount,s1.type,
+                s2.*,s3.username
+            FROM
+                    lock_coin_detail s1
+            LEFT JOIN lock_coin_recharge_setting s2 ON s2.id = s1.ref_activitie_id
+            LEFT JOIN member s3 ON s1.member_id = s3.id
+            WHERE
+            s1.id = #{lockCoinDetailId}
+    </select>
+
+    <select id="findByLockDetail"  resultType="com.spark.bitrade.dto.LockCoinDetailDto">
+        SELECT s1.*,s2.lock_days,s2.name,s3.username
+        FROM
+        lock_coin_detail s1
+        LEFT JOIN lock_coin_activitie_setting s2 ON
+			  s2.id =   s1.ref_activitie_id
+        LEFT JOIN member s3 ON s1.member_id = s3.id
+        WHERE
+        s1.id = #{lockCoinDetailId}
+    </select>
+
+    <select id="findByLockCoinDetailId" resultType="com.spark.bitrade.entity.UnlockCoinDetail">
+        SELECT * FROM unlock_coin_detail u WHERE u.lock_coin_detail_id=#{lockCoinDetailId}
+    </select>
+
+</mapper>

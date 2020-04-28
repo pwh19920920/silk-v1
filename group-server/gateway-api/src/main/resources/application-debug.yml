@@ -1,0 +1,467 @@
+server:
+  port: 6600
+#server.context-path=/gapi
+
+spring:
+  application:
+    name: gateway-api
+  session:
+    store-type: redis
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: none
+  data:
+    jpa:
+      repositories:
+        enabled: true
+  kafka:
+    bootstrap-servers: 172.16.0.100:9092
+    consumer:
+      group-id: default-group
+    template:
+      default-topic: test
+    listener:
+      concurrency: 3
+    producer:
+      batch-size: 1000
+  redis:
+    host: 127.0.0.1
+    password: Credit2016Admin
+    port: 6379
+    database: 0
+    timeout: 1000000
+    maxTotal: 500
+    pool:
+      max-idle: 20
+      min-idle: 20
+      max-active: 200
+      max-wait: 1000
+  jackson:
+    serialization:
+      indent_output: true
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: GMT+8
+  http:
+    multipart:
+      enabled: true   # 启用http上传处理
+      max-file-size: 10MB # 设置单个文件的最大长度
+#eureka
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://172.16.0.100:8761/eureka/
+
+#ribbon超时设置
+#ReadTimeout 设置路由转发请求的时候，创建请求连接的超时时间
+#ConnectTimeout 用来设置路由转发请求的超时时间
+ribbon:
+  ReadTimeout: 11000
+  ConnectTimeout: 11000
+  MaxAutoRetries: 0
+  MaxAutoRetriesNextServer: 1
+
+# test
+updating-api:
+  ribbon:
+    ReadTimeout: 21000
+    ConnectTimeout: 21000
+    MaxAutoRetries: 0
+    MaxAutoRetriesNextServer: 1
+    eureka:
+      enabled: true
+ucenter-api:
+  ribbon:
+    ReadTimeout: 21000
+    ConnectTimeout: 21000
+    MaxAutoRetries: 0
+    MaxAutoRetriesNextServer: 1
+    eureka:
+      enabled: true
+service-exchange-api:
+  ribbon:
+    ReadTimeout: 11000
+    ConnectTimeout: 11000
+    MaxAutoRetries: 0
+    MaxAutoRetriesNextServer: 1
+    eureka:
+      enabled: true
+service-exchange-vip-api:
+  ribbon:
+    ReadTimeout: 16000
+    ConnectTimeout: 16000
+    MaxAutoRetries: 0
+    MaxAutoRetriesNextServer: 1
+    eureka:
+      enabled: true
+bitrade-market:
+  ribbon:
+    ReadTimeout: 6000
+    ConnectTimeout: 6000
+    MaxAutoRetries: 0
+    MaxAutoRetriesNextServer: 1
+    eureka:
+      enabled: true
+service-otc:
+  ribbon:
+    ReadTimeout: 21000
+    ConnectTimeout: 21000
+    MaxAutoRetries: 0
+    MaxAutoRetriesNextServer: 1
+    eureka:
+      enabled: true
+service-notice:
+  ribbon:
+    ReadTimeout: 21000
+    ConnectTimeout: 21000
+    MaxAutoRetries: 0
+    MaxAutoRetriesNextServer: 1
+    eureka:
+      enabled: true
+service-chat:
+  ribbon:
+    ReadTimeout: 6000
+    ConnectTimeout: 6000
+    MaxAutoRetries: 0
+    MaxAutoRetriesNextServer: 1
+    eureka:
+      enabled: true
+service-pay-api:
+  ribbon:
+    ReadTimeout: 11000
+    ConnectTimeout: 11000
+    MaxAutoRetries: 0
+    MaxAutoRetriesNextServer: 1
+    eureka:
+      enabled: true
+bitrade-open-api:
+  ribbon:
+    ReadTimeout: 11000
+    ConnectTimeout: 11000
+    MaxAutoRetries: 0
+    MaxAutoRetriesNextServer: 1
+    eureka:
+      enabled: true
+guess-api:
+  ribbon:
+    ReadTimeout: 11000
+    ConnectTimeout: 11000
+    MaxAutoRetries: 0
+    MaxAutoRetriesNextServer: 1
+    eureka:
+      enabled: true
+service-lock:
+  ribbon:
+    ReadTimeout: 11000
+    ConnectTimeout: 11000
+    MaxAutoRetries: 0
+    MaxAutoRetriesNextServer: 1
+    eureka:
+      enabled: true
+service-lock-hqb:
+  ribbon:
+    ReadTimeout: 11000
+    ConnectTimeout: 11000
+    MaxAutoRetries: 0
+    MaxAutoRetriesNextServer: 1
+    eureka:
+      enabled: true
+
+#hystrix超时配置
+#设置API网关中路由转发请求的HystrixCommand执行超时时间
+hystrix:
+  command:
+    default:
+      execution:
+        isolation:
+          thread:
+            timeoutInMilliseconds: 10000
+    updating-api:
+      execution:
+        isolation:
+          thread:
+            timeoutInMilliseconds: 20000
+    ucenter-api:
+      execution:
+        isolation:
+          thread:
+            timeoutInMilliseconds: 20000
+    service-exchange-api:
+      execution:
+        isolation:
+          thread:
+            timeoutInMilliseconds: 10000
+    service-exchange-vip-api:
+      execution:
+        isolation:
+          thread:
+            timeoutInMilliseconds: 15000
+    bitrade-market:
+      execution:
+        isolation:
+          thread:
+            timeoutInMilliseconds: 5000
+    service-otc:
+      execution:
+        isolation:
+          thread:
+            timeoutInMilliseconds: 20000
+    service-notice:
+      execution:
+        isolation:
+          thread:
+            timeoutInMilliseconds: 20000
+    service-chat:
+      execution:
+        isolation:
+          thread:
+            timeoutInMilliseconds: 5000
+    service-pay-api:
+      execution:
+        isolation:
+          thread:
+            timeoutInMilliseconds: 10000
+    bitrade-open-api:
+      execution:
+        isolation:
+          thread:
+            timeoutInMilliseconds: 10000
+    guess-api:
+      execution:
+        isolation:
+          thread:
+            timeoutInMilliseconds: 10000
+    service-lock:
+      execution:
+        isolation:
+          thread:
+            timeoutInMilliseconds: 10000
+    service-lock-hqb:
+      execution:
+        isolation:
+          thread:
+            timeoutInMilliseconds: 10000
+### zuul.routes 网管api配置
+## zuul.ratelimit 限流配置
+#限流类型：url、origin、user
+zuul:
+  routes:
+    updating:
+      serviceId: updating-api
+      path: /updating/**
+      stripPrefix: false
+      customSensitiveHeaders: true
+    uc:
+      serviceId: ucenter-api
+      path: /uc/**
+      stripPrefix: false
+      customSensitiveHeaders: true
+    exchange:
+      serviceId: service-exchange-api
+      path: /exchange/**
+      stripPrefix: false
+      customSensitiveHeaders: true
+    exchange-vpi:
+      serviceId: service-exchange-vip-api
+      path: /exchange-vip/**
+      stripPrefix: false
+      customSensitiveHeaders: true
+    market:
+      serviceId: bitrade-market
+      path: /market/**
+      stripPrefix: false
+      customSensitiveHeaders: true
+    otc:
+      serviceId: service-otc
+      path: /otc/**
+      stripPrefix: false
+      customSensitiveHeaders: true
+
+    notice:
+      serviceId: service-notice
+      path: /notice/**
+      stripPrefix: false
+      customSensitiveHeaders: true
+    chat:
+      serviceId: service-chat
+      path: /chat/**
+      stripPrefix: false
+      customSensitiveHeaders: true
+    api:
+      serviceId: bitrade-open-api
+      path: /api/**
+      stripPrefix: false
+      customSensitiveHeaders: true
+    extrade:
+      serviceId: service-exchange-trade
+      path: /extrade/**
+      stripPrefix: false
+      customSensitiveHeaders: true
+    pay:
+      serviceId: service-pay-api
+      path: /pay/**
+      stripPrefix: false
+      customSensitiveHeaders: true
+    guess-api:
+      serviceId: guess-api
+      path: /guess-api/**
+      stripPrefix: false
+      customSensitiveHeaders: true
+    lock-api:
+      serviceId: service-lock
+      path: /lock-api/**
+      stripPrefix: false
+      customSensitiveHeaders: true
+    lock-hqb-api:
+      serviceId: service-lock-hqb
+      path: /lock-hqb-api/**
+      stripPrefix: false
+      customSensitiveHeaders: true
+  ratelimit:
+    enabled: true
+    repository: REDIS
+    policies:
+      updating:
+        limit: 240
+        refresh-interval: 60
+        type: url,origin
+      uc:
+        limit: 240
+        refresh-interval: 60
+        type: url,origin
+      exchange:
+        limit: 240
+        refresh-interval: 60
+        type: url,origin
+      exchange-vip:
+        limit: 2400
+        refresh-interval: 60
+        type: url
+      market:
+        limit: 240
+        refresh-interval: 60
+        type: url,origin
+      otc:
+        limit: 240
+        refresh-interval: 60
+        type: url,origin
+      chat:
+        limit: 240
+        refresh-interval: 60
+        type: url,origin
+      api:
+        limit: 240
+        refresh-interval: 60
+        type: url,origin
+      extrade:
+        limit: 10
+        refresh-interval: 60
+        type: url,origin
+      pay:
+        limit: 60000
+        refresh-interval: 60
+        type: url,origin
+      guess-api:
+        limit: 120
+        refresh-interval: 60
+        type: url,origin
+      lock-api:
+        limit: 60
+        refresh-interval: 60
+        type: url,origin
+      lock-hqb-api:
+        limit: 60
+        refresh-interval: 60
+        type: url,origin
+
+###mybatis读写分离配置
+#mybatis.mapperScanPackage=com.spark.bitrade.mapper.dao
+mybatis:
+  mapperLocations: classpath:/com/spark/bitrade/mapper/dao/*.xml
+  typeAliasesPackage: com.spark.bitrade.mapper.dao
+  configLocation: classpath:/mybatis-config.xml
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+
+##读写库分离配置
+#mysql.datasource.write 写数据库配置
+mysql:
+  datasource:
+    write:
+      url: jdbc:mysql://172.16.0.100:3306/otc_sync?characterEncoding=utf-8
+      username: bjxy_db
+      password: Credit2016Admin
+      driver-class-name: com.mysql.jdbc.Driver
+      initialSize: 0
+      minIdle: 0
+      maxActive: 1
+      maxWait: 60000
+      timeBetweenEvictionRunsMillis: 60000
+      minEvictableIdleTimeMillis: 300000
+      validationQuery: select 'x'
+      testWhileIdle: true
+      testOnBorrow: false
+      testOnReturn: false
+      poolPreparedStatements: true
+      maxPoolPreparedStatementPerConnectionSize: 50
+      removeAbandoned: true
+      filters: stat
+    read01:
+      url: jdbc:mysql://172.16.0.100:3306/otc_sync?characterEncoding=utf-8
+      username : bjxy_db
+      password : Credit2016Admin
+      driver-class-name : com.mysql.jdbc.Driver
+      initialSize : 0
+      minIdle : 0
+      maxActive : 1
+      maxWait : 60000
+      timeBetweenEvictionRunsMillis : 60000
+      minEvictableIdleTimeMillis : 300000
+      validationQuery : select 'x'
+      testWhileIdle : true
+      testOnBorrow : false
+      testOnReturn : false
+      poolPreparedStatements : true
+      maxPoolPreparedStatementPerConnectionSize : 50
+      removeAbandoned : true
+      filters : stat
+    read02:
+      url: jdbc:mysql://172.16.0.100:3306/otc_sync?characterEncoding=utf-8
+      username : bjxy_db
+      password : Credit2016Admin
+      driver-class-name : com.mysql.jdbc.Driver
+      initialSize : 0
+      minIdle : 0
+      maxActive : 1
+      maxWait : 60000
+      timeBetweenEvictionRunsMillis : 60000
+      minEvictableIdleTimeMillis : 300000
+      validationQuery : select 'x'
+      testWhileIdle : true
+      testOnBorrow : false
+      testOnReturn : false
+      poolPreparedStatements : true
+      maxPoolPreparedStatementPerConnectionSize : 50
+      removeAbandoned : true
+      filters : stat
+
+#系统测试账号
+user:
+  tester:
+    whitelist:
+      - 71639 #杨从洪
+      - 74363 #谭思涛
+      - 103058 #谭思涛
+      - 103228 #公司测试账号17388227128
+      - 100718 #公司测试账号17602373876
+      - 70653 #谌祖财
+      - 100587 #王林海
+      - 103125 #陈圣林
+      - 71895 #杨爽
+      - 291193 #刘关平
+      - 291444 #孔祥晖
+      - 100899 #付梦云
+      - 74365 #高部
+      - 102839 #张彦君
+      - 283596 #廖玉珍
+      - 283595 #郑川
